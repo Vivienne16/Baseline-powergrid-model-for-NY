@@ -1,0 +1,228 @@
+fid,NYISOName,PTID,Zone,UnitType,FuelType,Latitude,Longitude,HubName,HubDist
+1,Somerset,23543,A,Steam Turbine,Coal,43.3561,-78.6039,56,12.29874974
+2,Indeck-Yerkes,23781,A,Combined Cycle,Natural Gas,42.9671,-78.9182,57,8.608200147
+3,Lockport,23791,A,Combined Cycle,Natural Gas,43.1622,-78.7453,56,16.64343266
+4,Indeck-Olean,23982,A,Combined Cycle,Natural Gas,42.0875,-78.4578,61,34.65245131
+5,Fortistar - N.Tonawanda,24026,A,Combined Cycle,Natural Gas,43.0483,-78.8539,57,9.661975999
+6,Jamestown 7,1659,A,Combustion Turbine,Natural Gas,42.0917,-79.2417,60,27.15297736
+7,Allied Frozen Storage,23774,A,Internal Combustion,Natural Gas,42.842029,-78.722673,55,14.12591618
+8,General Mills Inc,23808,A,Combustion Turbine,Natural Gas,42.870968,-78.875549,57,19.73671636
+9,Jamestown 5,1658,A,Steam Turbine,Natural Gas,42.0917,-79.2417,60,27.15297736
+10,Jamestown 6,1658,A,Steam Turbine,Natural Gas,42.0917,-79.2417,60,27.15297736
+11,Allegany,23514,B,Combined Cycle,Natural Gas,42.5083,-78.0661,62,6.355161504
+12,Batavia,24024,B,Combined Cycle,Natural Gas,42.9828,-78.1592,62,59.49942917
+13,Greenidge 4,23583,C,Steam Turbine,Natural Gas,42.6789,-76.9483,65,6.054561681
+14,Cayuga 1,23584,C,Steam Turbine,Coal,42.6028,-76.6336,65,28.40646886
+15,Oswego 5,23606,C,Steam Turbine,Fuel Oil 6,43.46,-76.53,50,23.40007042
+16,Oswego 6,23613,C,Steam Turbine,Fuel Oil 6,43.46,-76.53,50,23.40007042
+17,Indeck-Silver Springs,23768,C,Combined Cycle,Natural Gas,42.6544,-78.0772,65,33.32619022
+18,Indeck-Oswego,23783,C,Combined Cycle,Natural Gas,43.4682,-76.4965,50,22.36615481
+19,Independence,23970,C,Combined Cycle,Natural Gas,43.495,-76.4508,50,23.06475241
+20,Syracuse,23985,C,Combined Cycle,Natural Gas,43.0667,-76.2246,51,14.49368569
+21,Carr St.-E. Syr,24060,C,Combined Cycle,Natural Gas,43.0611,-76.0819,51,19.9316157
+22,Binghamton (RET - 1/9/18),23790,C,Combined Cycle,Natural Gas,42.107192,-75.927782,71,11.54199147
+23,Saranac Energy,23793,D,Combined Cycle,Natural Gas,44.7132,-73.4557,48,53.77751409
+24,Massena,23902,D,Combined Cycle,Natural Gas,44.9503,-74.8928,48,51.16849284
+25,Sterling,23777,E,Combined Cycle,Natural Gas,43.0803,-75.6003,45,29.86475402
+26,Beaver Falls,23983,E,Combined Cycle,Natural Gas,43.8861,-75.4342,47,67.56685762
+27,Carthage Energy,23857,E,Combined Cycle,Natural Gas,43.9842,-75.6225,47,67.21846307
+28,"Burrstone Engy Center, LLC LU",23633,E,Internal Combustion,Natural Gas,43.09534,-75.278357,45,5.043909502
+29,"Burrstone Engy Center, LLC U",23633,E,Internal Combustion,Natural Gas,43.09534,-75.278357,45,5.043909502
+30,St. Elizabeth Medical Center,23633,E,Internal Combustion,Natural Gas,43.082104,-75.2661,45,5.832776701
+31,Athens 1,23668,F,Combined Cycle,Natural Gas,42.2728,-73.8492,42,45.12843739
+32,Athens 2,23670,F,Combined Cycle,Natural Gas,42.2728,-73.8492,42,45.12843739
+33,Athens 3,23677,F,Combined Cycle,Natural Gas,42.2728,-73.8492,42,45.12843739
+34,Rensselaer,23796,F,Combined Cycle,Natural Gas,42.63,-73.75,42,12.80646317
+35,Selkirk-II,23799,F,Combined Cycle,Natural Gas,42.5744,-73.8592,42,18.74042973
+36,Castleton Energy Center,23900,F,Combined Cycle,Natural Gas,42.5375,-73.7433,42,20.57675728
+37,Bethlehem Energy Center,323570,F,Combined Cycle,Natural Gas,42.5905,-73.7636,42,16.64550645
+38,EMPIRE_CC_1,323656,F,Combined Cycle,Natural Gas,42.6296,-73.749,42,12.77050151
+39,EMPIRE_CC_2,323658,F,Combined Cycle,Natural Gas,42.6296,-73.749,42,12.77050151
+40,Indeck-Corinth,23802,F,Combined Cycle,Natural Gas,43.25,-73.8125,42,18.4104256
+41,Selkirk-I,23801,F,Combined Cycle,Natural Gas,42.5744,-73.8592,42,18.74042973
+42,Bowline 1,23526,G,Steam Turbine,Natural Gas,41.2044,-73.9689,77,12.87726647
+43,Danskammer 1,23586,G,Steam Turbine,Natural Gas,41.573,-73.9646,77,29.24133648
+44,Roseton 1,23587,G,Steam Turbine,Fuel Oil 6,41.5711,-73.9739,77,28.9153446
+45,Roseton 2,23588,G,Steam Turbine,Fuel Oil 6,41.5711,-73.9739,77,28.9153446
+46,Danskammer 2,23589,G,Steam Turbine,Natural Gas,41.573,-73.9646,77,29.24133648
+47,Danskammer 3,23590,G,Steam Turbine,Natural Gas,41.573,-73.9646,77,29.24133648
+48,Danskammer 4,23591,G,Steam Turbine,Natural Gas,41.573,-73.9646,77,29.24133648
+49,Bowline 2,23595,G,Steam Turbine,Natural Gas,41.2044,-73.9689,77,12.87726647
+50,Hillburn GT,23639,G,Jet Engine,Natural Gas,41.1269,-74.1653,77,4.733280033
+51,Shoemaker GT,23640,G,Jet Engine,Natural Gas,41.4278,-74.4186,77,35.19731882
+52,CPV_VALLEY___CC1,323721,G,Combined Cycle,Natural Gas,41.413,-74.435,77,34.0618316
+53,CPV_VALLEY___CC2,323722,G,Combined Cycle,Natural Gas,41.413,-74.435,77,34.0618316
+54,Coxsackie GT,23611,G,Combustion Turbine,Kerosene,42.350889,-73.815798,39,18.18118219
+55,South Cairo,23612,G,Combustion Turbine,Kerosene,42.291275,-73.986452,39,23.11701271
+56,Arthur Kill ST 2,23512,J,Steam Turbine,Natural Gas,40.5915,-74.2027,82,24.87856242
+57,Arthur Kill ST 3,23513,J,Steam Turbine,Natural Gas,40.5915,-74.2027,82,24.87856242
+58,Brooklyn Navy Yard,23515,J,Combined Cycle,Natural Gas,40.6994,-73.9758,82,4.339113629
+59,Astoria 3,23516,J,Steam Turbine,Fuel Oil 2,40.7869,-73.9122,82,12.09467414
+60,Astoria 5,23518,J,Steam Turbine,Fuel Oil 2,40.7869,-73.9122,82,12.09467414
+61,Ravenswood ST 01,23533,J,Steam Turbine,Fuel Oil 6,40.7585,-73.9451,82,8.893968189
+62,Ravenswood ST 02,23534,J,Steam Turbine,Fuel Oil 6,40.7585,-73.9451,82,8.893968189
+63,Ravenswood ST 03,23535,J,Steam Turbine,Fuel Oil 6,40.7585,-73.9451,82,8.893968189
+64,KIAC_JFK_GT1,23816,J,Combined Cycle,Natural Gas,40.6417,-73.7778,82,11.47967404
+65,KIAC_JFK_GT2,23817,J,Combined Cycle,Natural Gas,40.6417,-73.7778,82,11.47967404
+66,Astoria 2,24149,J,Steam Turbine,Natural Gas,40.7869,-73.9122,82,12.09467414
+67,Kent,24152,J,Combustion Turbine,Natural Gas,40.7168,-73.9665,82,5.108401528
+68,Pouch,24155,J,Combustion Turbine,Natural Gas,40.6188,-74.069,82,13.37991002
+69,Gowanus 5,24156,J,Combustion Turbine,Natural Gas,40.663,-74,82,6.019492575
+70,Gowanus 6,24157,J,Combustion Turbine,Natural Gas,40.663,-74,82,6.019492575
+71,Hellgate 1,24158,J,Combustion Turbine,Natural Gas,40.7988,-73.9093,82,13.43745443
+72,Hellgate 2,24159,J,Combustion Turbine,Natural Gas,40.7988,-73.9093,82,13.43745443
+73,Harlem River 1,24160,J,Combustion Turbine,Natural Gas,40.7989,-73.9147,82,13.39104976
+74,Harlem River 2,24161,J,Combustion Turbine,Natural Gas,40.7989,-73.9147,82,13.39104976
+75,Vernon Blvd 3,24163,J,Combustion Turbine,Natural Gas,40.7539,-73.9506,82,8.461277028
+76,East River 1,323558,J,Combined Cycle,Natural Gas,40.7281,-73.9742,82,6.512568981
+77,East River 2,323559,J,Combined Cycle,Natural Gas,40.7281,-73.9742,82,6.512568981
+78,Astoria CC 1,323568,J,Combined Cycle,Natural Gas,40.7881,-73.9056,82,12.31529436
+79,Astoria CC 2,323569,J,Combined Cycle,Natural Gas,40.7881,-73.9056,82,12.31529436
+80,Astoria East Energy - CC1,323581,J,Combined Cycle,Natural Gas,40.7825,-73.8964,82,11.87682707
+81,Astoria Energy 2 - CC3,323677,J,Combined Cycle,Natural Gas,40.7825,-73.8964,82,11.87682707
+82,Astoria Energy 2 - CC4,323678,J,Combined Cycle,Natural Gas,40.7825,-73.8964,82,11.87682707
+83,Vernon Blvd 2,24162,J,Combustion Turbine,Natural Gas,40.7539,-73.9506,82,8.461277028
+84,Ravenswood CC 04,23820,J,Combined Cycle,Natural Gas,40.7585,-73.9451,82,8.893968189
+85,Astoria East Energy - CC2,323582,J,Combined Cycle,Natural Gas,40.7825,-73.8964,82,11.87682707
+86,Astoria GT 2-1,24094,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+87,Astoria GT 2-2,24095,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+88,Astoria GT 2-3,24096,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+89,Astoria GT 2-4,24097,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+90,Astoria GT 3-1,24098,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+91,Astoria GT 3-2,24099,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+92,Astoria GT 3-3,24100,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+93,Astoria GT 3-4,24101,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+94,Astoria GT 4-1,24102,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+95,Astoria GT 4-2,24103,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+96,Astoria GT 4-3,24104,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+97,Astoria GT 4-4,24105,J,Jet Engine,Kerosene,40.7864,-73.9133,82,12.02713368
+98,59 St.  GT 1,24138,J,Combustion Turbine,Kerosene,40.772385,-73.993028,82,11.57829482
+99,74 St.  GT 1,24260,J,Combustion Turbine,Kerosene,40.768421,-73.951731,82,10.06557069
+100,74 St.  GT 2,24261,J,Combustion Turbine,Kerosene,40.768421,-73.951731,82,10.06557069
+101,Arthur Kill Cogen,323718,J,Internal Combustion,Natural Gas,40.5915,-74.2027,82,24.87856242
+102,Arthur Kill GT 1,23520,J,Combustion Turbine,Natural Gas,40.5915,-74.2027,82,24.87856242
+103,Astoria GT 01,23523,J,Combustion Turbine,Natural Gas,40.7864,-73.9133,82,12.02713368
+104,Gowanus 1-1,24077,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+105,Gowanus 1-2,24078,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+106,Gowanus 1-3,24079,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+107,Gowanus 1-4,24080,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+108,Gowanus 1-5,24084,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+109,Gowanus 1-6,24111,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+110,Gowanus 1-7,24112,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+111,Gowanus 2-1,24114,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+112,Gowanus 2-2,24115,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+113,Gowanus 2-3,24116,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+114,Gowanus 2-4,24117,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+115,Gowanus 2-5,24118,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+116,Gowanus 2-6,24119,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+117,Gowanus 2-7,24120,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+118,Gowanus 2-8,24121,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+119,Gowanus 3-1,24122,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+120,Gowanus 3-2,24123,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+121,Gowanus 3-3,24124,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+122,Gowanus 3-4,24125,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+123,Gowanus 3-5,24126,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+124,Gowanus 3-6,24127,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+125,Gowanus 3-7,24128,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+126,Gowanus 3-8,24129,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+127,Gowanus 4-1,24130,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+128,Gowanus 4-2,24131,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+129,Gowanus 4-3,24132,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+130,Gowanus 4-4,24133,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+131,Gowanus 4-5,24134,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+132,Gowanus 4-6,24135,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+133,Gowanus 4-8,24137,J,Combustion Turbine,Fuel Oil 2,40.6635,-74.0051,82,6.417512627
+134,Hudson Ave 3,23810,J,Combustion Turbine,Kerosene,40.7052,-73.9807,82,5.039233259
+135,Hudson Ave 4,23540,J,Combustion Turbine,Kerosene,40.7052,-73.9807,82,5.039233259
+136,Hudson Ave 5,23657,J,Combustion Turbine,Kerosene,40.7052,-73.9807,82,5.039233259
+137,Narrows 1-1,24228,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+138,Narrows 1-2,24229,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+139,Narrows 1-3,24230,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+140,Narrows 1-4,24231,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+141,Narrows 1-5,24232,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+142,Narrows 1-6,24233,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+143,Narrows 1-7,24234,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+144,Narrows 1-8,24235,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+145,Narrows 2-1,24236,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+146,Narrows 2-2,24237,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+147,Narrows 2-3,24238,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+148,Narrows 2-4,24239,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+149,Narrows 2-5,24240,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+150,Narrows 2-6,24241,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+151,Narrows 2-7,24242,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+152,Narrows 2-8,24243,J,Combustion Turbine,Fuel Oil 2,40.648611,-74.020833,82,8.237081198
+153,Ravenswood 01,23729,J,Combustion Turbine,Natural Gas,40.7585,-73.9451,82,8.893968189
+154,Ravenswood 10,24258,J,Jet Engine,Kerosene,40.7585,-73.9451,82,8.893968189
+155,Ravenswood 11,24259,J,Jet Engine,Kerosene,40.7585,-73.9451,82,8.893968189
+156,Wading River 1,23522,K,Combustion Turbine,Fuel Oil 2,40.9569,-72.8774,80,25.37866403
+157,Barrett ST 01,23545,K,Steam Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+158,Barrett ST 02,23546,K,Steam Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+159,Wading River 2,23547,K,Combustion Turbine,Fuel Oil 2,40.9569,-72.8774,80,25.37866403
+195,Shoreham GT4,24214,K,Combustion Turbine,Fuel Oil 2,40.9572,-72.8664,80,26.22030789
+207,Wading River 3,23601,K,Combustion Turbine,Fuel Oil 2,40.9569,-72.8774,80,25.37866403
+208,Shoreham GT3,24213,K,Combustion Turbine,Fuel Oil 2,40.9572,-72.8664,80,26.22030789
+223,Northport GT,23718,K,Combustion Turbine,Fuel Oil 2,40.9231,-73.3417,80,18.36181122
+224,S Hampton 1,23720,K,Combustion Turbine,Fuel Oil 2,40.899997,-72.381977,80,64.53751937
+225,Shoreham 1,23715,K,Combustion Turbine,Fuel Oil 2,40.9572,-72.8664,80,26.22030789
+166,Glenwood GT 02,23688,K,Combustion Turbine,Fuel Oil 2,40.8269,-73.6479,79,17.85369544
+167,Glenwood GT 03,23689,K,Combustion Turbine,Fuel Oil 2,40.8269,-73.6479,79,17.85369544
+227,Southold 1,23719,K,Combustion Turbine,Fuel Oil 2,41.1059,-72.3761,80,70.58789468
+217,East Hampton 2,23722,K,Internal Combustion,Fuel Oil 2,40.961706,-72.210277,80,79.69007519
+218,East Hampton 3,23722,K,Internal Combustion,Fuel Oil 2,40.961706,-72.210277,80,79.69007519
+219,East Hampton 4,23722,K,Internal Combustion,Fuel Oil 2,40.961706,-72.210277,80,79.69007519
+168,Holtsville 01,23690,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+169,Holtsville 02,23691,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+170,Holtsville 03,23692,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+171,Holtsville 04,23693,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+172,Holtsville 05,23694,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+173,Holtsville 06,23695,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+178,Barrett GT 01,23704,K,Combustion Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+179,Barrett GT 02,23705,K,Combustion Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+180,Barrett 03,23706,K,Combustion Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+181,Barrett 04,23707,K,Combustion Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+182,Barrett 05,23708,K,Combustion Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+183,Barrett 06,23709,K,Combustion Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+184,Barrett 08,23711,K,Combustion Turbine,Natural Gas,40.6169,-73.6486,79,21.00410283
+185,West Babylon 4,23714,K,Combustion Turbine,Fuel Oil 2,40.6953,-73.3497,79,11.26133596
+186,Freeport CT 1,23764,K,Combustion Turbine,Natural Gas,40.6447,-73.5683,79,14.11169023
+174,Holtsville 07,23696,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+175,Holtsville 08,23697,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+189,Far Rockaway GT2,23815,K,Jet Engine,Kerosene,40.6106,-73.7614,79,29.10705625
+190,Freeport CT 2,23818,K,Combustion Turbine,Natural Gas,40.6447,-73.5683,79,14.11169023
+191,Bethpage,23823,K,Combined Cycle,Natural Gas,40.7469,-73.4994,79,2.840953432
+176,Holtsville 09,23698,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+177,Holtsville 10,23699,K,Jet Engine,Fuel Oil 2,40.8153,-73.0664,80,7.78216546
+188,Greenport GT1,23814,K,Jet Engine,Fuel Oil 2,41.1056,-72.3767,80,70.52842874
+220,East Hampton GT 01,23717,K,Jet Engine,Fuel Oil 2,40.961706,-72.210277,80,79.69007519
+226,Shoreham 2,23716,K,Jet Engine,Fuel Oil 2,40.9572,-72.8664,80,26.22030789
+163,Port Jefferson 3,23555,K,Steam Turbine,Fuel Oil 6,40.9503,-73.0786,80,12.26666528
+198,Glenwood GT 04,24219,K,Combustion Turbine,Natural Gas,40.8275,-73.6478,79,17.88040338
+199,Glenwood GT 05,24220,K,Combustion Turbine,Natural Gas,40.8275,-73.6478,79,17.88040338
+200,Pinelawn Power 1,323563,K,Combined Cycle,Natural Gas,40.7358,-73.3881,79,6.646901739
+201,Bethpage 3,323564,K,Combined Cycle,Natural Gas,40.7469,-73.4994,79,2.840953432
+202,Bethpage GT4,323586,K,Combustion Turbine,Natural Gas,40.7469,-73.4994,79,2.840953432
+164,Port Jefferson 4,23616,K,Steam Turbine,Fuel Oil 6,40.9503,-73.0786,80,12.26666528
+204,Nassau Energy Corporation,323695,K,Combined Cycle,Natural Gas,40.7259,-73.5885,79,10.57602075
+187,Flynn,23794,K,Combined Cycle,Natural Gas,40.8153,-73.0644,80,7.926367045
+206,Far Rockaway GT1,24212,K,Jet Engine,Natural Gas,40.6106,-73.7614,79,29.10705625
+203,Caithness_CC_1,323624,K,Combined Cycle,Natural Gas,40.8142,-72.9403,80,17.76879213
+192,Brentwood,24164,K,Combustion Turbine,Natural Gas,40.787,-73.2933,80,14.44417428
+209,Barrett 09,23700,K,Jet Engine,Natural Gas,40.616689,-73.647881,79,20.97536639
+210,Barrett 10,23701,K,Jet Engine,Natural Gas,40.616689,-73.647881,79,20.97536639
+211,Barrett 11,23702,K,Jet Engine,Natural Gas,40.616689,-73.647881,79,20.97536639
+212,Barrett 12,23703,K,Jet Engine,Natural Gas,40.616689,-73.647881,79,20.97536639
+213,Charles P Keller 09,1661,K,Internal Combustion,Fuel Oil 2,40.658333,-73.640556,79,17.62709319
+214,Charles P Keller 10,1661,K,Internal Combustion,Fuel Oil 2,40.658333,-73.640556,79,17.62709319
+215,Charles P Keller 11,1661,K,Internal Combustion,Fuel Oil 2,40.658333,-73.640556,79,17.62709319
+216,Charles P Keller 14,1661,K,Internal Combustion,Fuel Oil 2,40.658333,-73.640556,79,17.62709319
+193,Port Jefferson GT 02,24210,K,Combustion Turbine,Natural Gas,40.9503,-73.0786,80,12.26666528
+194,Port Jefferson GT 03,24211,K,Combustion Turbine,Natural Gas,40.9503,-73.0786,80,12.26666528
+196,Pilgrim GT1,24216,K,Combustion Turbine,Natural Gas,40.7861,-73.2931,80,14.4798899
+197,Pilgrim GT2,24217,K,Combustion Turbine,Natural Gas,40.7861,-73.2931,80,14.4798899
+221,Freeport 1-4,1660,K,Internal Combustion,Fuel Oil 2,40.6447,-73.5683,79,14.11169023
+222,Freeport 2-3,1660,K,Combustion Turbine,Kerosene,40.6447,-73.5683,79,14.11169023
+205,Stony Brook   (BTM:NG),24151,K,Combustion Turbine,Natural Gas,40.9168,-73.1292,80,7.318323541
+160,Northport 1,23551,K,Steam Turbine,Natural Gas,40.9231,-73.3417,80,18.36181122
+161,Northport 2,23552,K,Steam Turbine,Natural Gas,40.9231,-73.3417,80,18.36181122
+162,Northport 3,23553,K,Steam Turbine,Natural Gas,40.9231,-73.3417,80,18.36181122
+165,Northport 4,23650,K,Steam Turbine,Natural Gas,40.9231,-73.3417,80,18.36181122
