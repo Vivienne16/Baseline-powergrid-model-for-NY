@@ -70,7 +70,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Vivienne Liu - ml2589@cornell.edu
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/Vivienne16/Baseline-powergrid-model-for-NY](https://github.com/Vivienne16/Baseline-powergrid-model-for-NY)
 
 
 
