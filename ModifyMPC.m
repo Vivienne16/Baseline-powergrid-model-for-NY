@@ -1,12 +1,15 @@
-close all
-clear all
+close all;
+clear all;
 clc
 
 %% MPC modification
+% Load original NPCC-140 bus MATPOWER case
+load('Data/npcc.mat','mpc');
 
-load('Data/npcc.mat')
+% Add MOST constant parameter names
+define_constants;
 
-% delete transmission lines between PJM and IESO
+%% delete transmission lines between PJM and IESO
 mpc.branch(find((mpc.branch(:,1) == 84).*(mpc.branch(:,2)==116)==1),:)=[];
 mpc.branch(find((mpc.branch(:,1) == 87).*(mpc.branch(:,2)==115)==1),:)=[];
 mpc.branch(find((mpc.branch(:,1) == 90).*(mpc.branch(:,2)==114)==1),:)=[];
@@ -32,7 +35,7 @@ mpc.branch(find((mpc.branch(:,1) == 48).*(mpc.branch(:,2)==100)==1),6) = 450;
 mpc.branch(find((mpc.branch(:,1) == 54).*(mpc.branch(:,2)==102)==1),6) = 650;
 mpc.branch(find((mpc.branch(:,1) == 54).*(mpc.branch(:,2)==103)==1),6) = 650;
 
-
+%% Update bus types
 %PQ - PV
 mpc.bus(mpc.bus(:,1) == 39,2) = 2;
 mpc.bus(mpc.bus(:,1) == 77,2) = 2;
@@ -49,8 +52,10 @@ mpc.bus(mpc.bus(:,1) == 68,2) = 1;
 mpc.bus(mpc.bus(:,1) == 78,2) = 1;
 mpc.bus(mpc.bus(:,1) == 74,2) = 3;
 
+%% Add branch
 % add E-G 
 addline = [38 77 0.02 0.02 0 0 0 0 0 0 1 -360 360];
 mpc.branch = [mpc.branch;addline];
 
+%% Save updated MATPOWER case
 save('Result/mpcupdated.mat','mpc')

@@ -1,13 +1,16 @@
 function sampleHourGen = allocateGenHourly(year,month,date,hour,costType)
-%AllocateGenHourly Allocate hourly generation to buses in NYS, produces a
-%table of generation parameters, including generation cost curve, for
-%constructing matpower case file
-%Inputs:
+% AllocateGenHourly Allocate hourly generation to buses in NYS, produces a
+% table of generation parameters, including generation cost curve, for
+% constructing matpower case file
+% Inputs:
 %   year,month,date,hour - Timestamp information
 %   costType - "lm": use linear cost function for all generators, default
 %              "qm": mix of linear and quadratic function (if available)
-%Outputs:
+% Outputs:
 %   sampleHourGen - generator parameter and cost table
+
+% Author: Bo Yuan
+% Last modified: July 28, 2021
 
 % Use linear cost function by default
 if nargin <= 4

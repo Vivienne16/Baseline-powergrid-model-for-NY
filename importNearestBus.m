@@ -4,6 +4,10 @@ function genAllocation = importNearestBus(filename, dataLines)
 %  Example:
 %  nearestnypvbustogen = importNearestBus("D:\EERL\NY-Simple-Net\NY-Simple-Net-main\Data\nearest_bus_0601.csv", [2, Inf]);
 
+
+% Author: Bo Yuan
+% Last modified: July 28, 2021
+
 %% Input handling
 
 % If dataLines is not specified, define defaults
