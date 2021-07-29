@@ -48,9 +48,9 @@ This section should list any major frameworks that you built your project using.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Run the ModifyMPC.m file to get started. This file shows the initial changes we made to the NPCC140-bus network.
-Run the OperationConditionUpdate.m file to update the generaion and load condition and perform the network reduction. You can modify the month, day, hour in the begining for a different operation condition.
-Sample code for PF and OPF tests are provided with OPFtestcase.m and PFtestcase.m
+1. Run the ModifyMPC.m file to get started. This file shows the initial changes we made to the NPCC140-bus network.
+2. Run the OperationConditionUpdate.m file to update the generaion and load condition and perform the network reduction. You can modify the month, day, hour in the begining for a different operation condition.
+3. Sample code for PF and OPF tests are provided with OPFtestcase.m and PFtestcase.m
 
 All the data needed are in the Data Folder. The final mpc file will be stored in the Result file.
 

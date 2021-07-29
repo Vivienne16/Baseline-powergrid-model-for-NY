@@ -16,8 +16,6 @@ function sampleHourGen = allocateGenHourly(year,month,date,hour,costType)
 if nargin <= 4
     costType = "lm";
 end
-% Data storage directory
-% dataDir = "/Users/ml2589/Desktop/INFEWS/NYnet/NY-Simple-Net-main/Data/"; 
 
 %% Generator allocation
 % Read generator allocation table

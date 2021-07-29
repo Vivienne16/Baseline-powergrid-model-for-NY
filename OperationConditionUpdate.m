@@ -16,7 +16,7 @@ RenewableGen = readtable('Data/RenewableGen.xlsx');
 nuclearTable = readtable('Data/NuclearFactor.csv');
 Businfo = readtable('Data/npcc.xlsx','Sheet','Bus');
 NYRTMprice = readtable('Data/NYRTMprice.csv');
-load('Result/mpcupdated.mat');
+mpc = loadcase('Result/mpcupdated.mat');
 
 loaddata = allocateLoadHourly(year,month,day,hour,'RTM','weighted');
 gendata = allocateGenHourly(year,month,day,hour);
