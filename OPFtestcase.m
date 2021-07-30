@@ -4,6 +4,8 @@
 %This file should be run after the OperationConditionUpdate.m file. 
 %MATPOWER should have been installed properly to run the test.
 
+%% Load reduced MATPOWER case
+mpcreduced = loadcase('Result/mpcreduced.mat');
 
 %% additional constraints for large hydro to avoid dispatch at upper gen limit
 %hydro gen constraints

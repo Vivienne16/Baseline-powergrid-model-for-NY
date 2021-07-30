@@ -4,11 +4,16 @@
 %This file should be run after the OperationConditionUpdate.m file. 
 %MATPOWER should have been installed properly to run the test.
 
+%% Load reduced MATPOWER case
+mpcreduced = loadcase('Result/mpcreduced.mat');
+
+%% Run reduced MATPOWER case
 repf = rundcpf(mpcreduced);
 rbus = repf.bus;
 rbranch = repf.branch;
 rgen = repf.gen;
 
+%% Calculate and compare power flow data
 DYSINGEREAST = -rbranch(32,14)+rbranch(34,14)+rbranch(37,14)+rbranch(47,14);
 Westcentral = -rbranch(28,14)-rbranch(29,14)+rbranch(33,14)+rbranch(50,14);
 Totaleast = -rbranch(16,14)-rbranch(20,14)-rbranch(21,14)+rbranch(56,14)-rbranch(62,14)+rbranch(8,14);

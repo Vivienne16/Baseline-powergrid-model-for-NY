@@ -18,6 +18,8 @@ Businfo = readtable('Data/npcc.xlsx','Sheet','Bus');
 NYRTMprice = readtable('Data/NYRTMprice.csv');
 mpc = loadcase('Result/mpcupdated.mat');
 
+define_constants;
+
 loaddata = allocateLoadHourly(year,month,day,hour,'RTM','weighted');
 gendata = allocateGenHourly(year,month,day,hour);
 
@@ -74,19 +76,19 @@ for i = 1:length(RenewableGen)
             NuclearGen = NuclearGen + RenewableGen(i,6);
         end
         newrow = zeros(1,21);
-        newrow(1) = RenewableGen(i,1);
-        newrow(2) = RenewableGen(i,6);
+        newrow(GEN_BUS) = RenewableGen(i,1);
+        newrow(PG) = RenewableGen(i,6);
 
-        newrow(4) = 9999;
-        newrow(5) = -9999;
-        newrow(6) = 1;
-        newrow(7) = 100;
-        newrow(8) = 1;
-        newrow(9) = RenewableGen(i,5);
-        newrow(17) = 0.01*newrow(9);
-        newrow(18) = 0.1*newrow(9);
-        newrow(19) = 0.3*newrow(9);
-        hynucost(count,5) = 1+2*rand(1);
+        newrow(QMAX) = 9999;
+        newrow(QMIN) = -9999;
+        newrow(VG) = 1;
+        newrow(MBASE) = 100;
+        newrow(GEN_STATUS) = 1;
+        newrow(PMAX) = RenewableGen(i,5);
+        newrow(RAMP_AGC) = 0.01*newrow(9);
+        newrow(RAMP_10) = 0.1*newrow(9);
+        newrow(RAMP_30) = 0.3*newrow(9);
+        hynucost(count,COST) = 1+2*rand(1);
         hyNuGen = [hyNuGen;newrow];
     end
     if RenewableGen(i,7) ~= 0
@@ -121,36 +123,34 @@ demand = [loaddata.busIdx loaddata.PD];
 totalloadny = sum(loaddata.PD);
 totalgen = sum(fuelsum.mean_GenMW);
 theramlneed = totalgen-sum(hyNuGen(:,2))-windGen-ORGen;
-gendata.BusName = str2num(char(gendata.BusName));
+% gendata.BusName = str2num(char(gendata.BusName));
 gendata{:,12:13}(isnan(gendata{:,12:13})) = 0;
-thermalgen = table2array(gendata(:,6:16));
-thegen = zeros(length(thermalgen),21);
-thegen(:,1) = thermalgen(:,6);
-thegen(:,2) = thermalgen(:,7);
-
-totalthermal = sum(thegen(:,2));
+thegen = zeros(height(gendata),21);
+thegen(:,GEN_BUS) = gendata.BusName;
+thegen(:,PG) = gendata.hourlyGen;
+totalthermal = sum(thegen(:,PG));
 thermaldiff = theramlneed-totalthermal;
 JK = [79 80,81,82];
 JKidx = find(ismember(thegen(:,1),JK)==1);
 thegen(JKidx,2) = thegen(JKidx,2)+(thegen(JKidx,2)~=0).*thermaldiff.*thegen(JKidx,2)./sum(thegen(JKidx,2));
 
-thegen(:,4) = 9999;
-thegen(:,5) = -9999;
-thegen(:,6) = 1.0;
-thegen(:,7) = 100;
-thegen(:,8) = 1;
-thegen(:,9) = thermalgen(:,1);
-thegen(:,10) = thermalgen(:,2);
-thegen(:,17) = thermalgen(:,3);
-thegen(:,18) = thermalgen(:,4);
-thegen(:,19) = thermalgen(:,5);
+thegen(:,QMAX) = 9999;
+thegen(:,QMIN) = -9999;
+thegen(:,VG) = 1.0;
+thegen(:,MBASE) = 100;
+thegen(:,GEN_STATUS) = 1;
+thegen(:,PMAX) = gendata.maxPower;
+thegen(:,PMIN) = gendata.minPower;
+thegen(:,RAMP_AGC) = gendata.maxRampAgc;
+thegen(:,RAMP_10) = gendata.maxRamp10;
+thegen(:,RAMP_30) = gendata.maxRamp30;
 updatedgen = [thegen;hyNuGen];
-totalgenny = sum(updatedgen(:,2));
-ThermalGen = sum(thegen(:,2));
+totalgenny = sum(updatedgen(:,PG));
+ThermalGen = sum(thegen(:,PG));
 
 exgen = [];
 for i = 1:length(mpc.gen)
-    if mpc.gen(i,1)<37 || mpc.gen(i,1)>82
+    if mpc.gen(i,GEN_BUS)<37 || mpc.gen(i,GEN_BUS)>82
         exgen = [exgen;mpc.gen(i,:)];
     end
 end
@@ -158,8 +158,8 @@ end
 
 
 %% calculate external flow below
-exloadtotal = sum(mpc.bus(1:36,3))+sum(mpc.bus(83:end,3));
-exgentotal = sum(exgen(:,2));
+exloadtotal = sum(mpc.bus(1:36,PD))+sum(mpc.bus(83:end,PD));
+exgentotal = sum(exgen(:,PG));
 
 PJM2NY = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'SCH - PJ - NY')+...
     interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'SCH - PJM_HTP')+...
@@ -182,8 +182,8 @@ Zonalinfo = table2array(Businfo(:,[2,12]));
 NYload = sum(mpc.bus(37:82,3));
 
 %% update load in NY
-mpc.bus(37:82,3) = loaddata.PD;
-mpc.bus(37:82,4) = loaddata.QD; 
+mpc.bus(37:82,PD) = loaddata.PD;
+mpc.bus(37:82,QD) = loaddata.QD; 
 
 %update wind and other renewables in NY
 for i = 1:length(RenewableGen)
@@ -201,17 +201,17 @@ for i = 1:length(RenewableGen)
 end
 
 
-NYloadratio = sum(mpc.bus(37:82,3))/NYload;
+NYloadratio = sum(mpc.bus(37:82,PD))/NYload;
 
 %% scale up load and generation for external area
 
 idxNE = Zonalinfo(Zonalinfo(:,2) == 1,1);
-NEload = sum(mpc.bus(idxNE,3));
+NEload = sum(mpc.bus(idxNE,PD));
 NEgen = sum(mpc.gen(find(ismember(mpc.gen(:,1),idxNE)==1),2));
 NEscaleload = NYloadratio;
 NEscalegen = (NEload*NEscaleload+NE2NY)/NEgen;
-mpc.bus(idxNE,3) = mpc.bus(idxNE,3)*NEscaleload;
-mpc.gen(find(ismember(mpc.gen(:,1),idxNE)==1),2) = mpc.gen(find(ismember(mpc.gen(:,1),idxNE)==1),2) * NEscalegen;
+mpc.bus(idxNE,PD) = mpc.bus(idxNE,PD)*NEscaleload;
+mpc.gen(find(ismember(mpc.gen(:,1),idxNE)==1),PG) = mpc.gen(find(ismember(mpc.gen(:,1),idxNE)==1),PG) * NEscalegen;
 
 
 idxIESO = Zonalinfo(Zonalinfo(:,2) == 4,1);
@@ -260,13 +260,13 @@ mpc.gen = [mpc.gen; HQgen];
 
 
 %% external modification for generators
-exidx = mpc.gen(:,9)==9999;
-mpc.gen(mpc.gen(:,10)<0,10) = 0;
-mpc.gen(mpc.gen(:,9)==9999,9)=mpc.gen(mpc.gen(:,9)==9999,2)*1.5;
-mpc.gen(exidx,18) = mpc.gen(exidx,9)/20;
-mpc.gen(exidx,19) = mpc.gen(exidx,18)*3;
-mpc.gen(exidx,17) = mpc.gen(exidx,18)/10;
-mpc.gen(:,10) = 0;
+exidx = mpc.gen(:,PMAX)==9999;
+mpc.gen(mpc.gen(:,PMIN)<0,PMIN) = 0;
+mpc.gen(mpc.gen(:,PMAX)==9999,PMAX) = mpc.gen(mpc.gen(:,PMAX)==9999,PMAX)*1.5;
+mpc.gen(exidx,RAMP_10) = mpc.gen(exidx,PMAX)/20;
+mpc.gen(exidx,RAMP_30) = mpc.gen(exidx,RAMP_10)*3;
+mpc.gen(exidx,RAMP_AGC) = mpc.gen(exidx,RAMP_10)/10;
+mpc.gen(:,PMIN) = 0;
 %% Equivelent Reduction
 
 Exbus = [1:20,22:28,30:34,36,83:99,101,104:123,126:131,133,135:137,139:140];
@@ -337,24 +337,24 @@ mpcreduced.if.lims = [
 %% add gencost
 % cost curve for NY
 NYgenthermalcost = zeros(227,6);
-NYgenthermalcost(:,1) = 2;
-NYgenthermalcost(:,4) = 2;
-NYgenthermalcost(:,5:6) = table2array(gendata(:,15:16));
+NYgenthermalcost(:,MODEL) = 2;
+NYgenthermalcost(:,NCOST) = 2;
+NYgenthermalcost(:,COST:COST+1) = table2array(gendata(:,15:16));
 
 % cost curve for hydro and nuclear NY
 
 hynucost = zeros(12,6);
-hynucost(:,1) = 2;
-hynucost(:,4) = 2;
+hynucost(:,MODEL) = 2;
+hynucost(:,NCOST) = 2;
 count = 0;
 for i = 1:length(RenewableGen)
-    if RenewableGen(i,5) ~= 0
+    if RenewableGen(i,COST) ~= 0
         count = count+1;
-        hynucost(count,5) = 1+2*rand(1);
+        hynucost(count,COST) = 1+2*rand(1);
     end
     if RenewableGen(i,7) ~= 0
         count = count +1;
-        hynucost(count,5) = 10*rand(1);
+        hynucost(count,COST) = 10*rand(1);
     end
 end
 
@@ -390,4 +390,4 @@ gencost = [NYgenthermalcost;hynucost;exgencostthermal];
 mpcreduced.gencost = gencost;
 
 
-save('Result/mpcreduced.mat','mpcreduced')
+savecase('Result/mpcreduced.mat',mpcreduced);

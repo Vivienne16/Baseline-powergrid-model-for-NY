@@ -29,7 +29,7 @@ opts.VariableNames = ["fid", "NYISOName","PTID","Zone","UnitType","FuelType",...
     "Latitude","Longitude","BusName","BusDist"];
 opts.SelectedVariableNames = ["NYISOName", "PTID", "BusName", "BusDist"];
 opts.VariableTypes = ["string", "categorical", "categorical", "string","string","string",...
-    "string","string","categorical", "double"];
+    "string","string","double", "double"];
 
 % Specify file level properties
 opts.ExtraColumnsRule = "ignore";
