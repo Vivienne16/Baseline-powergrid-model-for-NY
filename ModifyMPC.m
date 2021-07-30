@@ -1,4 +1,4 @@
-%% ModifyMPC
+%MODIFYMPC
 % Read the original NPCC 140-bus MATPOWER case file, modify the bus and
 % branch matrices, and write the updated MATPOWER case file.
 
@@ -6,8 +6,8 @@
 %%%% Consider reading the interface limits from a external file
 %%%% Why do you only set rate A-C for the NE lines?
 
-% Author: Vivienne Liu
-% Last modified: July 28, 2021
+% Created by Vivienne Liu, Cornell University
+% Last modified on July 28, 2021
 
 close all;
 clear all;

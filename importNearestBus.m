@@ -1,12 +1,14 @@
 function genAllocation = importNearestBus(filename, dataLines)
-%Import generator allocation
+%IMPORTNEARESTBUS Import generators' nearest bus table
+%   
+%   Inputs:
+%       filename - file name of the nearest bus csv file
+%       dataLines - lines of data to read
+%   Outputs:
+%       genAllocation - generator allocation table
 %
-%  Example:
-%  nearestnypvbustogen = importNearestBus("D:\EERL\NY-Simple-Net\NY-Simple-Net-main\Data\nearest_bus_0601.csv", [2, Inf]);
-
-
-% Author: Bo Yuan
-% Last modified: July 28, 2021
+%   Created by Bo Yuan, Cornell University
+%   Last modified on July 28, 2021
 
 %% Input handling
 

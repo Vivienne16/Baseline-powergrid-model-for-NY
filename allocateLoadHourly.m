@@ -1,15 +1,18 @@
 function sampleHourLoad = allocateLoadHourly(year,month,date,hour,loadType,method)
-% AllocateLoadHourly Allocate hourly load to buses in NYS, produces a table
-% of power demand at each bus in NYS, for constructing matpower case file
-% Inputs:
-%   year,month,date,hour - Timestamp information
-%   loadType - DAM hourly load or RTM integrated hourly load
-%   method - evenly distribution or weighted distribution
-% Outputs:
-%   sampleHourLoad - load parameter table
-
-% Author: Bo Yuan
-% Last modified: July 28, 2021
+%ALLOCATELOADHOURLY Allocate hourly load to the buses in NYS.
+%   
+%   Use the ALLOCATELOADHOURLY function to produces a table of power demand
+%   at each bus in NYS for constructing MATPOWER case file.
+%   
+%   Inputs:
+%       year,month,date,hour - Timestamp information
+%       loadType - DAM hourly load or RTM integrated hourly load
+%       method - evenly distribution or weighted distribution
+%   Outputs:
+%       sampleHourLoad - load parameter table
+%
+%   Created by Bo Yuan, Cornell University
+%   Last modified on July 28, 2021
 
 %% Default function inputs
 if nargin < 5 || isempty(loadType)

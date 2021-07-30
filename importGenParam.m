@@ -1,8 +1,14 @@
 function genParam = importGenParam(filename, dataLines)
-%Import generator parameters (thermal generator in NYISO)
+%IMPORTGENPARAM Import generator parameters (thermal generator in NYISO)
+%   
+%   Inputs:
+%       filename - name of generator parameter csv file
+%       dataLines - lines of data to read
+%   Outputs:
+%       genParam - table of generator parameters in NY    
 %
-%  Example:
-%  genParam = importGenParam("D:\EERL\NY-Simple-Net\NY-Simple-Net-main\Data\genParamAll.csv", [2, Inf]);
+%   Created by Bo Yuan, Cornell University
+%   Last modified on July 29, 2021
 
 %% Input handling
 
