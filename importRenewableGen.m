@@ -38,5 +38,5 @@ opts = setvaropts(opts, ["PgThermal", "PgNuclear"], "ThousandsSeparator", ",");
 
 % Import the data
 RenewableGen = readtable(filename, opts);
-
+RenewableGen = fillmissing(RenewableGen,'constant',0,'DataVariables',@isnumeric);
 end

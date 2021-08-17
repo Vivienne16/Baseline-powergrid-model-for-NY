@@ -15,14 +15,14 @@ function mpcreduced = updateOperationCondition(year,month,day,hour)
 %   Last modified on August 17, 2021
 
 %% Input parameters
-year = 2019;
-month = 1;
-day = 10;
-hour = 16;
+if isempty(year), year = 2019; end
+if isempty(month), month = 1; end
+if isempty(day), day = 1; end
+if isempty(hour), hour = 1; end
 
 Fuelmix = readtable('Data/Fuelmix.csv');
 InterFlow = readtable('Data/InterFlow.csv');
-RenewableGen = importRenewableGen('Data/RenewableGen.xlsx');
+RenewableGen = importRenewableGen('Data/RenewableGen.csv');
 nuclearTable = readtable('Data/NuclearFactor.csv');
 Businfo = readtable('Data/npcc.xlsx','Sheet','Bus');
 NYRTMprice = readtable('Data/NYRTMprice.csv');
@@ -45,8 +45,8 @@ if isempty(flowlimit)
 end
 
 %% allocate hydro and nuclear generators in NY
-RenewableGen = table2array(RenewableGen(:,[1,4:end]));
-RenewableGen(isnan(RenewableGen))=0;
+% RenewableGen = table2array(RenewableGen(:,[1,4:end]));
+% RenewableGen(isnan(RenewableGen))=0;
 hyNuGen = [];
 hyNugencost = [];
 
@@ -56,12 +56,12 @@ HyGen = fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Hydro');
 windGen = fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Wind');
 ORGen = fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Other Renewables');
 
-CapNuclear = sum(RenewableGen(:,5));
+CapNuclear = sum(RenewableGen.PgNuclearCap);
 rNugen =  NuGen/CapNuclear;
-CapHydro = sum(RenewableGen(:,7))-2460-856;
+CapHydro = sum(RenewableGen.PgWaterCap)-2460-856;
 rHydro =  HyGen/CapHydro;
-windCap = sum(RenewableGen(:,9));
-ORCap = sum(RenewableGen(:,10));
+windCap = sum(RenewableGen.windCap);
+ORCap = sum(RenewableGen.otherRenewable);
 
 count = 0;
 
