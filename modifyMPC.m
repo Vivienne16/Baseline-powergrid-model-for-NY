@@ -1,9 +1,15 @@
-function mpc = modifyMPC(mpc)
+function mpc = modifyMPC()
 %MODIFYMPC
-% Read the original NPCC 140-bus MATPOWER case file, modify the bus and
-% branch matrices, and write the updated MATPOWER case file.
+% 
+%   Read the original NPCC 140-bus MATPOWER case file, modify the bus and
+%   branch matrices, and write the updated MATPOWER case file.
+%   
+%   Inputs:
+%       None
+%   Outputs:
+%       mpc - updated mpc
 
-% Notes:
+%   Notes:
 %%%% Consider reading the interface limits from a external file
 %%%% Why do you only set rate A-C for the NE lines?
 
@@ -72,4 +78,6 @@ newlineEG = [38 77 0.02 0.02 0 0 0 0 0 0 1 -360 360];
 mpc.branch = [mpc.branch;newlineEG];
 
 %% Save updated MATPOWER case
-savecase('Result/mpcupdated.mat',mpc)
+savecase('Result/mpcupdated.mat',mpc);
+disp('Updated MPC saved!');
+end

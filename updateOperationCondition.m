@@ -1,3 +1,4 @@
+function mpcreduced = updateOperationCondition(year,month,day,hour)
 %Created on July 20, 2021
 %Author: Vivienne Liu
 %This file should be run after the ModifyMPC.m file. The operation
@@ -5,10 +6,10 @@
 %Modify year month day hour for another operation condition.
 %The updated and reduced mpc struct will be saved to the Result folder.
 
-year = 2019;
-month = 1;
-day = 10;
-hour = 16;
+% year = 2019;
+% month = 1;
+% day = 10;
+% hour = 16;
 
 Fuelmix = readtable('Data/Fuelmix.csv');
 InterFlow = readtable('Data/InterFlow.csv');
@@ -389,5 +390,7 @@ end
 gencost = [NYgenthermalcost;hynucost;exgencostthermal];
 mpcreduced.gencost = gencost;
 
-
+%% Save updated operation condtion
 savecase('Result/mpcreduced.mat',mpcreduced);
+disp("Update operation condition complete!");
+end
