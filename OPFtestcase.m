@@ -45,17 +45,17 @@ H = [74];
 I = 78;
 J = [82 81];
 K = [79 80];
-Aidx = find(ismember(mpcreduced.gen(:,1),A)==1);
-Bidx = find(ismember(mpcreduced.gen(:,1),B)==1);
-Cidx = find(ismember(mpcreduced.gen(:,1),C)==1);
-Didx = find(ismember(mpcreduced.gen(:,1),D)==1);
-Eidx = find(ismember(mpcreduced.gen(:,1),E)==1);
-Fidx = find(ismember(mpcreduced.gen(:,1),F)==1);
-Gidx = find(ismember(mpcreduced.gen(:,1),G)==1);
-Hidx = find(ismember(mpcreduced.gen(:,1),H)==1);
-Iidx = find(ismember(mpcreduced.gen(:,1),I)==1);
-Jidx = find(ismember(mpcreduced.gen(:,1),J)==1);
-Kidx = find(ismember(mpcreduced.gen(:,1),K)==1);
+Aidx = find(ismember(mpcreduced.gen(:,GEN_BUS),A)==1);
+Bidx = find(ismember(mpcreduced.gen(:,GEN_BUS),B)==1);
+Cidx = find(ismember(mpcreduced.gen(:,GEN_BUS),C)==1);
+Didx = find(ismember(mpcreduced.gen(:,GEN_BUS),D)==1);
+Eidx = find(ismember(mpcreduced.gen(:,GEN_BUS),E)==1);
+Fidx = find(ismember(mpcreduced.gen(:,GEN_BUS),F)==1);
+Gidx = find(ismember(mpcreduced.gen(:,GEN_BUS),G)==1);
+Hidx = find(ismember(mpcreduced.gen(:,GEN_BUS),H)==1);
+Iidx = find(ismember(mpcreduced.gen(:,GEN_BUS),I)==1);
+Jidx = find(ismember(mpcreduced.gen(:,GEN_BUS),J)==1);
+Kidx = find(ismember(mpcreduced.gen(:,GEN_BUS),K)==1);
 
 
 Abus = [];Bbus = [];Cbus = [];Dbus = [];Ebus = [];Fbus = [];Gbus = [];Hbus = [];Ibus = [];Kbus = [];Jbus = [];
@@ -63,47 +63,47 @@ Abus = [];Bbus = [];Cbus = [];Dbus = [];Ebus = [];Fbus = [];Gbus = [];Hbus = [];
 for i = A
     Abus = [Abus;rbus(rbus(:,1)==i,:)];
 end
-Aprice = Abus(:,3)'*Abus(:,14)/sum(Abus(:,3));
+Aprice = Abus(:,PD)'*Abus(:,14)/sum(Abus(:,PD));
 for i = B
     Bbus = [Bbus;rbus(rbus(:,1)==i,:)];
 end
-Bprice = Bbus(:,3)'*Bbus(:,14)/sum(Bbus(:,3));
+Bprice = Bbus(:,PD)'*Bbus(:,14)/sum(Bbus(:,PD));
 for i = C
     Cbus = [Cbus;rbus(rbus(:,1)==i,:)];
 end
-Cprice = Cbus(:,3)'*Cbus(:,14)/sum(Cbus(:,3));
+Cprice = Cbus(:,PD)'*Cbus(:,14)/sum(Cbus(:,PD));
 for i = D
     Dbus = [Dbus;rbus(rbus(:,1)==i,:)];
 end
-Dprice = Dbus(:,3)'*Dbus(:,14)/sum(Dbus(:,3));
+Dprice = Dbus(:,PD)'*Dbus(:,14)/sum(Dbus(:,PD));
 for i = E
     Ebus = [Ebus;rbus(rbus(:,1)==i,:)];
 end
-EMHKVLprice = Ebus(:,3)'*Ebus(:,14)/sum(Ebus(:,3));
+EMHKVLprice = Ebus(:,PD)'*Ebus(:,14)/sum(Ebus(:,PD));
 for i = F
     Fbus = [Fbus;rbus(rbus(:,1)==i,:)];
 end
-FCAPITLprice = Fbus(:,3)'*Fbus(:,14)/sum(Fbus(:,3));
+FCAPITLprice = Fbus(:,PD)'*Fbus(:,14)/sum(Fbus(:,PD));
 for i = G
     Gbus = [Gbus;rbus(rbus(:,1)==i,:)];
 end
-GHUDVLprice = Gbus(:,3)'*Gbus(:,14)/sum(Gbus(:,3));
+GHUDVLprice = Gbus(:,PD)'*Gbus(:,14)/sum(Gbus(:,PD));
 for i = H
     Hbus = [Hbus;rbus(rbus(:,1)==i,:)];
 end
-HMILLWDprice = Hbus(:,3)'*Hbus(:,14)/sum(Hbus(:,3));
+HMILLWDprice = Hbus(:,PD)'*Hbus(:,14)/sum(Hbus(:,PD));
 for i = I
     Ibus = [Ibus;rbus(rbus(:,1)==i,:)];
 end
-IDUNWODprice = Ibus(:,3)'*Ibus(:,14)/sum(Ibus(:,3));
+IDUNWODprice = Ibus(:,PD)'*Ibus(:,14)/sum(Ibus(:,PD));
 for i = J
     Jbus = [Jbus;rbus(rbus(:,1)==i,:)];
 end
-JNYCprice = Jbus(:,3)'*Jbus(:,14)/sum(Jbus(:,3));
+JNYCprice = Jbus(:,PD)'*Jbus(:,14)/sum(Jbus(:,PD));
 for i = K
     Kbus = [Kbus;rbus(rbus(:,1)==i,:)];
 end
-KLIprice = Kbus(:,3)'*Kbus(:,14)/sum(Kbus(:,3));
+KLIprice = Kbus(:,PD)'*Kbus(:,14)/sum(Kbus(:,PD));
 simprice = [Aprice,Bprice,Cprice,Dprice,EMHKVLprice,FCAPITLprice,GHUDVLprice,HMILLWDprice,IDUNWODprice,JNYCprice,KLIprice,PJMPRICE,NEPRICE,IESOPRICE];
 
 %% read real price
@@ -140,7 +140,7 @@ set(gcf,'position',[x0,y0,width,height])
 plot(realprice,'LineWidth',3)
 hold on
 plot(simprice,'LineWidth',3)
-h = legend('Historical LMP','Simulated LMP','Real Power Error','FontSize', 18);
+h = legend({'Historical LMP','Simulated LMP'},'FontSize', 18);
 set(h,'Location','best')
 ax = gca;
 ax.FontSize = 16; 

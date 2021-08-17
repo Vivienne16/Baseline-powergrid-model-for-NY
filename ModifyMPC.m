@@ -1,3 +1,4 @@
+function mpc = modifyMPC(mpc)
 %MODIFYMPC
 % Read the original NPCC 140-bus MATPOWER case file, modify the bus and
 % branch matrices, and write the updated MATPOWER case file.

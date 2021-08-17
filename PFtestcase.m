@@ -5,6 +5,7 @@
 %MATPOWER should have been installed properly to run the test.
 
 %% Load reduced MATPOWER case
+define_constants;
 mpcreduced = loadcase('Result/mpcreduced.mat');
 
 %% Run reduced MATPOWER case
@@ -14,13 +15,13 @@ rbranch = repf.branch;
 rgen = repf.gen;
 
 %% Calculate and compare power flow data
-DYSINGEREAST = -rbranch(32,14)+rbranch(34,14)+rbranch(37,14)+rbranch(47,14);
-Westcentral = -rbranch(28,14)-rbranch(29,14)+rbranch(33,14)+rbranch(50,14);
-Totaleast = -rbranch(16,14)-rbranch(20,14)-rbranch(21,14)+rbranch(56,14)-rbranch(62,14)+rbranch(8,14);
-mosesouth = -rbranch(24,14)-rbranch(18,14)-rbranch(23,14);
-centraleast = -rbranch(14,14)-rbranch(12,14)-rbranch(3,14)-rbranch(6,14);
-upnyconed = rbranch(65,14)-rbranch(66,14);
-sprdunsouth = rbranch(73,14)+rbranch(74,14);
+DYSINGEREAST = -rbranch(32,PF)+rbranch(34,PF)+rbranch(37,PF)+rbranch(47,PF);
+Westcentral = -rbranch(28,PF)-rbranch(29,PF)+rbranch(33,PF)+rbranch(50,PF);
+Totaleast = -rbranch(16,PF)-rbranch(20,PF)-rbranch(21,PF)+rbranch(56,PF)-rbranch(62,PF)+rbranch(8,PF);
+mosesouth = -rbranch(24,PF)-rbranch(18,PF)-rbranch(23,PF);
+centraleast = -rbranch(14,PF)-rbranch(12,PF)-rbranch(3,PF)-rbranch(6,PF);
+upnyconed = rbranch(65,PF)-rbranch(66,PF);
+sprdunsouth = rbranch(73,PF)+rbranch(74,PF);
 
 CE = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'CENTRAL EAST - VC');
 WC = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'WEST CENTRAL');
