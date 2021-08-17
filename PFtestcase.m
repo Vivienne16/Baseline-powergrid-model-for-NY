@@ -1,8 +1,17 @@
-%Created on July 20, 2021
-%Author: Vivienne Liu
-%This file run a test case for PF using the updatedmpc
-%This file should be run after the OperationConditionUpdate.m file. 
-%MATPOWER should have been installed properly to run the test.
+function mpc = PFtestcase(mpc)
+%PFTESTCASE
+%   
+%   This file run a test case for PF using the updatedmpc
+%   This file should be run after the OperationConditionUpdate.m file. 
+%   MATPOWER should have been installed properly to run the test.
+% 
+%   Inputs:
+%       mpc - reduced MATPOWER case
+%   Outputs:
+%       mpc - updated MATPOWER case with Power Flow results
+% 
+%   Created by Vivienne Liu, Cornell University
+%   Last modified on August 17, 2021
 
 %% Load reduced MATPOWER case
 define_constants;
@@ -55,3 +64,4 @@ xticklabels({'Central East','West Central','Total East','Moses South','Dysinger 
 ylabel('Power Flow Error %','FontSize',18)
 xlabel('Interface','FontSize',18)
 xtickangle(45)
+end

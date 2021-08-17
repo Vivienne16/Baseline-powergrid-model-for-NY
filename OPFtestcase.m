@@ -1,8 +1,17 @@
-%Created on July 20, 2021
-%Author: Vivienne Liu
-%This file run a test case for OPF using the updated mpc
-%This file should be run after the OperationConditionUpdate.m file. 
-%MATPOWER should have been installed properly to run the test.
+function mpc = OPFtestcase(mpc)
+%OPFTESTCASE
+% 
+%   This file run a test case for OPF using the updated mpc
+%   This file should be run after the OperationConditionUpdate.m file. 
+%   MATPOWER should have been installed properly to run the test.
+% 
+%   Inputs:
+%       mpc - reduced MATPOWER case
+%   Outputs:
+%       mpc - updated mpc with Optimal Power Flow results
+
+%   Created by Vivienne Liu, Cornell University
+%   Last modified on August 17, 2021
 
 %% Load reduced MATPOWER case
 mpcreduced = loadcase('Result/mpcreduced.mat');
@@ -149,6 +158,6 @@ xticklabels({'West','Genese','Central','North','MHK VL','Capital','HUD VL','MILL
 xtickangle(45)
 xlabel('Zone','FontSize', 18)
 ylabel('LMP ($/MW)','FontSize', 18)
-
+end
 
        

@@ -6,7 +6,7 @@ function genParam = importGenParam(filename, dataLines)
 %       dataLines - lines of data to read
 %   Outputs:
 %       genParam - table of generator parameters in NY    
-%
+
 %   Created by Bo Yuan, Cornell University
 %   Last modified on July 29, 2021
 

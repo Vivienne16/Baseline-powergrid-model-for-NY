@@ -1,19 +1,28 @@
 function mpcreduced = updateOperationCondition(year,month,day,hour)
-%Created on July 20, 2021
-%Author: Vivienne Liu
-%This file should be run after the ModifyMPC.m file. The operation
-%condition of the chosen hour will be updated to the mpc 
-%Modify year month day hour for another operation condition.
-%The updated and reduced mpc struct will be saved to the Result folder.
+%UPDATEOPERATIONCONDITION
+%
+%   This file should be run after the ModifyMPC.m file. The operation
+%   condition of the chosen hour will be updated to the mpc 
+%   Modify year month day hour for another operation condition.
+%   The updated and reduced mpc struct will be saved to the Result folder.
+% 
+%   Inputs:
+%       year, month, day, hour - testing time.
+%   Outputs:
+%       mpcreduced - reduced MATPOWER case file.
 
-% year = 2019;
-% month = 1;
-% day = 10;
-% hour = 16;
+%   Created by Vivienne Liu, Cornell University
+%   Last modified on August 17, 2021
+
+%% Input parameters
+year = 2019;
+month = 1;
+day = 10;
+hour = 16;
 
 Fuelmix = readtable('Data/Fuelmix.csv');
 InterFlow = readtable('Data/InterFlow.csv');
-RenewableGen = readtable('Data/RenewableGen.xlsx');
+RenewableGen = importRenewableGen('Data/RenewableGen.xlsx');
 nuclearTable = readtable('Data/NuclearFactor.csv');
 Businfo = readtable('Data/npcc.xlsx','Sheet','Bus');
 NYRTMprice = readtable('Data/NYRTMprice.csv');

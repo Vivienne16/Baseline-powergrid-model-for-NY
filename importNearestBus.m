@@ -6,7 +6,7 @@ function genAllocation = importNearestBus(filename, dataLines)
 %       dataLines - lines of data to read
 %   Outputs:
 %       genAllocation - generator allocation table
-%
+
 %   Created by Bo Yuan, Cornell University
 %   Last modified on July 28, 2021
 
