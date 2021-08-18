@@ -17,7 +17,7 @@ function sampleHourGen = allocateGenHourly(year,month,date,hour,costType)
 
 %% Default function inputs
 % Use linear cost function by default
-if nargin <= 4
+if nargin <= 4 && isempty(costType)
     costType = "lm";
 end
 
@@ -75,9 +75,7 @@ for i=1:numGen
     if fuel == "Coal"
         fuelPrice = priceTable.coal_NY;
     elseif fuel == "Natural Gas"
-
         fuelPrice = priceTable.NG_A2E*gasfactor;
-
         if zone == "K"
              fuelPrice = priceTable.NG_K*gasfactor;
         end
