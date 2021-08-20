@@ -50,7 +50,7 @@ end
 % RenewableGen = table2array(RenewableGen(:,[1,4:end]));
 % RenewableGen(isnan(RenewableGen))=0;
 hyNuGen = []; % Matrix to store hydro and nuclear gen matrix
-hyNugencost = []; % Matrix to store hydro and nuclear gencost matrix
+% hyNugencost = []; % Matrix to store hydro and nuclear gencost matrix
 
 % Renewable generation in NYISO's fuel mix data
 NuGen = fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Nuclear');
@@ -122,7 +122,7 @@ for i = 1:height(RenewableGen)
         
         % Add a new row to the mpc.gencost matrix
         % Nuclear gen cost varying in $1-3/MWh
-        hynucost(count,COST) = 1+2*rand(1);        
+%         hynucost(count,COST) = 1+2*rand(1);        
     end
     
     %   Add hydro generators
@@ -161,7 +161,7 @@ for i = 1:height(RenewableGen)
         % Add a new row to the mpc.gencost matrix
         % Hydro gen cost varying in $20-30/MWh?
         %%%% Duplicated gencost matrix definition?
-        hynucost(count,COST) = 20+10*rand(1);        
+%         hynucost(count,COST) = 20+10*rand(1);        
     end
 end
 
@@ -363,7 +363,7 @@ fprintf("Finished adding DC lines!\n");
 
 %% add interface flow limit
 mpcreduced.if.map = [
-	1	-32;	%% 1 : A - B
+	1   -32;	%% 1 : A - B
 	1	34;
     1   37;
     1   47;
@@ -421,10 +421,10 @@ fprintf("Finished setting interface flow limits!\n");
 NYgenthermalcost = zeros(227,6);
 NYgenthermalcost(:,MODEL) = 2; % Polynomial cost function
 NYgenthermalcost(:,NCOST) = 2; % Linear cost curve
-NYgenthermalcost(:,COST:COST+1) = table2array(gendata(:,{'cost_0','cost_1'}));
+NYgenthermalcost(:, COST) = gendata.cost_1;
+NYgenthermalcost(:, COST+1) = gendata.cost_0;
 
 % cost curve for hydro and nuclear NY
-
 hynucost = zeros(12,6);
 hynucost(:,MODEL) = 2;
 hynucost(:,NCOST) = 2;
@@ -432,10 +432,12 @@ count = 0;
 for i = 1:height(RenewableGen)
     if RenewableGen(i,COST) ~= 0
         count = count+1;
+        % Randomly assign cost for $1-3/MWh
         hynucost(count,COST) = 1+2*rand(1);
     end
     if RenewableGen(i,7) ~= 0
         count = count +1;
+        % Randomly assign cost for $0-10/MWh
         hynucost(count,COST) = 10*rand(1);
     end
 end
@@ -451,19 +453,18 @@ NEprice = NEpr;
 IESOprice = IESOpr;
 HQprice = HQpr;
 exgencostthermal = zeros(28,6);
-exgencostthermal(:,1) = 2;
-exgencostthermal(:,4) = 2;
-offset = 12+227;
+exgencostthermal(:,MODEL) = 2;
+exgencostthermal(:,NCOST) = 2;
+offset = 12+227; % 227 thermal generators and 12 hydro and nuclear generators
 for i = 1:length(mpcreduced.gen(offset+1:offset+28,1))
     if mpcreduced.gen(offset+i,1) <=35
-        exgencostthermal(i,5) = NEprice;
-        
+        exgencostthermal(i,COST) = NEprice;       
     elseif mpcreduced.gen(offset+i,1) >=83 && mpcreduced.gen(offset+i,1)<= 113
-        exgencostthermal(i,5) = IESOprice;
+        exgencostthermal(i,COST) = IESOprice;
     elseif mpcreduced.gen(offset+i,1)>113
-        exgencostthermal(i,5) = PJMprice;
+        exgencostthermal(i,COST) = PJMprice;
     else
-         exgencostthermal(i,5) = HQprice;
+        exgencostthermal(i,COST) = HQprice;
     end
 end
 
