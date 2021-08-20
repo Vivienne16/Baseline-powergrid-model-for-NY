@@ -269,6 +269,7 @@ NYLoadRatio = sum(mpc.bus(37:82,PD))/NYload;
 fprintf("Finished allocating wind and other renewables in NY!\n");
 
 %% scale up load and generation for external area
+%%%% Rewrite this part to functions
 
 idxNE = Zonalinfo(Zonalinfo(:,2) == 1,1);
 isNEGen = ismember(mpc.gen(:,GEN_BUS),idxNE);
@@ -282,7 +283,6 @@ mpc.bus(idxNE,PD) = mpc.bus(idxNE,PD)*NELoadRatio;
 NEGenRatio = (NELoad*NELoadRatio+NE2NY)/NEgen;
 mpc.gen(isNEGen,PG) = mpc.gen(isNEGen,PG)*NEGenRatio;
 
-%%
 idxIESO = Zonalinfo(Zonalinfo(:,2) == 4,1);
 IESOload = sum(mpc.bus(idxIESO,3));
 IESOgen = sum(mpc.gen(find(ismember(mpc.gen(:,1),idxIESO)==1),2));
@@ -296,16 +296,15 @@ idxPJM2 = Zonalinfo(Zonalinfo(:,2) == 6,1);
 idxPJM = [idxPJM1;idxPJM2];
 PJMload = sum(mpc.bus(idxPJM,3));
 PJMgen = sum(mpc.gen(find(ismember(mpc.gen(:,1),idxPJM)==1),2));
-PJMscaleload = NYloadratio;
+PJMscaleload = NYLoadRatio;
 PJMscalegen = (PJMload*PJMscaleload+PJM2NY)/PJMgen;
 mpc.bus(idxPJM,3) = mpc.bus(idxPJM,3)*PJMscaleload;
 mpc.gen(find(ismember(mpc.gen(:,1),idxPJM)==1),2) = mpc.gen(find(ismember(mpc.gen(:,1),idxPJM)==1),2) * PJMscalegen;
 
 
-%update gen
-
+% Update generators in external area
 for i = 1:length(mpc.gen)
-    if mpc.gen(i,1)<37 || mpc.gen(i,1)>82
+    if mpc.gen(i,GEN_BUS)<37 || mpc.gen(GEN_BUS,1)>82
         updatedgen = [updatedgen;mpc.gen(i,:)];
     end
 end
@@ -313,40 +312,46 @@ mpc.gen = updatedgen;
 
 %% Add generator for HQ
 HQgen = zeros(1,21);
-HQgen(1) = 48;
-HQgen(2) = HQ2NY;
-HQgen(4) = 9999;
-HQgen(5) = -9999;
-HQgen(6) = 1;
-HQgen(7) = 100;
-HQgen(8) = 1;
-HQgen(9) = flowlimit.mean_PositiveLimitMWH(string(flowlimit.InterfaceName) == 'SCH - HQ - NY')+...
+HQgen(GEN_BUS) = 48;
+HQgen(PG) = HQ2NY;
+HQgen(QMAX) = 9999;
+HQgen(QMIN) = -9999;
+HQgen(VG) = 1;
+HQgen(MBASE) = 100;
+HQgen(GEN_STATUS) = 1;
+% Positive and negative interface flow limit from HQ to NY
+HQgen(PMAX) = flowlimit.mean_PositiveLimitMWH(string(flowlimit.InterfaceName) == 'SCH - HQ - NY')+...
     flowlimit.mean_PositiveLimitMWH(string(flowlimit.InterfaceName) == 'SCH - HQ_CEDARS');
-HQgen(10) = flowlimit.mean_NegativeLimitMWH(string(flowlimit.InterfaceName) == 'SCH - HQ - NY')+...
+HQgen(PMIN) = flowlimit.mean_NegativeLimitMWH(string(flowlimit.InterfaceName) == 'SCH - HQ - NY')+...
     flowlimit.mean_NegativeLimitMWH(string(flowlimit.InterfaceName) == 'SCH - HQ_CEDARS');
 
 mpc.gen = [mpc.gen; HQgen];
 
-
 %% external modification for generators
 exidx = mpc.gen(:,PMAX)==9999;
+% Set negative minimum generation to zero
 mpc.gen(mpc.gen(:,PMIN)<0,PMIN) = 0;
-mpc.gen(mpc.gen(:,PMAX)==9999,PMAX) = mpc.gen(mpc.gen(:,PMAX)==9999,PMAX)*1.5;
+% Set maximum generation with 9999
+mpc.gen(exidx,PMAX) = mpc.gen(exidx,PG)*1.5;
 mpc.gen(exidx,RAMP_10) = mpc.gen(exidx,PMAX)/20;
 mpc.gen(exidx,RAMP_30) = mpc.gen(exidx,RAMP_10)*3;
 mpc.gen(exidx,RAMP_AGC) = mpc.gen(exidx,RAMP_10)/10;
 mpc.gen(:,PMIN) = 0;
-%% Equivelent Reduction
 
+%% Equivelent Reduction
+% Define external buses
+%%%% Change this to data reading instead of hard coded 
 Exbus = [1:20,22:28,30:34,36,83:99,101,104:123,126:131,133,135:137,139:140];
-[mpcreduced,Link,BCIRCr] = MPReduction(mpc,Exbus,1);
+% Perform network reduction algorithm
+pf_flag = 1; % Solve dc power flow
+[mpcreduced,~,~] = MPReduction(mpc,Exbus,pf_flag);
 
 
 %% add HVDC lines 
 mpcreduced.dcline = [
-	21 80	1	NPX1385+CSC	0	0	0	1.01	1	-530	530	-100	100	-100	100	0	0;
-	124 79	1	Neptune	0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
-    125 81	1	HTP	0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
+	21 80	1	NPX1385+CSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
+	124 79	1	Neptune     0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
+    125 81	1	HTP         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
 ];
 mpcreduced = toggle_dcline(mpcreduced, 'on');
 
