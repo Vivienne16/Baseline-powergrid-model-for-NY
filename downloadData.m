@@ -35,6 +35,15 @@ fprintf("Downloading and unzipping NYISO real-time price data in %d ... ",year);
 msg = yearlyDownload(api,suffix,rtpriceDir,year);
 fprintf("%s\n",msg);
 
+%% Download hourly integrated real-time load data
+rtloadDir = fullfile(prepDir, 'rtload');
+createDir(rtloadDir);
+api = apiroot+"palIntegrated/";
+suffix = "palIntegrated_csv.zip";
+fprintf("Downloading and unzipping NYISO real-time load data in %d ...",year);
+msg = yearlyDownload(api,suffix,rtloadDir,year);
+fprintf("%s\n",msg);
+
 %% Functions
 function msg = yearlyDownload(api, suffix, dir, year)
 if nargin <= 3 && isempty(year)

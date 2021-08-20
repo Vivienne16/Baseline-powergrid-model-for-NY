@@ -310,6 +310,8 @@ for i = 1:length(mpc.gen)
 end
 mpc.gen = updatedgen;
 
+fprintf("Finished updating external load and generation!\n");
+
 %% Add generator for HQ
 HQgen = zeros(1,21);
 HQgen(GEN_BUS) = 48;
@@ -346,14 +348,18 @@ Exbus = [1:20,22:28,30:34,36,83:99,101,104:123,126:131,133,135:137,139:140];
 pf_flag = 1; % Solve dc power flow
 [mpcreduced,~,~] = MPReduction(mpc,Exbus,pf_flag);
 
+fprintf("Finished calculating network reduction!\n");
 
 %% add HVDC lines 
+%	fbus	tbus	status	Pf	Pt	Qf	Qt	Vf	Vt	Pmin	Pmax	QminF	QmaxF	QminT	QmaxT	loss0	loss1
 mpcreduced.dcline = [
 	21 80	1	NPX1385+CSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
 	124 79	1	Neptune     0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
     125 81	1	HTP         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
 ];
 mpcreduced = toggle_dcline(mpcreduced, 'on');
+
+fprintf("Finished adding DC lines!\n");
 
 %% add interface flow limit
 mpcreduced.if.map = [
@@ -377,8 +383,8 @@ mpcreduced.if.map = [
     5   -12;
     5   -3;
     5   -6;    	
-    6   8;        %% 6 : E - G
-    7   4;     %% 7 : F - G
+    6   8;      %% 6 : E - G
+    7   4;      %% 7 : F - G
     8   65;     %% 8 : G - H
     8   -66
     9   67;     %% 9 : H - I
@@ -408,12 +414,14 @@ mpcreduced.if.lims = [
     11  -515    1290;   %% 10 : I - K
 ];
 
+fprintf("Finished setting interface flow limits!\n");
+
 %% add gencost
 % cost curve for NY
 NYgenthermalcost = zeros(227,6);
-NYgenthermalcost(:,MODEL) = 2;
-NYgenthermalcost(:,NCOST) = 2;
-NYgenthermalcost(:,COST:COST+1) = table2array(gendata(:,15:16));
+NYgenthermalcost(:,MODEL) = 2; % Polynomial cost function
+NYgenthermalcost(:,NCOST) = 2; % Linear cost curve
+NYgenthermalcost(:,COST:COST+1) = table2array(gendata(:,{'cost_0','cost_1'}));
 
 % cost curve for hydro and nuclear NY
 
@@ -421,7 +429,7 @@ hynucost = zeros(12,6);
 hynucost(:,MODEL) = 2;
 hynucost(:,NCOST) = 2;
 count = 0;
-for i = 1:length(RenewableGen)
+for i = 1:height(RenewableGen)
     if RenewableGen(i,COST) ~= 0
         count = count+1;
         hynucost(count,COST) = 1+2*rand(1);
@@ -463,7 +471,11 @@ end
 gencost = [NYgenthermalcost;hynucost;exgencostthermal];
 mpcreduced.gencost = gencost;
 
+fprintf("Finished adding generation cost matrix!\n");
+
 %% Save updated operation condtion
 savecase('Result/mpcreduced.mat',mpcreduced);
-disp("Update operation condition complete!");
+
+fprintf("Update operation condition complete!\n");
+
 end
