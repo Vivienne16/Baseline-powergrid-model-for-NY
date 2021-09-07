@@ -1,4 +1,4 @@
-function mpcreduced = updateOperationCondition(year,month,day,hour)
+function [mpcreduced,interflow,flowlimit,fuelsum,NYzp] = updateOperationCondition(year,month,day,hour)
 %UPDATEOPERATIONCONDITION
 %
 %   This file should be run after the ModifyMPC.m file. The operation
@@ -15,11 +15,10 @@ function mpcreduced = updateOperationCondition(year,month,day,hour)
 %   Last modified on August 17, 2021
 
 %% Input parameters
-year = 2019;
-month = 1;
-day = 1;
-hour = 1;
-
+% year = 2019;
+% month = 1;
+% day = 1;
+% hour = 1;
 % TimeStamp = datetime(year,month,date,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
 Fuelmix = readtable('Data/Fuelmix.csv');
@@ -273,7 +272,7 @@ fprintf("Finished allocating wind and other renewables in NY!\n");
 
 idxNE = Zonalinfo(Zonalinfo(:,2) == 1,1);
 isNEGen = ismember(mpc.gen(:,GEN_BUS),idxNE);
-% Total load and generation in the original NPCC-140 case in NE
+% Total load and generation in NE in the original NPCC-140 case
 NELoad = sum(mpc.bus(idxNE,PD));
 NEgen = sum(mpc.gen(isNEGen,PG));
 % Scale up NE load with the same ratio in NY
@@ -284,31 +283,31 @@ NEGenRatio = (NELoad*NELoadRatio+NE2NY)/NEgen;
 mpc.gen(isNEGen,PG) = mpc.gen(isNEGen,PG)*NEGenRatio;
 
 idxIESO = Zonalinfo(Zonalinfo(:,2) == 4,1);
-IESOload = sum(mpc.bus(idxIESO,3));
-IESOgen = sum(mpc.gen(find(ismember(mpc.gen(:,1),idxIESO)==1),2));
-IESOscaleload = NYLoadRatio;
-IESOscalegen = (IESOload*IESOscaleload+IESO2NY)/IESOgen;
-mpc.bus(idxIESO,3) = mpc.bus(idxIESO,3)*IESOscaleload;
-mpc.gen(find(ismember(mpc.gen(:,1),idxIESO)==1),2) = mpc.gen(find(ismember(mpc.gen(:,1),idxIESO)==1),2) * IESOscalegen;
+isIESOGen = ismember(mpc.gen(:,GEN_BUS),idxIESO);
+% Total load and geneartion in IESO in the original NPCC-140 case
+IESOload = sum(mpc.bus(idxIESO,PD));
+IESOgen = sum(mpc.gen(isIESOGen,PG));
+% Scale up IESO load with the same ratio in NY
+IESOLoadRatio = NYLoadRatio;
+mpc.bus(idxIESO,PD) = mpc.bus(idxIESO,PD)*IESOLoadRatio;
+% Scale up IESO generator with scaled laod and interface flow data
+IESOGenRatio = (IESOload*IESOLoadRatio+IESO2NY)/IESOgen;
+mpc.gen(isIESOGen,PG) = mpc.gen(isIESOGen,2) * IESOGenRatio;
 
-idxPJM1 = Zonalinfo(Zonalinfo(:,2) == 5,1);
-idxPJM2 = Zonalinfo(Zonalinfo(:,2) == 6,1);
-idxPJM = [idxPJM1;idxPJM2];
-PJMload = sum(mpc.bus(idxPJM,3));
-PJMgen = sum(mpc.gen(find(ismember(mpc.gen(:,1),idxPJM)==1),2));
-PJMscaleload = NYLoadRatio;
-PJMscalegen = (PJMload*PJMscaleload+PJM2NY)/PJMgen;
-mpc.bus(idxPJM,3) = mpc.bus(idxPJM,3)*PJMscaleload;
-mpc.gen(find(ismember(mpc.gen(:,1),idxPJM)==1),2) = mpc.gen(find(ismember(mpc.gen(:,1),idxPJM)==1),2) * PJMscalegen;
+idxPJM = Zonalinfo(Zonalinfo(:,2) == 5 | Zonalinfo(:,2) == 6,1);
+isPJMGen = ismember(mpc.gen(:,GEN_BUS),idxPJM);
+% Total load and generation in PJM in the original NPCC-140 case
+PJMload = sum(mpc.bus(idxPJM,PD));
+PJMgen = sum(mpc.gen(isPJMGen,PG));
+% Scale up PJM load with the same load in NY
+PJMLoadRatio = NYLoadRatio;
+mpc.bus(idxPJM,PD) = mpc.bus(idxPJM,PD)*PJMLoadRatio;
+% Scale up PJM generation with scaled load and interface flow data
+PJMGenRatio = (PJMload*PJMLoadRatio+PJM2NY)/PJMgen;
+mpc.gen(isPJMGen,PG) = mpc.gen(isPJMGen,PG) * PJMGenRatio;
 
-
-% Update generators in external area
-for i = 1:length(mpc.gen)
-    if mpc.gen(i,GEN_BUS)<37 || mpc.gen(GEN_BUS,1)>82
-        updatedgen = [updatedgen;mpc.gen(i,:)];
-    end
-end
-mpc.gen = updatedgen;
+externalGen = mpc.gen(isNEGen|isIESOGen|isPJMGen, :);
+updatedgen = [updatedgen; externalGen];
 
 fprintf("Finished updating external load and generation!\n");
 
@@ -327,7 +326,8 @@ HQgen(PMAX) = flowlimit.mean_PositiveLimitMWH(string(flowlimit.InterfaceName) ==
 HQgen(PMIN) = flowlimit.mean_NegativeLimitMWH(string(flowlimit.InterfaceName) == 'SCH - HQ - NY')+...
     flowlimit.mean_NegativeLimitMWH(string(flowlimit.InterfaceName) == 'SCH - HQ_CEDARS');
 
-mpc.gen = [mpc.gen; HQgen];
+updatedgen = [updatedgen; HQgen];
+mpc.gen = updatedgen;
 
 %% external modification for generators
 exidx = mpc.gen(:,PMAX)==9999;

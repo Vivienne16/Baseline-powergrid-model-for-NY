@@ -14,14 +14,14 @@ month = 1;
 day = 10;
 hour = 16;
 
-mpcreduced = updateOperationCondition(year,month,day,hour);
+[mpcreduced,interflow,flowlimit,fuelsum,NYzp] = updateOperationCondition(year,month,day,hour);
 
 
 %% PF test
-PFtestcase
+PFResults = PFtestcase(mpc,interflow,flowlimit);
 
 
 
 %% OPF test
-OPFtestcase
+OPFResults = OPFtestcase(mpc,fuelsum,month,NYzp);
 

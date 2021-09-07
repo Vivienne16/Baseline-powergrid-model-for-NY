@@ -1,4 +1,4 @@
-function mpc = PFtestcase(mpc)
+function mpc = PFtestcase(mpc,interflow,flowlimit)
 %PFTESTCASE
 %   
 %   This file run a test case for PF using the updatedmpc
@@ -13,7 +13,7 @@ function mpc = PFtestcase(mpc)
 %   Created by Vivienne Liu, Cornell University
 %   Last modified on August 17, 2021
 
-%% Load reduced MATPOWER case
+%% Input parameters
 define_constants;
 mpcreduced = loadcase('Result/mpcreduced.mat');
 

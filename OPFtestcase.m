@@ -1,4 +1,4 @@
-function mpc = OPFtestcase(mpc)
+function mpc = OPFtestcase(mpc,fuelsum,month,NYzp)
 %OPFTESTCASE
 % 
 %   This file run a test case for OPF using the updated mpc
@@ -13,7 +13,8 @@ function mpc = OPFtestcase(mpc)
 %   Created by Vivienne Liu, Cornell University
 %   Last modified on August 17, 2021
 
-%% Load reduced MATPOWER case
+%% Input parameters
+define_constants;
 mpcreduced = loadcase('Result/mpcreduced.mat');
 
 %% additional constraints for large hydro to avoid dispatch at upper gen limit
@@ -120,10 +121,9 @@ KLIprice = Kbus(:,PD)'*Kbus(:,14)/sum(Kbus(:,PD));
 simprice = [Aprice,Bprice,Cprice,Dprice,EMHKVLprice,FCAPITLprice,GHUDVLprice,HMILLWDprice,IDUNWODprice,JNYCprice,KLIprice,PJMPRICE,NEPRICE,IESOPRICE];
 
 %% read real price
-load('Data/NYRTMprice.mat');
-NYzp = NYRTMprice(NYRTMprice.month == month & NYRTMprice.day == day & NYRTMprice.hour == hour,:);
-NYzp = NYzp(:,{'Name','LBMPMWHr'});
-NYzp = groupsummary(NYzp,'Name','mean');
+% load('Data/NYRTMprice.mat');
+% NYzp = NYRTMprice(NYRTMprice.month == month & NYRTMprice.day == day & NYRTMprice.hour == hour,:);
+NYzp.Name = string(NYzp.Name);
 Apr = NYzp.mean_LBMPMWHr(NYzp.Name == 'WEST');
 Bpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'GENESE');
 Cpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'CENTRL');
