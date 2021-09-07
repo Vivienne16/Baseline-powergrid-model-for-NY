@@ -417,32 +417,32 @@ mpcreduced.if.lims = [
 fprintf("Finished setting interface flow limits!\n");
 
 %% add gencost
-% cost curve for NY
+% cost curve for thermal generators in NY
 NYgenthermalcost = zeros(227,6);
 NYgenthermalcost(:,MODEL) = 2; % Polynomial cost function
 NYgenthermalcost(:,NCOST) = 2; % Linear cost curve
 NYgenthermalcost(:, COST) = gendata.cost_1;
 NYgenthermalcost(:, COST+1) = gendata.cost_0;
 
-% cost curve for hydro and nuclear NY
+% cost curve for hydro and nuclear generators in NY
 hynucost = zeros(12,6);
 hynucost(:,MODEL) = 2;
 hynucost(:,NCOST) = 2;
 count = 0;
 for i = 1:height(RenewableGen)
-    if RenewableGen(i,COST) ~= 0
+    if RenewableGen.PgNuclearCap(i) ~= 0
         count = count+1;
         % Randomly assign cost for $1-3/MWh
         hynucost(count,COST) = 1+2*rand(1);
     end
-    if RenewableGen(i,7) ~= 0
+    if RenewableGen.PgWaterCap(i) ~= 0
         count = count +1;
         % Randomly assign cost for $0-10/MWh
         hynucost(count,COST) = 10*rand(1);
     end
 end
 
-% cost curve for external 
+% cost curve for external generators
 NYzp = NYRTMprice(NYRTMprice.month == month & NYRTMprice.day == day & NYRTMprice.hour == hour,:);
 PJMpr = NYzp.mean_LBMPMWHr(string(NYzp.Name) == 'PJM');
 NEpr = NYzp.mean_LBMPMWHr(string(NYzp.Name) == 'NPX');
@@ -456,12 +456,14 @@ exgencostthermal = zeros(28,6);
 exgencostthermal(:,MODEL) = 2;
 exgencostthermal(:,NCOST) = 2;
 offset = 12+227; % 227 thermal generators and 12 hydro and nuclear generators
+
+%%%% Use external price as constant cost?
 for i = 1:length(mpcreduced.gen(offset+1:offset+28,1))
-    if mpcreduced.gen(offset+i,1) <=35
+    if mpcreduced.gen(offset+i,GEN_BUS) <=35
         exgencostthermal(i,COST) = NEprice;       
-    elseif mpcreduced.gen(offset+i,1) >=83 && mpcreduced.gen(offset+i,1)<= 113
+    elseif mpcreduced.gen(offset+i,GEN_BUS) >=83 && mpcreduced.gen(offset+i,GEN_BUS)<= 113
         exgencostthermal(i,COST) = IESOprice;
-    elseif mpcreduced.gen(offset+i,1)>113
+    elseif mpcreduced.gen(offset+i,GEN_BUS)>113
         exgencostthermal(i,COST) = PJMprice;
     else
         exgencostthermal(i,COST) = HQprice;

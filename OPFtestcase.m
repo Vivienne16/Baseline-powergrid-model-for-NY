@@ -18,6 +18,7 @@ mpcreduced = loadcase('Result/mpcreduced.mat');
 
 %% additional constraints for large hydro to avoid dispatch at upper gen limit
 %hydro gen constraints
+%%%% Change this to data file reading
 RMNcf = [0.8072,0.7688,0.815,0.7178,0.8058,0.7785,0.8275,0.8007,0.7931,0.7626,0.7764,0.8540];
 STLcf = [0.9133,0.9483, 1.0112,0.9547,0.9921,1.0984,1.0761,1.0999,1.0976,1.0053,1.0491,1.0456];
 mpcreduced.gen(228,9) = 0.8*(fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Hydro')-910)-STLcf(month)*860;
@@ -26,7 +27,6 @@ mpcreduced.gen(234,9) = STLcf(month)*860;
 
 
 %% Run OPF
-
 mpopt = mpoption( 'opf.dc.solver','GUROBI','opf.flow_lim','P');
 mpcreduced = toggle_iflims(mpcreduced, 'on');
 reducedopf = rundcopf(mpcreduced,mpopt);
@@ -43,73 +43,77 @@ IESObus = rbus(50:52,:);
 PJMPRICE = PJMbus(:,3)'*PJMbus(:,14)/sum(PJMbus(:,3));
 NEPRICE = NEbus(:,3)'*NEbus(:,14)/sum(NEbus(:,3));
 IESOPRICE = IESObus(:,3)'*IESObus(:,14)/sum(IESObus(:,3));
-A = [54 55 56 57 58 59 60 61];
-B = [62 52 53];
-C = [50 51 63 64 65 66 67 68 70 71 72];
-D = [48 49];
-E = [69 38 43 44 45 46 47];
-F = [37 40 41 42];
-G = [39 73 75 76 77];
-H = [74];
-I = 78;
-J = [82 81];
-K = [79 80];
-Aidx = find(ismember(mpcreduced.gen(:,GEN_BUS),A)==1);
-Bidx = find(ismember(mpcreduced.gen(:,GEN_BUS),B)==1);
-Cidx = find(ismember(mpcreduced.gen(:,GEN_BUS),C)==1);
-Didx = find(ismember(mpcreduced.gen(:,GEN_BUS),D)==1);
-Eidx = find(ismember(mpcreduced.gen(:,GEN_BUS),E)==1);
-Fidx = find(ismember(mpcreduced.gen(:,GEN_BUS),F)==1);
-Gidx = find(ismember(mpcreduced.gen(:,GEN_BUS),G)==1);
-Hidx = find(ismember(mpcreduced.gen(:,GEN_BUS),H)==1);
-Iidx = find(ismember(mpcreduced.gen(:,GEN_BUS),I)==1);
-Jidx = find(ismember(mpcreduced.gen(:,GEN_BUS),J)==1);
-Kidx = find(ismember(mpcreduced.gen(:,GEN_BUS),K)==1);
+busIdA = [54 55 56 57 58 59 60 61];
+busIdB = [52 53 62];
+busIdC = [50 51 63 64 65 66 67 68 70 71 72];
+busIdD = [48 49];
+busIdE = [38 43 44 45 46 47 69];
+busIdF = [37 40 41 42];
+busIdG = [39 73 75 76 77];
+busIdH = 74;
+busIdI = 78;
+busIdJ = [82 81];
+busIdK = [79 80];
+isAGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdA);
+isBGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdB);
+isCGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdC);
+isDGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdD);
+isEGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdE);
+isFGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdF);
+isGGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdG);
+isHGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdH);
+isIGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdI);
+isJGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdJ);
+isKGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdK);
 
 
 Abus = [];Bbus = [];Cbus = [];Dbus = [];Ebus = [];Fbus = [];Gbus = [];Hbus = [];Ibus = [];Kbus = [];Jbus = [];
 
-for i = A
+Abus_copy = rbus(ismember(rbus(:,BUS_I),busIdA),:);
+
+
+
+for i = busIdA
     Abus = [Abus;rbus(rbus(:,1)==i,:)];
 end
-Aprice = Abus(:,PD)'*Abus(:,14)/sum(Abus(:,PD));
-for i = B
+Aprice = Abus(:,PD)'*Abus(:,LAM_P)/sum(Abus(:,PD));
+for i = busIdB
     Bbus = [Bbus;rbus(rbus(:,1)==i,:)];
 end
-Bprice = Bbus(:,PD)'*Bbus(:,14)/sum(Bbus(:,PD));
-for i = C
+Bprice = Bbus(:,PD)'*Bbus(:,LAM_P)/sum(Bbus(:,PD));
+for i = busIdC
     Cbus = [Cbus;rbus(rbus(:,1)==i,:)];
 end
 Cprice = Cbus(:,PD)'*Cbus(:,14)/sum(Cbus(:,PD));
-for i = D
+for i = busIdD
     Dbus = [Dbus;rbus(rbus(:,1)==i,:)];
 end
 Dprice = Dbus(:,PD)'*Dbus(:,14)/sum(Dbus(:,PD));
-for i = E
+for i = busIdE
     Ebus = [Ebus;rbus(rbus(:,1)==i,:)];
 end
 EMHKVLprice = Ebus(:,PD)'*Ebus(:,14)/sum(Ebus(:,PD));
-for i = F
+for i = busIdF
     Fbus = [Fbus;rbus(rbus(:,1)==i,:)];
 end
 FCAPITLprice = Fbus(:,PD)'*Fbus(:,14)/sum(Fbus(:,PD));
-for i = G
+for i = busIdG
     Gbus = [Gbus;rbus(rbus(:,1)==i,:)];
 end
 GHUDVLprice = Gbus(:,PD)'*Gbus(:,14)/sum(Gbus(:,PD));
-for i = H
+for i = busIdH
     Hbus = [Hbus;rbus(rbus(:,1)==i,:)];
 end
 HMILLWDprice = Hbus(:,PD)'*Hbus(:,14)/sum(Hbus(:,PD));
-for i = I
+for i = busIdI
     Ibus = [Ibus;rbus(rbus(:,1)==i,:)];
 end
 IDUNWODprice = Ibus(:,PD)'*Ibus(:,14)/sum(Ibus(:,PD));
-for i = J
+for i = busIdJ
     Jbus = [Jbus;rbus(rbus(:,1)==i,:)];
 end
 JNYCprice = Jbus(:,PD)'*Jbus(:,14)/sum(Jbus(:,PD));
-for i = K
+for i = busIdK
     Kbus = [Kbus;rbus(rbus(:,1)==i,:)];
 end
 KLIprice = Kbus(:,PD)'*Kbus(:,14)/sum(Kbus(:,PD));
