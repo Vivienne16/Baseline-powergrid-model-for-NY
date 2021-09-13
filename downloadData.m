@@ -1,8 +1,16 @@
-close all;
-clear all;
-clc;
+function msg = downloadData()
+%DOWNLOADDATA Download market operation data from NYISO's website
+%
+%   Download NYISO hourly fuel mix data, hourly interface flow data, hourly
+%   real-time price data, hourly real-time load data from NYISO's OASIS,
+%   and hourly real-time generation data in NY from RGGI.
+
+%   Created by Bo Yuan, Cornell University
+%   Last modifed on September 9, 2021
 
 %% Input settings
+close all;
+clc;
 prepDir = 'Prep';
 createDir(prepDir);
 year = 2019;
@@ -18,7 +26,7 @@ msg = yearlyDownload(api,suffix,fuelmixDir,year);
 fprintf("%s\n",msg);
 
 %% Download interface flow data
-interfaceDir = fullfile(prepDir,'interface');
+interfaceDir = fullfile(prepDir,'interflow');
 createDir(interfaceDir);
 api = apiroot+"ExternalLimitsFlows/";
 suffix = "ExternalLimitsFlows_csv.zip";
@@ -44,14 +52,33 @@ fprintf("Downloading and unzipping NYISO real-time load data in %d ...",year);
 msg = yearlyDownload(api,suffix,rtloadDir,year);
 fprintf("%s\n",msg);
 
-%% Functions
+%% Downlaod hourly generation data from RGGI
+rtgenDir = fullfile(prepDir, 'rtgen');
+createDir(rtgenDir);
+api = "https://gaftp.epa.gov/DMDnLoad/emissions/hourly/monthly/2019/";
+suffix = "ny";
+fprintf("Downloading and unzipping RGGI NY real-time generation data in %d ...",year);
+msg = yearlyDownload(api,suffix,rtgenDir,year);
+fprintf("%s\n",msg);
+
+msg = "Success!";
+
+end
+
+%% Utility functions
 function msg = yearlyDownload(api, suffix, dir, year)
 if nargin <= 3 && isempty(year)
     year = 2019; % Default to download data in 2019
 end
 try
     for month = 1:12
-        filename = sprintf('%d%02d%02d',year,month,1)+suffix;
+        if contains(api, "nyiso")
+            filename = sprintf('%d%02d%02d',year,month,1)+suffix;
+        elseif contains(api, "epa")
+            filename = sprintf('%d%s%02d.zip',year,suffix,month);
+        else
+            error("Error: Undefined api format!");
+        end
         % Download data
         url = api+filename;
         outfilename = websave(fullfile(dir,filename),url);
@@ -74,4 +101,3 @@ else
     fprintf("Created Directory: %s!\n",dir);
 end
 end
-

@@ -18,24 +18,22 @@ try
     fuelmixAll = readall(fuelmixDataStore);
     clear fuelMixDataStore;
     
-    % Format fuel mix data
+    %% Format fuel mix data
     fuelCats = unique(fuelmixAll.FuelCategory);
     numFuel = length(fuelCats);
-    fuelTable = fuelmixAll(fuelmixAll.FuelCategory == fuelCats(1),:);
-    fuelTable = removevars(fuelTable,"FuelCategory");
-    fuelTable.Properties.VariableNames(end) = erase(string(fuelCats(1))," ");
+    fuelmixHourly = table();
     
-    for n=2:numFuel
-        T = fuelmixAll(fuelmixAll.FuelCategory == fuelCats(n),:);
-        fuelTable = outerjoin(fuelTable,T,"Keys","TimeStamp","MergeKeys",true,"RightVariables","GenMW");
-        fuelTable.Properties.VariableNames(end) =  erase(string(fuelCats(n))," ");
+    for n=1:numFuel
+        T = fuelmixAll(fuelmixAll.FuelCategory == fuelCats(n), :);
+        T = table2timetable(T(:,["TimeStamp","GenMW"]));
+        T = retime(T,"hourly","mean");
+        T = timetable2table(T);
+        T.FuelCategory = repelem(fuelCats(n),height(T))';
+        T = movevars(T,"FuelCategory","After","TimeStamp");
+        fuelmixHourly = [fuelmixHourly; T];
     end
     
-    fuelTable.Total = sum(fuelTable{:,2:end},2);
-    fuelTable = table2timetable(fuelTable);
-    % Average to hourly data
-    fuelTableHourly = retime(fuelTable,"hourly","mean");
-    fuelmixHourly = timetable2table(fuelTableHourly);
+    fuelmixHourly = sortrows(fuelmixHourly,"TimeStamp","ascend");
     
     % Write hourly fuel mix data
     outfilename = fullfile('Data','fuelmixHourly.csv');
@@ -47,6 +45,7 @@ end
 end
 
 function fuelMix = importFuelmix(filename, dataLines)
+%IMPORTFUELMIX Import NYISO real-time fuel mix data
 
 %% Input handling
 
