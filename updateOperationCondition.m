@@ -15,52 +15,59 @@ function [mpcreduced,interFlow,flowLimit,fuelMix,NYzp] = updateOperationConditio
 %   Last modified on August 17, 2021
 
 %% Input parameters
-% year = 2019;
-% month = 1;
-% day = 1;
-% hour = 1;
+year = 2019; month = 1; day = 1; hour = 12;
+datetime.setDefaultFormats('default',"MM/dd/uuuu HH:mm:ss")
 timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
-FuelMix = readtable(fullfile('Data','fuelmixHourly.csv'));
-InterFlow = readtable(fullfile('Data','interflowHourly.csv'));
-Price = readtable(fullfile('Data','priceHourly.csv'));
+fuelMixAll = readtable(fullfile('Data','fuelmixHourly.csv'));
+interFlowAll = readtable(fullfile('Data','interflowHourly.csv'));
+priceAll = readtable(fullfile('Data','priceHourly.csv'));
+nuclearCfAll = readtable(fullfile('Data','NuclearFactor.csv'));
+hydroCfAll = readtable(fullfile('Data','hydroGenMonthly.csv'));
 
 renewableGen = importRenewableGen(fullfile('Data','RenewableGen.csv'));
-nuclearTable = readtable(fullfile('Data','NuclearFactor.csv'));
 businfo = readtable(fullfile('Data','npcc.xlsx'),'Sheet','Bus');
 mpc = loadcase(fullfile('Result','mpcupdated.mat'));
 
-define_constants;
-
-loadData = allocateLoadHourly(year,month,day,hour,'RTM','weighted');
+% Get time-specific data
+loadData = allocateLoadHourly(year,month,day,hour);
 genData = allocateGenHourly(year,month,day,hour);
+fuelMix = fuelMixAll(fuelMixAll.TimeStamp == timeStamp,:);
+interFlow = interFlowAll(interFlowAll.TimeStamp == timeStamp,["InterfaceName","FlowMWH"]);
+flowLimit = interFlowAll(interFlowAll.TimeStamp == timeStamp,["InterfaceName","PositiveLimitMWH","NegativeLimitMWH"]);
+nuclearCf = nuclearCfAll(nuclearCfAll.TimeStamp == dateshift(timeStamp,'start','day'),:);
+hydroCf = hydroCfAll(hydroCfAll.TimeStamp == dateshift(timeStamp,'start','month'),:);
 
-fuelMix = FuelMix(FuelMix.TimeStamp == timeStamp,:);
-interFlow = InterFlow(InterFlow.TimeStamp == timeStamp,["InterfaceName","FlowMWH"]);
-flowLimit = InterFlow(InterFlow.TimeStamp == timeStamp,["InterfaceName","PositiveLimitMWH","NegativeLimitMWH"]);
-
+define_constants;
 
 %% allocate hydro and nuclear generators in NY
 hydroNukeGen = []; % Matrix to store hydro and nuclear gen matrix
 
 % Renewable generation in NYISO's fuel mix data
-nukeGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Nuclear');
+nuclearGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Nuclear');
 hydroGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Hydro');
 windGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Wind');
 otherGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Other Renewables');
 
+rmnCap = 2435; % Niagara hydropower capacity
+stlCap = 856; % St. Lawrence hydropower capacity
+FitzPatrickCap = 854.5;
+NineMilePoint1Cap = 629;
+NineMilePoint2Cap = 1299;
+IndianPoint2Cap = 1025.9;
+IndianPoint3Cap = 1039.9;
+GinnaCap = 581.7;
+
 % Total capacity and capacify factor of renewables
-nukeCap = sum(renewableGen.PgNuclearCap);
-rNukeGen =  nukeGen/nukeCap;
-hydroCap = sum(renewableGen.PgWaterCap)-2460-856;
-rHydro =  hydroGen/hydroCap;
-windCap = sum(renewableGen.windCap);
-otherCap = sum(renewableGen.otherRenewable);
+nuclearCapSum = sum(renewableGen.PgNuclearCap);
+% rNuclearGen =  nuclearGen/nuclearCapSum;
+hydroCapSum = sum(renewableGen.PgHydroCap)-rmnCap-stlCap; % only small hydros
+% rHydro =  hydroGen/hydroCapSum;
+windCapSum = sum(renewableGen.PgWindCap);
+otherCapSum = sum(renewableGen.otherRenewable);
 
 count = 0;
 
-% Daily nuclear capacity factor 
-nufactor = nuclearTable(nuclearTable.day==day&nuclearTable.month==month,:);
 % STL monthly capacity factor: constant output in a month
 STL = [91.33 94.83 101.12 95.47 99.21 109.84 107.61 109.99 109.76 100.53 104.91 104.56];
 STL = STL/100;
@@ -72,27 +79,23 @@ for i = 1:height(renewableGen)
     %   Add nuclear generators
     %%%% Change the hard coded nuclear capacity to data loading
     %%%% These are actually summer and winter capability numbers
-    if renewableGen.PgNuclearCap(i) ~= 0
-        
+    if renewableGen.PgNuclearCap(i) ~= 0       
         count = count+1;
-        if renewableGen.bus_id(i)==50
+        if renewableGen.bus_id(i) == 50
             % Bus 50: zone C, FitzPatrick and Nine Mile Point 1 and 2
-            renewableGen.PgNuclear(i) = nufactor.FitzPatrick/100*854.5+...
-                nufactor.NineMilePoint1/100*629+nufactor.NineMilePoint2/100*1299;
-%             NuclearGen = NuclearGen + RenewableGen.PgNuclear(i);
-        elseif renewableGen.bus_id(i)== 74
+            renewableGen.PgNuclear(i) = nuclearCf.FitzPatrick/100*FitzPatrickCap...
+                +nuclearCf.NineMilePoint1/100*NineMilePoint1Cap...
+                +nuclearCf.NineMilePoint2/100*NineMilePoint2Cap;
+        elseif renewableGen.bus_id(i) == 74
             % Bus 74: zone H, Indian Point 2 and 3
-            renewableGen.PgNuclear(i) = nufactor.IndianPoint2/100*1025.9+...
-                nufactor.IndianPoint3/100*1039.9;
-%             NuclearGen = NuclearGen + RenewableGen.PgNuclear(i);
+            renewableGen.PgNuclear(i) = nuclearCf.IndianPoint2/100*IndianPoint2Cap...
+                +nuclearCf.IndianPoint3/100*IndianPoint3Cap;
         else
             % Bus 53: zone B, Gina
-            renewableGen.PgNuclear(i) = nufactor.Ginna/100*581.7;
-%             NuclearGen = NuclearGen + RenewableGen.PgNuclear(i);
+            renewableGen.PgNuclear(i) = nuclearCf.Ginna/100*GinnaCap;
         end
         % Calculate total nuclear generation
-        NuclearGen = NuclearGen + renewableGen.PgNuclear(i);
-        
+        NuclearGen = NuclearGen + renewableGen.PgNuclear(i);        
         % Add a new row in the mpc.gen matrix
         newrow = zeros(1,21);
         newrow(GEN_BUS) = renewableGen.bus_id(i);
@@ -110,36 +113,32 @@ for i = 1:height(renewableGen)
         
         % Add a new row to the mpc.gencost matrix
         % Nuclear gen cost varying in $1-3/MWh
-%         hynucost(count,COST) = 1+2*rand(1);        
-    end
-    
+        % hynucost(count,COST) = 1+2*rand(1);        
+    end   
     %   Add hydro generators
-    if renewableGen.PgWaterCap(i) ~= 0
-        
+    if renewableGen.PgHydroCap(i) ~= 0       
         count = count +1;
-        if renewableGen.bus_id(i)==55
-            % Bus 55: zone A, Niagara
-            % Niagara contributes to the most variation
-            renewableGen.PgWater(i) = hydroGen - STL(month)*856-0.2*hydroGen;
-        elseif renewableGen.bus_id(i)==48
-            % Bus 48: zone C, St. Lawrence
-            % St. Lawrence works constantly at the monthly capacity factor
-            renewableGen.PgWater(i) = STL(month)*renewableGen.PgWaterCap(i);
+        if renewableGen.bus_id(i) == 55
+            % Bus 55: zone A, Niagara contributes to the most variation
+            renewableGen.PgHydro(i) = hydroGen - hydroCf.stlCF*stlCap-0.2*hydroGen;
+        elseif renewableGen.bus_id(i) == 48
+            % Bus 48: zone C, St. Lawrence works constantly at the monthly capacity factor
+            renewableGen.PgHydro(i) = hydroCf.stlCF*renewableGen.PgHydroCap(i);
         else
-            % Other hydro across NYS contributes
-            renewableGen.PgWater(i) = 0.2*hydroGen/hydroCap*renewableGen.PgWaterCap(i);
-        end
-        
-        % Add a new row in the mpc.gen matrix
+            % Other hydro across NYS contributes 20% of the total hydro
+            renewableGen.PgHydro(i) = 0.2*hydroGen/hydroCapSum*renewableGen.PgHydroCap(i);
+        end 
+        HydroGen = HydroGen + renewableGen.PgHydro(i);
+        % Add a new row for hydro in the mpc.gen matrix
         newrow = zeros(1,21);
         newrow(GEN_BUS) = renewableGen.bus_id(i);
-        newrow(PG) = renewableGen.PgWater(i);
+        newrow(PG) = renewableGen.PgHydro(i);
         newrow(QMAX) = 9999;
         newrow(QMIN) = -9999;
         newrow(VG) = 1;
         newrow(MBASE) = 100;
         newrow(GEN_STATUS) = 1;
-        newrow(PMAX) = renewableGen.PgWaterCap(i);
+        newrow(PMAX) = renewableGen.PgHydroCap(i);
         newrow(PMIN) = 0;       
         newrow(RAMP_AGC) = 0.09*newrow(9);
         newrow(RAMP_10) = 0.9*newrow(9);
@@ -149,7 +148,7 @@ for i = 1:height(renewableGen)
         % Add a new row to the mpc.gencost matrix
         % Hydro gen cost varying in $20-30/MWh?
         %%%% Duplicated gencost matrix definition?
-%         hynucost(count,COST) = 20+10*rand(1);        
+        % hynucost(count,COST) = 20+10*rand(1);        
     end
 end
 
@@ -236,7 +235,7 @@ mpc.bus(37:82,QD) = loadData.QD;
 % Wind
 for i = 1:height(renewableGen)
     if renewableGen.windCap(i) ~= 0
-        windratio = windGen/windCap; % Wind capacity factor in NY
+        windratio = windGen/windCapSum; % Wind capacity factor in NY
         mpc.bus(renewableGen.bus_id(i),PD) = mpc.bus(renewableGen.bus_id(i),PD) - windratio*renewableGen.windCap(i);
     end
 end
@@ -244,7 +243,7 @@ end
 % Other renewables
 for i = 1:height(renewableGen)
     if renewableGen.otherRenewable(i) ~= 0
-        ORratio = otherGen/otherCap;
+        ORratio = otherGen/otherCapSum;
         mpc.bus(renewableGen.bus_id(i),PD) = mpc.bus(renewableGen.bus_id(i),PD) - ORratio*renewableGen.otherRenewable(i);
     end
 end
@@ -424,7 +423,7 @@ for i = 1:height(renewableGen)
         % Randomly assign cost for $1-3/MWh
         hynucost(count,COST) = 1+2*rand(1);
     end
-    if renewableGen.PgWaterCap(i) ~= 0
+    if renewableGen.PgHydroCap(i) ~= 0
         count = count +1;
         % Randomly assign cost for $0-10/MWh
         hynucost(count,COST) = 10*rand(1);

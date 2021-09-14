@@ -1,4 +1,4 @@
-function msg = downloadData()
+function msg = downloadData(year)
 %DOWNLOADDATA Download market operation data from NYISO's website
 %
 %   Download NYISO hourly fuel mix data, hourly interface flow data, hourly
@@ -9,11 +9,12 @@ function msg = downloadData()
 %   Last modifed on September 9, 2021
 
 %% Input settings
-close all;
-clc;
+if nargin < 1 && isempty(year)
+    year = 2019; % Default data in year 2019
+end
+
 prepDir = 'Prep';
 createDir(prepDir);
-year = 2019;
 apiroot = "http://mis.nyiso.com/public/csv/";
 
 %% Download fuel mix data
@@ -52,16 +53,16 @@ fprintf("Downloading and unzipping NYISO real-time load data in %d ...",year);
 msg = yearlyDownload(api,suffix,rtloadDir,year);
 fprintf("%s\n",msg);
 
-%% Downlaod hourly generation data from RGGI
+%% Downlaod hourly thermal generation data from RGGI
 rtgenDir = fullfile(prepDir, 'rtgen');
 createDir(rtgenDir);
-api = "https://gaftp.epa.gov/DMDnLoad/emissions/hourly/monthly/2019/";
+apiroot = "https://gaftp.epa.gov/DMDnLoad/emissions/hourly/monthly/%d/";
+api = sprintf(apiroot,year);
 suffix = "ny";
 fprintf("Downloading and unzipping RGGI NY real-time generation data in %d ...",year);
 msg = yearlyDownload(api,suffix,rtgenDir,year);
 fprintf("%s\n",msg);
 
-msg = "Success!";
 
 end
 
@@ -73,7 +74,7 @@ end
 try
     for month = 1:12
         if contains(api, "nyiso")
-            filename = sprintf('%d%02d%02d',year,month,1)+suffix;
+            filename = sprintf('%d%02d%02d%s',year,month,1,suffix);
         elseif contains(api, "epa")
             filename = sprintf('%d%s%02d.zip',year,suffix,month);
         else

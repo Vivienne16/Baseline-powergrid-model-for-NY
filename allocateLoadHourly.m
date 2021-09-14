@@ -16,7 +16,7 @@ function sampleHourLoad = allocateLoadHourly(year,month,date,hour,loadType,metho
 
 %% Default function inputs
 if nargin < 5 || isempty(loadType)
-    loadType = "DAM";
+    loadType = "RTM";
 end
 if nargin < 6 || isempty(method)
     method = "weighted";

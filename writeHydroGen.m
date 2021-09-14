@@ -3,6 +3,9 @@ function msg = writeHydroGen(yr)
 %St. Lawrence hydropower plant, calculate capacity factor, and write it to
 %csv files.
 
+%   Created by Bo Yuan, Cornell University
+%   Last modified on September 13, 2021
+
 % Input handling
 if nargin < 1 && isempty(yr)
     yr = 2019; % Default data in year 2019
@@ -25,6 +28,7 @@ hydro_gen.Properties.VariableNames = ["TimeStamp","rmnGen","rmnCF","stlGen","stl
 
 % Get data for a specific year
 hydro_gen = hydro_gen(year(hydro_gen.TimeStamp) == yr, :);
+hydro_gen.TimeStamp = datetime(hydro_gen.TimeStamp,"Format","MM/dd/uuuu");
 
 % Save the data
 outfilename = fullfile('Data','hydroGenMonthly.csv');

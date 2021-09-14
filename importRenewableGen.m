@@ -24,8 +24,11 @@ opts.DataLines = dataLines;
 opts.Delimiter = ",";
 
 % Specify column names and types
-opts.VariableNames = ["bus_id", "Voltage", "Zone", "PgOriginal", "PgThermalCap", "PgThermal", "PgNuclearCap", "PgNuclear", "PgWaterCap", "PgWater", "windCap", "otherRenewable", "P0", "Load"];
-opts.VariableTypes = ["double", "double", "categorical", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"];
+opts.VariableNames = ["BusID", "Voltage", "Zone", "PgOriginal", "PgThermalCap",...
+    "PgThermal", "PgNuclearCap", "PgNuclear", "PgHydroCap", "PgHydro", "PgWindCap",...
+    "OtherRenewable", "P0", "Load"];
+opts.VariableTypes = ["double", "double", "categorical", "double", "double",...
+    "double", "double", "double", "double", "double", "double", "double", "double", "double"];
 
 % Specify file level properties
 opts.ExtraColumnsRule = "ignore";
