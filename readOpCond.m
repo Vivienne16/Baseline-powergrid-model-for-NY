@@ -1,31 +1,21 @@
-function [loadData,genData,fuelMix,interFlow,nuclearCf,hydroCf] = readOpCond(timeStamp)
+function [fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp)
+%READOPCOND Read hourly fuelmix data, hourly interface flow data, hourly
+%zonal price data, daily nuclear generation capacity factor data, monthly
+%hydro generation capacity factor data
 
-
-% Read hourly fuelmix data, hourly interface flow data, hourly zonal price
-% data, daily nuclear generation capacity factor data, monthly hydro
-% generation capacity factor data
 fuelMixAll = importFuelMix(fullfile('Data','fuelmixHourly.csv'));
 interFlowAll = importInterFlow(fullfile('Data','interflowHourly.csv'));
-priceAll = importPrice(fullfile('Data','priceHourly.csv'));
+zonalPriceAll = importZonalPrice(fullfile('Data','priceHourly.csv'));
 nuclearCfAll = importNuclearGen(fullfile('Data','nuclearGenDaily.csv'));
 hydroCfAll = importHydroGen(fullfile('Data','hydroGenMonthly.csv'));
 
-% Read renewable generation capacity allocation table
-renewableGen = importRenewableGen(fullfile('Data','RenewableGen.csv'));
-businfo = readtable(fullfile('Data','npcc.xlsx'),'Sheet','Bus');
-
-% Read updated mpc case
-mpc = loadcase(fullfile('Result','mpcupdated.mat'));
-
 % Get time-specific data
-loadData = allocateLoadHourly(year,month,day,hour);
-genData = allocateGenHourly(year,month,day,hour);
 fuelMix = fuelMixAll(fuelMixAll.TimeStamp == timeStamp,:);
 interFlow = interFlowAll(interFlowAll.TimeStamp == timeStamp,["InterfaceName","FlowMWH"]);
 flowLimit = interFlowAll(interFlowAll.TimeStamp == timeStamp,["InterfaceName","PositiveLimitMWH","NegativeLimitMWH"]);
 nuclearCf = nuclearCfAll(nuclearCfAll.TimeStamp == dateshift(timeStamp,'start','day'),:);
 hydroCf = hydroCfAll(hydroCfAll.TimeStamp == dateshift(timeStamp,'start','month'),:);
-
+zonalPrice = zonalPriceAll(zonalPriceAll.TimeStamp == timeStamp, :);
 end
 
 function fuelMix = importFuelMix(filename, dataLines)
@@ -74,7 +64,7 @@ opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
 interFlow = readtable(filename, opts);
 end
 
-function price = importPrice(filename, dataLines)
+function zonalPrice = importZonalPrice(filename, dataLines)
 % If dataLines is not specified, define defaults
 if nargin < 2
     dataLines = [2, Inf];
@@ -94,7 +84,7 @@ opts.EmptyLineRule = "read";
 opts = setvaropts(opts, "ZoneName", "EmptyFieldRule", "auto");
 opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
 % Import the data
-price = readtable(filename, opts);
+zonalPrice = readtable(filename, opts);
 end
 
 function nuclearGen = importNuclearGen(filename, dataLines)

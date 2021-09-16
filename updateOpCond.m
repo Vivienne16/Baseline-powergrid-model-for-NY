@@ -1,4 +1,4 @@
-function [mpcreduced,interFlow,flowLimit,fuelMix,NYzp] = updateOpCond(year,month,day,hour)
+function [mpcreduced,interFlow,flowLimit,fuelMix,zonalPrice] = updateOpCond(year,month,day,hour)
 %UPDATEOPERATIONCONDITION
 %
 %   This file should be run after the ModifyMPC.m file. The operation
@@ -14,40 +14,28 @@ function [mpcreduced,interFlow,flowLimit,fuelMix,NYzp] = updateOpCond(year,month
 %   Created by Vivienne Liu, Cornell University
 %   Last modified on August 17, 2021
 
-%% Input parameters
+%% Read operation condition
 year = 2019; month = 1; day = 1; hour = 12;
-datetime.setDefaultFormats('default',"MM/dd/uuuu HH:mm:ss")
 timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
-% Read hourly fuelmix data, hourly interface flow data, hourly zonal price
-% data, daily nuclear generation capacity factor data, monthly hydro
-% generation capacity factor data
-fuelMixAll = readtable(fullfile('Data','fuelmixHourly.csv'));
-interFlowAll = readtable(fullfile('Data','interflowHourly.csv'));
-priceAll = readtable(fullfile('Data','priceHourly.csv'));
-nuclearCfAll = readtable(fullfile('Data','nuclearGenDaily.csv'));
-hydroCfAll = readtable(fullfile('Data','hydroGenMonthly.csv'));
+% Read operation condition for NYS
+[fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);
 
 % Read renewable generation capacity allocation table
 renewableGen = importRenewableGen(fullfile('Data','RenewableGen.csv'));
-businfo = readtable(fullfile('Data','npcc.xlsx'),'Sheet','Bus');
+businfo = importBusInfo(fullfile('Data','npcc.csv'));
 
 % Read updated mpc case
 mpc = loadcase(fullfile('Result','mpcupdated.mat'));
 
-% Get time-specific data
+% Allocate load and generation data
 loadData = allocateLoadHourly(year,month,day,hour);
 genData = allocateGenHourly(year,month,day,hour);
-fuelMix = fuelMixAll(fuelMixAll.TimeStamp == timeStamp,:);
-interFlow = interFlowAll(interFlowAll.TimeStamp == timeStamp,["InterfaceName","FlowMWH"]);
-flowLimit = interFlowAll(interFlowAll.TimeStamp == timeStamp,["InterfaceName","PositiveLimitMWH","NegativeLimitMWH"]);
-nuclearCf = nuclearCfAll(nuclearCfAll.TimeStamp == dateshift(timeStamp,'start','day'),:);
-hydroCf = hydroCfAll(hydroCfAll.TimeStamp == dateshift(timeStamp,'start','month'),:);
 
 define_constants;
 
 %% allocate hydro and nuclear generators in NY
-hydroNukeGen = []; % Matrix to store hydro and nuclear gen matrix
+hydroNuclearGen = []; % Matrix to store hydro and nuclear gen matrix
 
 % Renewable generation in NYISO's fuel mix data
 nuclearGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Nuclear');
@@ -113,7 +101,7 @@ for i = 1:height(renewableGen)
         newrow(RAMP_AGC) = 0.01*newrow(PMAX);
         newrow(RAMP_10) = 0.1*newrow(PMAX);
         newrow(RAMP_30) = 0.3*newrow(PMAX);
-        hydroNukeGen = [hydroNukeGen;newrow];
+        hydroNuclearGen = [hydroNuclearGen;newrow];
         
         % Add a new row to the mpc.gencost matrix
         % Nuclear gen cost varying in $1-3/MWh
@@ -147,7 +135,7 @@ for i = 1:height(renewableGen)
         newrow(RAMP_AGC) = 0.09*newrow(9);
         newrow(RAMP_10) = 0.9*newrow(9);
         newrow(RAMP_30) = newrow(9);
-        hydroNukeGen = [hydroNukeGen;newrow];
+        hydroNuclearGen = [hydroNuclearGen;newrow];
         
         % Add a new row to the mpc.gencost matrix
         % Hydro gen cost varying in $20-30/MWh?
@@ -163,7 +151,7 @@ demand = [loadData.busIdx loadData.PD];
 totalloadny = sum(loadData.PD); % Total hourly load in NYISO
 totalgen = sum(fuelMix.mean_GenMW); % Total hourly generation in NYISO
 % Needed thermal generation from NYISO fuel mix data
-thermalneed = totalgen-sum(hydroNukeGen(:,PG))-windGen-otherGen;
+thermalneed = totalgen-sum(hydroNuclearGen(:,PG))-windGen-otherGen;
 % gendata.BusName = str2num(char(gendata.BusName));
 % Replace missing generation data with zero?
 genData{:,12:13}(isnan(genData{:,12:13})) = 0;
@@ -193,7 +181,7 @@ thegen(:,PMIN) = genData.minPower;
 thegen(:,RAMP_AGC) = genData.maxRampAgc;
 thegen(:,RAMP_10) = genData.maxRamp10;
 thegen(:,RAMP_30) = genData.maxRamp30;
-updatedgen = [thegen;hydroNukeGen];
+updatedgen = [thegen;hydroNuclearGen];
 totalgenny = sum(updatedgen(:,PG));
 ThermalGen = sum(thegen(:,PG)); % Final thermal generation
 
@@ -385,13 +373,13 @@ mpcreduced.if.map = [
     11  71;     %% 11 : I - K
     11  72
 ];
-A_B = flowLimit(string(flowLimit.InterfaceName) == 'DYSINGER EAST',:);
-B_C = flowLimit(string(flowLimit.InterfaceName) == 'WEST CENTRAL',:);
-C_E = flowLimit(string(flowLimit.InterfaceName) == 'TOTAL EAST',:);
-D_E = flowLimit(string(flowLimit.InterfaceName) == 'MOSES SOUTH',:);
-E_F = flowLimit(string(flowLimit.InterfaceName) == 'CENTRAL EAST - VC',:);
-G_H = flowLimit(string(flowLimit.InterfaceName) == 'UPNY CONED',:);
-I_J = flowLimit(string(flowLimit.InterfaceName) == 'SPR/DUN-SOUTH',:);
+A_B = flowLimit(flowLimit.InterfaceName == 'DYSINGER EAST',:);
+B_C = flowLimit(flowLimit.InterfaceName == 'WEST CENTRAL',:);
+C_E = flowLimit(flowLimit.InterfaceName == 'TOTAL EAST',:);
+D_E = flowLimit(flowLimit.InterfaceName == 'MOSES SOUTH',:);
+E_F = flowLimit(flowLimit.InterfaceName == 'CENTRAL EAST - VC',:);
+G_H = flowLimit(flowLimit.InterfaceName == 'UPNY CONED',:);
+I_J = flowLimit(flowLimit.InterfaceName == 'SPR/DUN-SOUTH',:);
 mpcreduced.if.lims = [
 	1	A_B.NegativeLimitMWH	A_B.PositiveLimitMWH;	%% 1 : A - B
     2	B_C.NegativeLimitMWH	B_C.PositiveLimitMWH;	%% 2 : B - C
@@ -434,16 +422,12 @@ for i = 1:height(renewableGen)
     end
 end
 
-% cost curve for external generators
-NYzp = NYRTMprice(NYRTMprice.month == month & NYRTMprice.day == day & NYRTMprice.hour == hour,:);
-PJMpr = NYzp.mean_LBMPMWHr(string(NYzp.Name) == 'PJM');
-NEpr = NYzp.mean_LBMPMWHr(string(NYzp.Name) == 'NPX');
-IESOpr = NYzp.mean_LBMPMWHr(string(NYzp.Name) == 'O H');
-HQpr = NYzp.mean_LBMPMWHr(string(NYzp.Name) == 'H Q');
-PJMprice = PJMpr;
-NEprice = NEpr;
-IESOprice = IESOpr;
-HQprice = HQpr;
+% Cost curve for external generators
+PJMprice = zonalPrice.LBMP(zonalPrice.ZoneName == 'PJM');
+NEprice = zonalPrice.LBMP(zonalPrice.ZoneName == 'NPX');
+IESOprice = zonalPrice.LBMP(zonalPrice.ZoneName == 'O H');
+HQprice = zonalPrice.LBMP(zonalPrice.ZoneName == 'H Q');
+
 exgencostthermal = zeros(28,6);
 exgencostthermal(:,MODEL) = 2;
 exgencostthermal(:,NCOST) = 2;
