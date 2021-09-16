@@ -9,7 +9,7 @@ if nargin < 1 && isempty(year)
 end
 
 %% Downlaod data from NRC
-nuclearDir = fullfile('Prep', 'nuclear');
+nuclearDir = fullfile('Prep','nuclear');
 apiroot = "https://www.nrc.gov/reading-rm/doc-collections/event-status/reactor-status/%d/";
 api = sprintf(apiroot,year);
 suffix = "PowerStatus.txt";
@@ -19,7 +19,7 @@ url = api+filename;
 outfilename = websave(fullfile(nuclearDir,filename),url);
 
 %% Read the delimited text data
-opts = delimitedTextImportOptions("NumVariables", 3);
+opts = delimitedTextImportOptions("NumVariables",3);
 % Specify range and delimiter
 opts.DataLines = [2, Inf];
 opts.Delimiter = "|";
@@ -45,7 +45,7 @@ nuclearDaily.Power = nuclearDaily.Power/100;
 
 numUnit = length(unitNames);
 nuclearTable = nuclearDaily(nuclearDaily.Unit == unitNames(1), ["TimeStamp","Power"]);
-nuclearTable.Gen = nuclearTable.Power*100;
+nuclearTable.Gen = nuclearTable.Power*unitCaps(1);
 nuclearTable.Properties.VariableNames(end-1) = erase(string(unitNames(1))," ")+"CF";
 nuclearTable.Properties.VariableNames(end) = erase(string(unitNames(1))," ")+"Gen";
 

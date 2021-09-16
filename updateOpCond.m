@@ -1,4 +1,4 @@
-function [mpcreduced,interFlow,flowLimit,fuelMix,NYzp] = updateOperationCondition(year,month,day,hour)
+function [mpcreduced,interFlow,flowLimit,fuelMix,NYzp] = updateOpCond(year,month,day,hour)
 %UPDATEOPERATIONCONDITION
 %
 %   This file should be run after the ModifyMPC.m file. The operation
@@ -19,14 +19,20 @@ year = 2019; month = 1; day = 1; hour = 12;
 datetime.setDefaultFormats('default',"MM/dd/uuuu HH:mm:ss")
 timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
+% Read hourly fuelmix data, hourly interface flow data, hourly zonal price
+% data, daily nuclear generation capacity factor data, monthly hydro
+% generation capacity factor data
 fuelMixAll = readtable(fullfile('Data','fuelmixHourly.csv'));
 interFlowAll = readtable(fullfile('Data','interflowHourly.csv'));
 priceAll = readtable(fullfile('Data','priceHourly.csv'));
-nuclearCfAll = readtable(fullfile('Data','NuclearFactor.csv'));
+nuclearCfAll = readtable(fullfile('Data','nuclearGenDaily.csv'));
 hydroCfAll = readtable(fullfile('Data','hydroGenMonthly.csv'));
 
+% Read renewable generation capacity allocation table
 renewableGen = importRenewableGen(fullfile('Data','RenewableGen.csv'));
 businfo = readtable(fullfile('Data','npcc.xlsx'),'Sheet','Bus');
+
+% Read updated mpc case
 mpc = loadcase(fullfile('Result','mpcupdated.mat'));
 
 % Get time-specific data
@@ -49,14 +55,14 @@ hydroGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Hydro');
 windGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Wind');
 otherGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Other Renewables');
 
-rmnCap = 2435; % Niagara hydropower capacity
-stlCap = 856; % St. Lawrence hydropower capacity
-FitzPatrickCap = 854.5;
-NineMilePoint1Cap = 629;
-NineMilePoint2Cap = 1299;
-IndianPoint2Cap = 1025.9;
-IndianPoint3Cap = 1039.9;
-GinnaCap = 581.7;
+% rmnCap = 2435; % Niagara hydropower capacity
+% stlCap = 856; % St. Lawrence hydropower capacity
+% FitzPatrickCap = 854.5;
+% NineMilePoint1Cap = 629;
+% NineMilePoint2Cap = 1299;
+% IndianPoint2Cap = 1025.9;
+% IndianPoint3Cap = 1039.9;
+% GinnaCap = 581.7;
 
 % Total capacity and capacify factor of renewables
 nuclearCapSum = sum(renewableGen.PgNuclearCap);
@@ -68,17 +74,15 @@ otherCapSum = sum(renewableGen.otherRenewable);
 
 count = 0;
 
-% STL monthly capacity factor: constant output in a month
-STL = [91.33 94.83 101.12 95.47 99.21 109.84 107.61 109.99 109.76 100.53 104.91 104.56];
-STL = STL/100;
+% % STL monthly capacity factor: constant output in a month
+% STL = [91.33 94.83 101.12 95.47 99.21 109.84 107.61 109.99 109.76 100.53 104.91 104.56];
+% STL = STL/100;
 
 NuclearGen = 0; % Total nuclear generation
 HydroGen = 0; % Total hydro generation
 
 for i = 1:height(renewableGen)
     %   Add nuclear generators
-    %%%% Change the hard coded nuclear capacity to data loading
-    %%%% These are actually summer and winter capability numbers
     if renewableGen.PgNuclearCap(i) ~= 0       
         count = count+1;
         if renewableGen.bus_id(i) == 50

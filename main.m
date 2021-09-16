@@ -14,7 +14,7 @@ month = 1;
 day = 10;
 hour = 16;
 
-[mpcreduced,interflow,flowlimit,fuelsum,NYzp] = updateOperationCondition(year,month,day,hour);
+[mpcreduced,interflow,flowlimit,fuelsum,NYzp] = updateOpCond(year,month,day,hour);
 
 
 %% PF test
