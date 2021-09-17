@@ -13,7 +13,7 @@ end
 
 % Robert Moses Niagara
 series_id_rmn = "ELEC.PLANT.GEN.2693-ALL-ALL.M";
-cap_rmn = 2435;
+cap_rmn = 2460;
 gen_data_rmn = downloadGenEia(series_id_rmn,cap_rmn);
 
 % Robert Moses Power Dam (St Lawrence FDR)

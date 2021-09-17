@@ -1,4 +1,4 @@
-function sampleHourGen = allocateGenHourly(year,month,date,hour,costType)
+function sampleHourGen = allocateGen(timeStamp,costType)
 %ALLOCATEGENHOURLY Allocate hourly generation to buses in NYS
 %   
 %   Use the ALLOCATEGENHOURLY function to produces a table of generation
@@ -6,7 +6,7 @@ function sampleHourGen = allocateGenHourly(year,month,date,hour,costType)
 %   case file.
 %   
 %   Inputs:
-%       year,month,date,hour - Timestamp information
+%       timeStamp- includes year, month, day, hour
 %       costType - "lm": use linear cost function for all generators, default
 %              "qm": mix of linear and quadratic function (if available)
 %   Outputs:
@@ -17,39 +17,38 @@ function sampleHourGen = allocateGenHourly(year,month,date,hour,costType)
 
 %% Default function inputs
 % Use linear cost function by default
-if nargin <= 4
+if nargin <= 1
     costType = "lm";
 end
 
 %% Generator allocation
 % Read generator allocation table
-genAllocation = importNearestBus("Data/gen_bus_assignment.csv");
+genAllocation = importNearestBus(fullfile("Data","gen_bus_assignment.csv"));
 % Read generator parameter table
-genParamAll = importGenParam("Data/genParamAll.csv");
+genParamAll = importGenParam(fullfile("Data","genParamAll.csv"));
 % Allocate generator to the nearest PV bus
 genParamWBus = innerjoin(genParamAll,genAllocation,"Keys",["NYISOName","PTID"], ...
     "RightVariables","BusName");
 
 %% Sample hour generation
-TimeStamp = datetime(year,month,date,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 % Read hourly generation and heat input data for large generators
-load("Data/hourlyGenLarge.mat","hourlyGenLarge","-mat");
+load(fullfile("Data","hourlyGenLarge.mat"),"hourlyGenLarge","-mat");
 % Time stamp range checking (only support 2019 hourly data)
 startTimeStamp = hourlyGenLarge.TimeStamp(1);
 endTimeStamp = hourlyGenLarge.TimeStamp(end);
-if TimeStamp < startTimeStamp || TimeStamp > endTimeStamp
+if timeStamp < startTimeStamp || timeStamp > endTimeStamp
     error("Time stamp not supported!");
 else
-    sampleHourlyGen = hourlyGenLarge(hourlyGenLarge.TimeStamp == TimeStamp, :);
+    sampleHourlyGen = hourlyGenLarge(hourlyGenLarge.TimeStamp == timeStamp, :);
     % Combine it with generator allocation table
     sampleHourlyGenLarge = outerjoin(genParamWBus,sampleHourlyGen,"Keys",["NYISOName","PTID"],...
         "MergeKeys",true,"Type","left","RightVariables",["hourlyGen","hourlyHeatInput"]);
 end
 %% Sample hour generation cost curve
 % Read weekly fuel price table in NYISO 2019
-load("Data/fuelPriceTable.mat","fuelPriceTable");
+load(fullfile("Data","fuelPriceTable.mat"),"fuelPriceTable");
 % Get fuel price for the sampled hour
-sampleFuelPrice = fuelPriceTable(fuelPriceTable.TimeStamp <= TimeStamp, :);
+sampleFuelPrice = fuelPriceTable(fuelPriceTable.TimeStamp <= timeStamp, :);
 sampleFuelPrice = sampleFuelPrice(end, :);
 % Calculate generation cost curve using heat rate curve and fuel price
 sampleCostCurve = createGenCost(genParamAll,sampleFuelPrice,costType);
@@ -111,7 +110,6 @@ for i=1:numGen
     else
         error("Error: Undefined cost type");
     end
-    
 end
 
 % Return cost table
@@ -124,5 +122,4 @@ elseif costType == "qm"
 else
     error("Error: Undefined cost type");
 end
-
 end

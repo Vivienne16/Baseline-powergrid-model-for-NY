@@ -1,4 +1,4 @@
-﻿bus_id,Voltage,Zone,Pg Original,Pg Thermal Cap,Pg Thermal,Pg nuclear Cap,Pg nuclear,Pg water cap,Pg water,wind cap,other renewable,P0,Load
+﻿bus_id,Voltage,Zone,Pg Original,Pg Thermal Cap,Pg Thermal,Pg Nuclear Cap,Pg Nuclear,Pg Hydro Cap,Pg Hydro,Pg Wind Cap,Pg Other Cap,P0,Load
 54,230,A,1115,43,,,,,,,,20,10.0060241
 55,230,A,1095,54.8,,,,2460,,0,,939,469.7828313
 56,230,A,410,884,,,,,,,,172,86.05180723

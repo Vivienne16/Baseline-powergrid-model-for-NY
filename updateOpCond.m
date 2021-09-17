@@ -1,4 +1,4 @@
-function [mpcreduced,interFlow,flowLimit,fuelMix,zonalPrice] = updateOpCond(year,month,day,hour)
+function [mpcreduced,interFlow,flowLimit,fuelMix,zonalPrice] = updateOpCond(timeStamp)
 %UPDATEOPERATIONCONDITION
 %
 %   This file should be run after the ModifyMPC.m file. The operation
@@ -15,82 +15,67 @@ function [mpcreduced,interFlow,flowLimit,fuelMix,zonalPrice] = updateOpCond(year
 %   Last modified on August 17, 2021
 
 %% Read operation condition
-year = 2019; month = 1; day = 1; hour = 12;
+
+year = 2019; month = 12; day = 8; hour = 7;
 timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
 % Read operation condition for NYS
 [fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);
 
+% Allocate load and generation
+loadData = allocateLoad(timeStamp);
+genData = allocateGen(timeStamp);
+
 % Read renewable generation capacity allocation table
-renewableGen = importRenewableGen(fullfile('Data','RenewableGen.csv'));
-businfo = importBusInfo(fullfile('Data','npcc.csv'));
+renewableGen = importRenewableGen(fullfile("Data","RenewableGen.csv"));
+busInfo = importBusInfo(fullfile("Data","npcc.csv"));
 
 % Read updated mpc case
-mpc = loadcase(fullfile('Result','mpcupdated.mat'));
+mpc = loadcase(fullfile("Result","mpcupdated.mat"));
 
-% Allocate load and generation data
-loadData = allocateLoadHourly(year,month,day,hour);
-genData = allocateGenHourly(year,month,day,hour);
-
+% Define constants for MATPOWER
 define_constants;
 
+fprintf("Finished reading operation conditions!\n");
+
 %% allocate hydro and nuclear generators in NY
-hydroNuclearGen = []; % Matrix to store hydro and nuclear gen matrix
 
-% Renewable generation in NYISO's fuel mix data
-nuclearGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Nuclear');
-hydroGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Hydro');
-windGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Wind');
-otherGen = fuelMix.GenMW(fuelMix.FuelCategory == 'Other Renewables');
+mpcGenHydroNuclear = []; % Matrix to store hydro and nuclear gen matrix
 
-% rmnCap = 2435; % Niagara hydropower capacity
-% stlCap = 856; % St. Lawrence hydropower capacity
-% FitzPatrickCap = 854.5;
-% NineMilePoint1Cap = 629;
-% NineMilePoint2Cap = 1299;
-% IndianPoint2Cap = 1025.9;
-% IndianPoint3Cap = 1039.9;
-% GinnaCap = 581.7;
+% Renewable generation in NYISO"s fuel mix data
+nuclearGen = fuelMix.GenMW(fuelMix.FuelCategory == "Nuclear");
+hydroGen = fuelMix.GenMW(fuelMix.FuelCategory == "Hydro");
+
+rmnCap = 2460; % Niagara hydropower capacity
+stlCap = 856; % St. Lawrence hydropower capacity
 
 % Total capacity and capacify factor of renewables
-nuclearCapSum = sum(renewableGen.PgNuclearCap);
-% rNuclearGen =  nuclearGen/nuclearCapSum;
-hydroCapSum = sum(renewableGen.PgHydroCap)-rmnCap-stlCap; % only small hydros
-% rHydro =  hydroGen/hydroCapSum;
-windCapSum = sum(renewableGen.PgWindCap);
-otherCapSum = sum(renewableGen.otherRenewable);
+nuclearCapTot = sum(renewableGen.PgNuclearCap);
+hydroCapTot = sum(renewableGen.PgHydroCap);
+hydroCapSmall = hydroCapTot-rmnCap-stlCap; % only small hydros
 
-count = 0;
-
-% % STL monthly capacity factor: constant output in a month
-% STL = [91.33 94.83 101.12 95.47 99.21 109.84 107.61 109.99 109.76 100.53 104.91 104.56];
-% STL = STL/100;
-
-NuclearGen = 0; % Total nuclear generation
-HydroGen = 0; % Total hydro generation
+count = 0; % Count number of hydro and nuclear generators
 
 for i = 1:height(renewableGen)
-    %   Add nuclear generators
+    % Add nuclear generators
     if renewableGen.PgNuclearCap(i) ~= 0       
         count = count+1;
-        if renewableGen.bus_id(i) == 50
+        if renewableGen.BusID(i) == 50
             % Bus 50: zone C, FitzPatrick and Nine Mile Point 1 and 2
-            renewableGen.PgNuclear(i) = nuclearCf.FitzPatrick/100*FitzPatrickCap...
-                +nuclearCf.NineMilePoint1/100*NineMilePoint1Cap...
-                +nuclearCf.NineMilePoint2/100*NineMilePoint2Cap;
-        elseif renewableGen.bus_id(i) == 74
+            renewableGen.PgNuclear(i) = nuclearCf.FitzPatrickGen...
+                +nuclearCf.NineMilePoint1Gen+nuclearCf.NineMilePoint2Gen;
+        elseif renewableGen.BusID(i) == 74
             % Bus 74: zone H, Indian Point 2 and 3
-            renewableGen.PgNuclear(i) = nuclearCf.IndianPoint2/100*IndianPoint2Cap...
-                +nuclearCf.IndianPoint3/100*IndianPoint3Cap;
+            renewableGen.PgNuclear(i) = nuclearCf.IndianPoint2Gen...
+                +nuclearCf.IndianPoint3Gen;
         else
             % Bus 53: zone B, Gina
-            renewableGen.PgNuclear(i) = nuclearCf.Ginna/100*GinnaCap;
-        end
-        % Calculate total nuclear generation
-        NuclearGen = NuclearGen + renewableGen.PgNuclear(i);        
+            renewableGen.PgNuclear(i) = nuclearCf.GinnaGen;
+        end     
+        
         % Add a new row in the mpc.gen matrix
         newrow = zeros(1,21);
-        newrow(GEN_BUS) = renewableGen.bus_id(i);
+        newrow(GEN_BUS) = renewableGen.BusID(i);
         newrow(PG) = renewableGen.PgNuclear(i);
         newrow(QMAX) = 9999;
         newrow(QMIN) = -9999;
@@ -101,29 +86,25 @@ for i = 1:height(renewableGen)
         newrow(RAMP_AGC) = 0.01*newrow(PMAX);
         newrow(RAMP_10) = 0.1*newrow(PMAX);
         newrow(RAMP_30) = 0.3*newrow(PMAX);
-        hydroNuclearGen = [hydroNuclearGen;newrow];
-        
-        % Add a new row to the mpc.gencost matrix
-        % Nuclear gen cost varying in $1-3/MWh
-        % hynucost(count,COST) = 1+2*rand(1);        
+        mpcGenHydroNuclear = [mpcGenHydroNuclear;newrow];       
     end   
-    %   Add hydro generators
+    % Add hydro generators
     if renewableGen.PgHydroCap(i) ~= 0       
         count = count +1;
-        if renewableGen.bus_id(i) == 55
+        if renewableGen.BusID(i) == 55
             % Bus 55: zone A, Niagara contributes to the most variation
-            renewableGen.PgHydro(i) = hydroGen - hydroCf.stlCF*stlCap-0.2*hydroGen;
-        elseif renewableGen.bus_id(i) == 48
+            renewableGen.PgHydro(i) = 0.8*hydroGen - hydroCf.stlCF*stlCap;
+        elseif renewableGen.BusID(i) == 48
             % Bus 48: zone C, St. Lawrence works constantly at the monthly capacity factor
-            renewableGen.PgHydro(i) = hydroCf.stlCF*renewableGen.PgHydroCap(i);
+            renewableGen.PgHydro(i) = hydroCf.stlCF*stlCap;
         else
             % Other hydro across NYS contributes 20% of the total hydro
-            renewableGen.PgHydro(i) = 0.2*hydroGen/hydroCapSum*renewableGen.PgHydroCap(i);
+            renewableGen.PgHydro(i) = 0.2*hydroGen*(renewableGen.PgHydroCap(i)/hydroCapSmall);
         end 
-        HydroGen = HydroGen + renewableGen.PgHydro(i);
+        
         % Add a new row for hydro in the mpc.gen matrix
         newrow = zeros(1,21);
-        newrow(GEN_BUS) = renewableGen.bus_id(i);
+        newrow(GEN_BUS) = renewableGen.BusID(i);
         newrow(PG) = renewableGen.PgHydro(i);
         newrow(QMAX) = 9999;
         newrow(QMIN) = -9999;
@@ -132,193 +113,177 @@ for i = 1:height(renewableGen)
         newrow(GEN_STATUS) = 1;
         newrow(PMAX) = renewableGen.PgHydroCap(i);
         newrow(PMIN) = 0;       
-        newrow(RAMP_AGC) = 0.09*newrow(9);
-        newrow(RAMP_10) = 0.9*newrow(9);
-        newrow(RAMP_30) = newrow(9);
-        hydroNuclearGen = [hydroNuclearGen;newrow];
-        
-        % Add a new row to the mpc.gencost matrix
-        % Hydro gen cost varying in $20-30/MWh?
-        %%%% Duplicated gencost matrix definition?
-        % hynucost(count,COST) = 20+10*rand(1);        
+        newrow(RAMP_AGC) = 0.09*newrow(PMAX);
+        newrow(RAMP_10) = 0.9*newrow(PMAX);
+        newrow(RAMP_30) = newrow(PMAX);
+        mpcGenHydroNuclear = [mpcGenHydroNuclear;newrow];        
     end
 end
+
+% Error in nuclear and hydro generation allocation
+nuclearError = nuclearGen - sum(renewableGen.PgNuclear);
+hydroError = hydroGen - sum(renewableGen.PgHydro);
+fprintf("Error in nuclear generation allocation: %f MW.\n",nuclearError);
+fprintf("Error in hydro generation allocation: %f MW.\n",hydroError);
 
 fprintf("Finished allocating hydro and nuclear generators!\n");
 
 %% allocate thermal generators in NY
-demand = [loadData.busIdx loadData.PD];
-totalloadny = sum(loadData.PD); % Total hourly load in NYISO
-totalgen = sum(fuelMix.mean_GenMW); % Total hourly generation in NYISO
+
 % Needed thermal generation from NYISO fuel mix data
-thermalneed = totalgen-sum(hydroNuclearGen(:,PG))-windGen-otherGen;
-% gendata.BusName = str2num(char(gendata.BusName));
-% Replace missing generation data with zero?
-genData{:,12:13}(isnan(genData{:,12:13})) = 0;
-% gendata = fillmissing(gendata,'constant',0,'DataVariables',{'hourlyGen','hourlyHeatInput'});
+thermalGen = fuelMix.GenMW(fuelMix.FuelCategory == "Dual Fuel")...
+    +fuelMix.GenMW(fuelMix.FuelCategory == "Natural Gas")...
+    +fuelMix.GenMW(fuelMix.FuelCategory == "Other Fossil Fuels");
+
+% Replace missing generation data with zero
+genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyHeatInput"]);
 
 % Thermal generator that matched in the RGGI database?
-thegen = zeros(height(genData),21);
-thegen(:,GEN_BUS) = genData.BusName;
-thegen(:,PG) = genData.hourlyGen;
-totalthermal = sum(thegen(:,PG)); % Total thermal generation from RGGI
+mpcGenThermal = zeros(height(genData),21);
+mpcGenThermal(:,GEN_BUS) = genData.BusName;
+mpcGenThermal(:,PG) = genData.hourlyGen;
 
 % Allocate extra thermal generation in zone J and K
-thermaldiff = thermalneed-totalthermal; % Mismatch between NYISO and RGGI thermal generation
-JK = [79 80,81,82];
-JKidx = find(ismember(thegen(:,1),JK)==1);
+thermalGenLarge = sum(mpcGenThermal(:,PG)); % Total thermal generation from RGGI
+thermalGenSmall = thermalGen-thermalGenLarge; % Mismatch between NYISO and RGGI thermal generation
+busIDJK = busInfo.idx(busInfo.zone == "J" | busInfo.zone == "K");
+JKidx = ismember(mpcGenThermal(:,GEN_BUS),busIDJK);
 % Weight distribution of the extra thermal generation in generators with
 % non-zero generation in zone J and K
-thegen(JKidx,PG) = thegen(JKidx,PG)+(thegen(JKidx,PG)~=0).*thermaldiff.*thegen(JKidx,PG)./sum(thegen(JKidx,PG));
+mpcGenThermal(JKidx,PG) = mpcGenThermal(JKidx,PG)+...
+    (mpcGenThermal(JKidx,PG)~=0).*thermalGenSmall.*(mpcGenThermal(JKidx,PG)./sum(mpcGenThermal(JKidx,PG)));
 
-thegen(:,QMAX) = 9999;
-thegen(:,QMIN) = -9999;
-thegen(:,VG) = 1.0;
-thegen(:,MBASE) = 100;
-thegen(:,GEN_STATUS) = 1;
-thegen(:,PMAX) = genData.maxPower;
-thegen(:,PMIN) = genData.minPower;
-thegen(:,RAMP_AGC) = genData.maxRampAgc;
-thegen(:,RAMP_10) = genData.maxRamp10;
-thegen(:,RAMP_30) = genData.maxRamp30;
-updatedgen = [thegen;hydroNuclearGen];
-totalgenny = sum(updatedgen(:,PG));
-ThermalGen = sum(thegen(:,PG)); % Final thermal generation
-
-% Generators in external region
-exgen = [];
-for i = 1:length(mpc.gen)
-    if mpc.gen(i,GEN_BUS)<37 || mpc.gen(i,GEN_BUS)>82
-        exgen = [exgen;mpc.gen(i,:)];
-    end
-end
+mpcGenThermal(:,QMAX) = 9999;
+mpcGenThermal(:,QMIN) = -9999;
+mpcGenThermal(:,VG) = 1.0;
+mpcGenThermal(:,MBASE) = 100;
+mpcGenThermal(:,GEN_STATUS) = 1;
+mpcGenThermal(:,PMAX) = genData.maxPower;
+mpcGenThermal(:,PMIN) = genData.minPower;
+mpcGenThermal(:,RAMP_AGC) = genData.maxRampAgc;
+mpcGenThermal(:,RAMP_10) = genData.maxRamp10;
+mpcGenThermal(:,RAMP_30) = genData.maxRamp30;
 
 fprintf("Finished allocating thermal generators!\n");
 
 %% calculate external flow below
-exLoadTotal = sum(mpc.bus(1:36,PD))+sum(mpc.bus(83:end,PD));
-exGenTotal = sum(exgen(:,PG));
 
-PJM2NY = interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - PJ - NY')+...
-    interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - PJM_HTP')+...
-    interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - PJM_NEPTUNE')+...
-    interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - PJM_VFT');
-HQ2NY = interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - HQ - NY')+...
-    interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - HQ_CEDARS');
-NE2NY = interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - NE - NY')+...
-    interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - NPX_1385')+...
-    interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - NPX_CSC');
-IESO2NY = interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - OH - NY');
-Neptune = interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - PJM_NEPTUNE');
-HTP = interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - PJM_HTP');
-NPX1385 = interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - NPX_1385');
-CSC = interFlow.mean_FlowMWH(string(interFlow.InterfaceName) == 'SCH - NPX_CSC');
- 
-% Region
-Zonalinfo = table2array(businfo(:,[2,12]));
-% Total load in original NPCC-140 case in NY
-NYload = sum(mpc.bus(37:82,PD));
+flowPJM2NY = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - PJ - NY")+...
+    interFlow.FlowMWH(interFlow.InterfaceName == "SCH - PJM_HTP")+...
+    interFlow.FlowMWH(interFlow.InterfaceName == "SCH - PJM_NEPTUNE")+...
+    interFlow.FlowMWH(interFlow.InterfaceName == "SCH - PJM_VFT");
+flowHQ2NY = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - HQ - NY")+...
+    interFlow.FlowMWH(interFlow.InterfaceName == "SCH - HQ_CEDARS");
+flowNE2NY = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - NE - NY")+...
+    interFlow.FlowMWH(interFlow.InterfaceName == "SCH - NPX_1385")+...
+    interFlow.FlowMWH(interFlow.InterfaceName == "SCH - NPX_CSC");
+flowIESO2NY = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - OH - NY");
+flowNeptune = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - PJM_NEPTUNE");
+flowHTP = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - PJM_HTP");
+flowNPX1385 = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - NPX_1385");
+flowCSC = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - NPX_CSC");
+
+fprintf("Finished calculating interface flow!\n");
 
 %% update load in NY
+
+NYloadOld = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
+NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
+NYLoadRatio = NYLoadTot/NYloadOld;
+
 mpc.bus(37:82,PD) = loadData.PD;
 mpc.bus(37:82,QD) = loadData.QD; 
 
+fprintf("Finished updating load in NY!\n");
+
 %% Add wind and other renewables as negative load
-% Wind
+
+windGen = fuelMix.GenMW(fuelMix.FuelCategory == "Wind");
+otherGen = fuelMix.GenMW(fuelMix.FuelCategory == "Other Renewables");
+windCapTot = sum(renewableGen.PgWindCap);
+otherCapTot = sum(renewableGen.PgOtherCap);
+windCfTot = windGen/windCapTot;
+otherCfTot = otherGen/otherCapTot;
+
 for i = 1:height(renewableGen)
-    if renewableGen.windCap(i) ~= 0
-        windratio = windGen/windCapSum; % Wind capacity factor in NY
-        mpc.bus(renewableGen.bus_id(i),PD) = mpc.bus(renewableGen.bus_id(i),PD) - windratio*renewableGen.windCap(i);
+    if renewableGen.PgWindCap(i) ~= 0
+        mpc.bus(renewableGen.BusID(i),PD) = mpc.bus(renewableGen.BusID(i),PD)...
+            - windCfTot*renewableGen.PgWindCap(i);
+    end
+    if renewableGen.PgOtherCap(i) ~= 0
+        mpc.bus(renewableGen.BusID(i),PD) = mpc.bus(renewableGen.BusID(i),PD)...
+            - otherCfTot*renewableGen.PgOtherCap(i);
     end
 end
-
-% Other renewables
-for i = 1:height(renewableGen)
-    if renewableGen.otherRenewable(i) ~= 0
-        ORratio = otherGen/otherCapSum;
-        mpc.bus(renewableGen.bus_id(i),PD) = mpc.bus(renewableGen.bus_id(i),PD) - ORratio*renewableGen.otherRenewable(i);
-    end
-end
-
-% Ratio of updated load over original NPCC-140 load in NY
-NYLoadRatio = sum(mpc.bus(37:82,PD))/NYload;
-%%%% Should the load ratio be calculated before adding renewables as
-%%%% negative load?
 
 fprintf("Finished allocating wind and other renewables in NY!\n");
 
 %% scale up load and generation for external area
-%%%% Rewrite this part to functions
 
-idxNE = Zonalinfo(Zonalinfo(:,2) == 1,1);
-isNEGen = ismember(mpc.gen(:,GEN_BUS),idxNE);
+busIDNE = busInfo.idx(busInfo.area == 1);
+isNEGen = ismember(mpc.gen(:,GEN_BUS),busIDNE);
 % Total load and generation in NE in the original NPCC-140 case
-NELoad = sum(mpc.bus(idxNE,PD));
-NEgen = sum(mpc.gen(isNEGen,PG));
+NELoadOld = sum(mpc.bus(busIDNE,PD));
+NEGenOld = sum(mpc.gen(isNEGen,PG));
 % Scale up NE load with the same ratio in NY
 NELoadRatio = NYLoadRatio;
-mpc.bus(idxNE,PD) = mpc.bus(idxNE,PD)*NELoadRatio;
+mpc.bus(busIDNE,PD) = mpc.bus(busIDNE,PD)*NELoadRatio;
 % Scale up NE generator with scaled load and interface flow data 
-NEGenRatio = (NELoad*NELoadRatio+NE2NY)/NEgen;
+NEGenRatio = (NELoadOld*NELoadRatio+flowNE2NY)/NEGenOld;
 mpc.gen(isNEGen,PG) = mpc.gen(isNEGen,PG)*NEGenRatio;
 
-idxIESO = Zonalinfo(Zonalinfo(:,2) == 4,1);
-isIESOGen = ismember(mpc.gen(:,GEN_BUS),idxIESO);
+busIDIESO = busInfo.idx(busInfo.area == 4);
+isIESOGen = ismember(mpc.gen(:,GEN_BUS),busIDIESO);
 % Total load and geneartion in IESO in the original NPCC-140 case
-IESOload = sum(mpc.bus(idxIESO,PD));
-IESOgen = sum(mpc.gen(isIESOGen,PG));
+IESOLoadOld = sum(mpc.bus(busIDIESO,PD));
+IESOGenOld = sum(mpc.gen(isIESOGen,PG));
 % Scale up IESO load with the same ratio in NY
 IESOLoadRatio = NYLoadRatio;
-mpc.bus(idxIESO,PD) = mpc.bus(idxIESO,PD)*IESOLoadRatio;
+mpc.bus(busIDIESO,PD) = mpc.bus(busIDIESO,PD)*IESOLoadRatio;
 % Scale up IESO generator with scaled laod and interface flow data
-IESOGenRatio = (IESOload*IESOLoadRatio+IESO2NY)/IESOgen;
+IESOGenRatio = (IESOLoadOld*IESOLoadRatio+flowIESO2NY)/IESOGenOld;
 mpc.gen(isIESOGen,PG) = mpc.gen(isIESOGen,2) * IESOGenRatio;
 
-idxPJM = Zonalinfo(Zonalinfo(:,2) == 5 | Zonalinfo(:,2) == 6,1);
-isPJMGen = ismember(mpc.gen(:,GEN_BUS),idxPJM);
+busIDPJM = busInfo.idx(busInfo.area == 5 | busInfo.area == 6);
+isPJMGen = ismember(mpc.gen(:,GEN_BUS),busIDPJM);
 % Total load and generation in PJM in the original NPCC-140 case
-PJMload = sum(mpc.bus(idxPJM,PD));
-PJMgen = sum(mpc.gen(isPJMGen,PG));
+PJMLoadOld = sum(mpc.bus(busIDPJM,PD));
+PJMGenOld = sum(mpc.gen(isPJMGen,PG));
 % Scale up PJM load with the same load in NY
 PJMLoadRatio = NYLoadRatio;
-mpc.bus(idxPJM,PD) = mpc.bus(idxPJM,PD)*PJMLoadRatio;
+mpc.bus(busIDPJM,PD) = mpc.bus(busIDPJM,PD)*PJMLoadRatio;
 % Scale up PJM generation with scaled load and interface flow data
-PJMGenRatio = (PJMload*PJMLoadRatio+PJM2NY)/PJMgen;
+PJMGenRatio = (PJMLoadOld*PJMLoadRatio+flowPJM2NY)/PJMGenOld;
 mpc.gen(isPJMGen,PG) = mpc.gen(isPJMGen,PG) * PJMGenRatio;
 
-externalGen = mpc.gen(isNEGen|isIESOGen|isPJMGen, :);
-updatedgen = [updatedgen; externalGen];
+mpcGenExt = mpc.gen(isNEGen|isIESOGen|isPJMGen, :);
+% Set negative minimum generation to zero
+mpcGenExt(mpcGenExt(:,PMIN)<0,PMIN) = 0;
+% Set maximum generation with 9999
+mpcGenExt(:,PMAX) = mpcGenExt(:,PG)*1.5;
+mpcGenExt(:,RAMP_10) = mpcGenExt(:,PMAX)/20;
+mpcGenExt(:,RAMP_30) = mpcGenExt(:,RAMP_10)*3;
+mpcGenExt(:,RAMP_AGC) = mpcGenExt(:,RAMP_10)/10;
+mpcGenExt(:,PMIN) = 0;
+
+% Add generator for HQ
+HQGen = zeros(1,21);
+HQGen(GEN_BUS) = 48;
+HQGen(PG) = flowHQ2NY;
+HQGen(QMAX) = 9999;
+HQGen(QMIN) = -9999;
+HQGen(VG) = 1;
+HQGen(MBASE) = 100;
+HQGen(GEN_STATUS) = 1;
+% Positive and negative interface flow limit from HQ to NY
+HQGen(PMAX) = flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
+    flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
+HQGen(PMIN) = flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
+    flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
+
+mpc.gen = [mpcGenThermal;mpcGenHydroNuclear;mpcGenExt;HQGen];
 
 fprintf("Finished updating external load and generation!\n");
-
-%% Add generator for HQ
-HQgen = zeros(1,21);
-HQgen(GEN_BUS) = 48;
-HQgen(PG) = HQ2NY;
-HQgen(QMAX) = 9999;
-HQgen(QMIN) = -9999;
-HQgen(VG) = 1;
-HQgen(MBASE) = 100;
-HQgen(GEN_STATUS) = 1;
-% Positive and negative interface flow limit from HQ to NY
-HQgen(PMAX) = flowLimit.mean_PositiveLimitMWH(string(flowLimit.InterfaceName) == 'SCH - HQ - NY')+...
-    flowLimit.mean_PositiveLimitMWH(string(flowLimit.InterfaceName) == 'SCH - HQ_CEDARS');
-HQgen(PMIN) = flowLimit.mean_NegativeLimitMWH(string(flowLimit.InterfaceName) == 'SCH - HQ - NY')+...
-    flowLimit.mean_NegativeLimitMWH(string(flowLimit.InterfaceName) == 'SCH - HQ_CEDARS');
-
-updatedgen = [updatedgen; HQgen];
-mpc.gen = updatedgen;
-
-%% external modification for generators
-exidx = mpc.gen(:,PMAX)==9999;
-% Set negative minimum generation to zero
-mpc.gen(mpc.gen(:,PMIN)<0,PMIN) = 0;
-% Set maximum generation with 9999
-mpc.gen(exidx,PMAX) = mpc.gen(exidx,PG)*1.5;
-mpc.gen(exidx,RAMP_10) = mpc.gen(exidx,PMAX)/20;
-mpc.gen(exidx,RAMP_30) = mpc.gen(exidx,RAMP_10)*3;
-mpc.gen(exidx,RAMP_AGC) = mpc.gen(exidx,RAMP_10)/10;
-mpc.gen(:,PMIN) = 0;
 
 %% Equivelent Reduction
 % Define external buses
@@ -333,11 +298,11 @@ fprintf("Finished calculating network reduction!\n");
 %% add HVDC lines 
 %	fbus	tbus	status	Pf	Pt	Qf	Qt	Vf	Vt	Pmin	Pmax	QminF	QmaxF	QminT	QmaxT	loss0	loss1
 mpcreduced.dcline = [
-	21 80	1	NPX1385+CSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
-	124 79	1	Neptune     0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
-    125 81	1	HTP         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
+	21 80	1	flowNPX1385+flowCSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
+	124 79	1	flowNeptune     0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
+    125 81	1	flowHTP         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
 ];
-mpcreduced = toggle_dcline(mpcreduced, 'on');
+mpcreduced = toggle_dcline(mpcreduced, "on");
 
 fprintf("Finished adding DC lines!\n");
 
@@ -373,13 +338,13 @@ mpcreduced.if.map = [
     11  71;     %% 11 : I - K
     11  72
 ];
-A_B = flowLimit(flowLimit.InterfaceName == 'DYSINGER EAST',:);
-B_C = flowLimit(flowLimit.InterfaceName == 'WEST CENTRAL',:);
-C_E = flowLimit(flowLimit.InterfaceName == 'TOTAL EAST',:);
-D_E = flowLimit(flowLimit.InterfaceName == 'MOSES SOUTH',:);
-E_F = flowLimit(flowLimit.InterfaceName == 'CENTRAL EAST - VC',:);
-G_H = flowLimit(flowLimit.InterfaceName == 'UPNY CONED',:);
-I_J = flowLimit(flowLimit.InterfaceName == 'SPR/DUN-SOUTH',:);
+A_B = flowLimit(flowLimit.InterfaceName == "DYSINGER EAST",:);
+B_C = flowLimit(flowLimit.InterfaceName == "WEST CENTRAL",:);
+C_E = flowLimit(flowLimit.InterfaceName == "TOTAL EAST",:);
+D_E = flowLimit(flowLimit.InterfaceName == "MOSES SOUTH",:);
+E_F = flowLimit(flowLimit.InterfaceName == "CENTRAL EAST - VC",:);
+G_H = flowLimit(flowLimit.InterfaceName == "UPNY CONED",:);
+I_J = flowLimit(flowLimit.InterfaceName == "SPR/DUN-SOUTH",:);
 mpcreduced.if.lims = [
 	1	A_B.NegativeLimitMWH	A_B.PositiveLimitMWH;	%% 1 : A - B
     2	B_C.NegativeLimitMWH	B_C.PositiveLimitMWH;	%% 2 : B - C
@@ -397,6 +362,7 @@ mpcreduced.if.lims = [
 fprintf("Finished setting interface flow limits!\n");
 
 %% add gencost
+
 % cost curve for thermal generators in NY
 NYgenthermalcost = zeros(227,6);
 NYgenthermalcost(:,MODEL) = 2; % Polynomial cost function
@@ -423,10 +389,10 @@ for i = 1:height(renewableGen)
 end
 
 % Cost curve for external generators
-PJMprice = zonalPrice.LBMP(zonalPrice.ZoneName == 'PJM');
-NEprice = zonalPrice.LBMP(zonalPrice.ZoneName == 'NPX');
-IESOprice = zonalPrice.LBMP(zonalPrice.ZoneName == 'O H');
-HQprice = zonalPrice.LBMP(zonalPrice.ZoneName == 'H Q');
+PJMprice = zonalPrice.LBMP(zonalPrice.ZoneName == "PJM");
+NEprice = zonalPrice.LBMP(zonalPrice.ZoneName == "NPX");
+IESOprice = zonalPrice.LBMP(zonalPrice.ZoneName == "O H");
+HQprice = zonalPrice.LBMP(zonalPrice.ZoneName == "H Q");
 
 exgencostthermal = zeros(28,6);
 exgencostthermal(:,MODEL) = 2;
@@ -453,7 +419,8 @@ mpcreduced.gencost = gencost;
 fprintf("Finished adding generation cost matrix!\n");
 
 %% Save updated operation condtion
-savecase('Result/mpcreduced.mat',mpcreduced);
+
+savecase('mpcreduced.mat',mpcreduced);
 
 fprintf("Update operation condition complete!\n");
 

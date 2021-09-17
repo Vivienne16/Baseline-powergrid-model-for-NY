@@ -1,11 +1,11 @@
-function sampleHourLoad = allocateLoadHourly(year,month,date,hour,loadType,method)
+function sampleHourLoad = allocateLoad(timeStamp,loadType,method)
 %ALLOCATELOADHOURLY Allocate hourly load to the buses in NYS.
 %   
 %   Use the ALLOCATELOADHOURLY function to produces a table of power demand
 %   at each bus in NYS for constructing MATPOWER case file.
 %   
 %   Inputs:
-%       year,month,date,hour - Timestamp information
+%       timeStamp- includes year, month, day, hour
 %       loadType - DAM hourly load or RTM integrated hourly load
 %       method - evenly distribution or weighted distribution
 %   Outputs:
@@ -15,10 +15,10 @@ function sampleHourLoad = allocateLoadHourly(year,month,date,hour,loadType,metho
 %   Last modified on July 28, 2021
 
 %% Default function inputs
-if nargin < 5 || isempty(loadType)
+if nargin <= 1 || isempty(loadType)
     loadType = "RTM";
 end
-if nargin < 6 || isempty(method)
+if nargin <= 1 || isempty(method)
     method = "weighted";
 end
 
@@ -65,8 +65,7 @@ else
 end
 
 %% Sample hour load
-TimeStamp = datetime(year,month,date,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
-sampleLoadZonal = hourlyLoadNY(hourlyLoadNY.TimeStamp == TimeStamp, :);
+sampleLoadZonal = hourlyLoadNY(hourlyLoadNY.TimeStamp == timeStamp, :);
 
 %% Distribute load to buses
 if method == "evenly"

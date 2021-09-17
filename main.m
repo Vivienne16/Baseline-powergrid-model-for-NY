@@ -14,7 +14,8 @@ month = 1;
 day = 10;
 hour = 16;
 
-[mpcreduced,interflow,flowlimit,fuelsum,NYzp] = updateOpCond(year,month,day,hour);
+timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+[mpcreduced,interflow,flowlimit,fuelsum,NYzp] = updateOpCond(timeStamp);
 
 
 %% PF test
