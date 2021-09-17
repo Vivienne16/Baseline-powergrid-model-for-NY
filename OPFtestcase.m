@@ -1,4 +1,4 @@
-function mpc = OPFtestcase(mpc,fuelsum,month,NYzp)
+function mpc = OPFtestcase(mpcreduced)
 %OPFTESTCASE
 % 
 %   This file run a test case for OPF using the updated mpc
@@ -14,16 +14,22 @@ function mpc = OPFtestcase(mpc,fuelsum,month,NYzp)
 %   Last modified on August 17, 2021
 
 %% Input parameters
+
+% Read operation condition for NYS
+[fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);
+
 define_constants;
-mpcreduced = loadcase('Result/mpcreduced.mat');
+
+if isempty(mpcreduced)
+    mpcreduced = loadcase('Result/mpcreduced.mat');
+end
 
 %% additional constraints for large hydro to avoid dispatch at upper gen limit
 %hydro gen constraints
-%%%% Change this to data file reading
-RMNcf = [0.8072,0.7688,0.815,0.7178,0.8058,0.7785,0.8275,0.8007,0.7931,0.7626,0.7764,0.8540];
-STLcf = [0.9133,0.9483, 1.0112,0.9547,0.9921,1.0984,1.0761,1.0999,1.0976,1.0053,1.0491,1.0456];
-mpcreduced.gen(228,9) = 0.8*(fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Hydro')-910)-STLcf(month)*860;
-mpcreduced.gen(234,9) = STLcf(month)*860;
+% RMNcf = [0.8072,0.7688,0.815,0.7178,0.8058,0.7785,0.8275,0.8007,0.7931,0.7626,0.7764,0.8540];
+% STLcf = [0.9133,0.9483, 1.0112,0.9547,0.9921,1.0984,1.0761,1.0999,1.0976,1.0053,1.0491,1.0456];
+% mpcreduced.gen(228,9) = 0.8*(fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Hydro')-910)-STLcf(month)*860;
+% mpcreduced.gen(234,9) = STLcf(month)*860;
 
 
 

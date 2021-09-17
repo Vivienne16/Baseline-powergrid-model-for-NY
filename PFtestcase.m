@@ -1,4 +1,4 @@
-function mpc = PFtestcase(mpc,interflow,flowlimit)
+function resultPF = PFtestcase(mpcreduced)
 %PFTESTCASE
 %   
 %   This file run a test case for PF using the updatedmpc
@@ -14,57 +14,75 @@ function mpc = PFtestcase(mpc,interflow,flowlimit)
 %   Last modified on August 17, 2021
 
 %% Input parameters
+
+% Read operation condition for NYS
+[~,interFlow,flowLimit,~,~,~] = readOpCond(timeStamp);
+
 define_constants;
-mpcreduced = loadcase('Result/mpcreduced.mat');
+
+if isempty(mpcreduced)
+    mpcreduced = loadcase('Result/mpcreduced.mat');
+end
+
+fprintf("Finished reading MATPOWER case!\n");
 
 %% Run reduced MATPOWER case
-repf = rundcpf(mpcreduced);
-rbus = repf.bus;
-rbranch = repf.branch;
-rgen = repf.gen;
+
+resultPF = rundcpf(mpcreduced);
+resultBus = resultPF.bus;
+resultBranch = resultPF.branch;
+resultGen = resultPF.gen;
+
+fprintf("Finished solving power flow!\n");
 
 %% Calculate and compare power flow data
 
-DYSINGEREAST = -rbranch(32,PF)+rbranch(34,PF)+rbranch(37,PF)+rbranch(47,PF);
-Westcentral = -rbranch(28,PF)-rbranch(29,PF)+rbranch(33,PF)+rbranch(50,PF);
-Totaleast = -rbranch(16,PF)-rbranch(20,PF)-rbranch(21,PF)+rbranch(56,PF)-rbranch(62,PF)+rbranch(8,PF);
-mosesouth = -rbranch(24,PF)-rbranch(18,PF)-rbranch(23,PF);
-centraleast = -rbranch(14,PF)-rbranch(12,PF)-rbranch(3,PF)-rbranch(6,PF);
-upnyconed = rbranch(65,PF)-rbranch(66,PF);
-sprdunsouth = rbranch(73,PF)+rbranch(74,PF);
+A2BResult = -resultBranch(32,PF)+resultBranch(34,PF)+resultBranch(37,PF)+resultBranch(47,PF);
+B2CResult = -resultBranch(28,PF)-resultBranch(29,PF)+resultBranch(33,PF)+resultBranch(50,PF);
+C2EResult = -resultBranch(16,PF)-resultBranch(20,PF)-resultBranch(21,PF)...
+    +resultBranch(56,PF)-resultBranch(62,PF);
+D2EResult = -resultBranch(24,PF)-resultBranch(18,PF)-resultBranch(23,PF);
+E2FResult = -resultBranch(14,PF)-resultBranch(12,PF)-resultBranch(3,PF)-resultBranch(6,PF);
+E2GResult = resultBranch(8,PF);
+F2GResult = resultBranch(4,PF);
+G2HResult = resultBranch(65,PF)-resultBranch(66,PF);
+H2IResult = resultBranch(67,PF);
+I2JResult = resultBranch(73,PF)+resultBranch(74,PF);
+I2KResult = resultBranch(71,PF)+resultBranch(72,PF);
 
 %%%% Read historical interface flow and limits data from a funciton
 % Historical interface flow data
-CE = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'CENTRAL EAST - VC');
-WC = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'WEST CENTRAL');
-TE = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'TOTAL EAST');
-MS = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'MOSES SOUTH');
-DY = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'DYSINGER EAST');
-UC = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'UPNY CONED');
-SDS = interflow.mean_FlowMWH(string(interflow.InterfaceName) == 'SPR/DUN-SOUTH');
+A2BFlow = interFlow.FlowMWH(interFlow.InterfaceName == 'DYSINGER EAST');
+B2CFlow = interFlow.FlowMWH(interFlow.InterfaceName == 'WEST CENTRAL');
+C2EFlow = interFlow.FlowMWH(interFlow.InterfaceName == 'TOTAL EAST');
+D2EFlow = interFlow.FlowMWH(interFlow.InterfaceName == 'MOSES SOUTH');
+E2FFlow = interFlow.FlowMWH(interFlow.InterfaceName == 'CENTRAL EAST - VC');
+G2HFlow = interFlow.FlowMWH(interFlow.InterfaceName == 'UPNY CONED');
+I2JFlow = interFlow.FlowMWH(interFlow.InterfaceName == 'SPR/DUN-SOUTH');
 
 % Historical interface flow limit data
-A_B = flowlimit(string(flowlimit.InterfaceName) == 'DYSINGER EAST',:);
-B_C = flowlimit(string(flowlimit.InterfaceName) == 'WEST CENTRAL',:);
-C_E = flowlimit(string(flowlimit.InterfaceName) == 'TOTAL EAST',:);
-D_E = flowlimit(string(flowlimit.InterfaceName) == 'MOSES SOUTH',:);
-E_F = flowlimit(string(flowlimit.InterfaceName) == 'CENTRAL EAST - VC',:);
-G_H = flowlimit(string(flowlimit.InterfaceName) == 'UPNY CONED',:);
-I_J = flowlimit(string(flowlimit.InterfaceName) == 'SPR/DUN-SOUTH',:);
+A2BLimit = flowLimit(flowLimit.InterfaceName == 'DYSINGER EAST',:);
+B2CLimit = flowLimit(flowLimit.InterfaceName == 'WEST CENTRAL',:);
+C2ELimit = flowLimit(flowLimit.InterfaceName == 'TOTAL EAST',:);
+D2ELimit = flowLimit(flowLimit.InterfaceName == 'MOSES SOUTH',:);
+E2FLimit = flowLimit(flowLimit.InterfaceName == 'CENTRAL EAST - VC',:);
+G2HLimit = flowLimit(flowLimit.InterfaceName == 'UPNY CONED',:);
+I2JLimit = flowLimit(flowLimit.InterfaceName == 'SPR/DUN-SOUTH',:);
 
 % Difference between historical and simulated data
-DCE = (CE - centraleast)/E_F.mean_PositiveLimitMWH;
-DWC = (WC - Westcentral)/B_C.mean_PositiveLimitMWH;
-DTE = (TE - Totaleast)/C_E.mean_PositiveLimitMWH;
-DMS = (MS - mosesouth)/D_E.mean_PositiveLimitMWH;
-DDY = (DY - DYSINGEREAST)/A_B.mean_PositiveLimitMWH;
-DUC = (UC - upnyconed)/G_H.mean_PositiveLimitMWH;
-DSDS = (SDS - sprdunsouth)/I_J.mean_PositiveLimitMWH;
+A2BError = (A2BFlow - A2BResult)/A2BLimit.PositiveLimitMWH;
+B2CError = (B2CFlow - B2CResult)/B2CLimit.PositiveLimitMWH;
+C2EError = (C2EFlow - C2EResult)/C2ELimit.PositiveLimitMWH;
+D2EError = (D2EFlow - D2EResult)/D2ELimit.PositiveLimitMWH;
+E2FError = (E2FFlow - E2FResult)/E2FLimit.PositiveLimitMWH;
+G2HError = (G2HFlow - G2HResult)/G2HLimit.PositiveLimitMWH;
+I2JError = (I2JFlow - I2JResult)/I2JLimit.PositiveLimitMWH;
 
 %% Plot interface flow error
-bar([DCE,DWC,DTE,DMS,DDY,DUC,DSDS]*100);
+
+bar([E2FError,B2CError,C2EError,D2EError,A2BError,G2HError,I2JError]*100);
 xticklabels({'Central East','West Central','Total East','Moses South','Dysinger East','UpNY-Coned','Dun/SPR-South'})
-ylabel('Power Flow Error %','FontSize',18)
-xlabel('Interface','FontSize',18)
+ylabel('Power Flow Error %','FontSize',14)
+xlabel('Interface','FontSize',14)
 xtickangle(45)
 end

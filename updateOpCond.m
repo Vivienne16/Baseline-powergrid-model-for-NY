@@ -1,4 +1,4 @@
-function [mpcreduced,interFlow,flowLimit,fuelMix,zonalPrice] = updateOpCond(timeStamp)
+function mpcreduced = updateOpCond(timeStamp)
 %UPDATEOPERATIONCONDITION
 %
 %   This file should be run after the ModifyMPC.m file. The operation
@@ -40,7 +40,7 @@ fprintf("Finished reading operation conditions!\n");
 
 %% allocate hydro and nuclear generators in NY
 
-mpcGenHydroNuclear = []; % Matrix to store hydro and nuclear gen matrix
+genHydroNuclear = []; % Matrix to store hydro and nuclear gen matrix
 
 % Renewable generation in NYISO"s fuel mix data
 nuclearGen = fuelMix.GenMW(fuelMix.FuelCategory == "Nuclear");
@@ -86,7 +86,7 @@ for i = 1:height(renewableGen)
         newrow(RAMP_AGC) = 0.01*newrow(PMAX);
         newrow(RAMP_10) = 0.1*newrow(PMAX);
         newrow(RAMP_30) = 0.3*newrow(PMAX);
-        mpcGenHydroNuclear = [mpcGenHydroNuclear;newrow];       
+        genHydroNuclear = [genHydroNuclear;newrow];       
     end   
     % Add hydro generators
     if renewableGen.PgHydroCap(i) ~= 0       
@@ -116,7 +116,7 @@ for i = 1:height(renewableGen)
         newrow(RAMP_AGC) = 0.09*newrow(PMAX);
         newrow(RAMP_10) = 0.9*newrow(PMAX);
         newrow(RAMP_30) = newrow(PMAX);
-        mpcGenHydroNuclear = [mpcGenHydroNuclear;newrow];        
+        genHydroNuclear = [genHydroNuclear;newrow];        
     end
 end
 
@@ -139,30 +139,30 @@ thermalGen = fuelMix.GenMW(fuelMix.FuelCategory == "Dual Fuel")...
 genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyHeatInput"]);
 
 % Thermal generator that matched in the RGGI database?
-mpcGenThermal = zeros(height(genData),21);
-mpcGenThermal(:,GEN_BUS) = genData.BusName;
-mpcGenThermal(:,PG) = genData.hourlyGen;
+genThermal = zeros(height(genData),21);
+genThermal(:,GEN_BUS) = genData.BusName;
+genThermal(:,PG) = genData.hourlyGen;
 
 % Allocate extra thermal generation in zone J and K
-thermalGenLarge = sum(mpcGenThermal(:,PG)); % Total thermal generation from RGGI
+thermalGenLarge = sum(genThermal(:,PG)); % Total thermal generation from RGGI
 thermalGenSmall = thermalGen-thermalGenLarge; % Mismatch between NYISO and RGGI thermal generation
-busIDJK = busInfo.idx(busInfo.zone == "J" | busInfo.zone == "K");
-JKidx = ismember(mpcGenThermal(:,GEN_BUS),busIDJK);
+busIdJK = busInfo.idx(busInfo.zone == "J" | busInfo.zone == "K");
+JKidx = ismember(genThermal(:,GEN_BUS),busIdJK);
 % Weight distribution of the extra thermal generation in generators with
 % non-zero generation in zone J and K
-mpcGenThermal(JKidx,PG) = mpcGenThermal(JKidx,PG)+...
-    (mpcGenThermal(JKidx,PG)~=0).*thermalGenSmall.*(mpcGenThermal(JKidx,PG)./sum(mpcGenThermal(JKidx,PG)));
+genThermal(JKidx,PG) = genThermal(JKidx,PG)+...
+    (genThermal(JKidx,PG)~=0).*thermalGenSmall.*(genThermal(JKidx,PG)./sum(genThermal(JKidx,PG)));
 
-mpcGenThermal(:,QMAX) = 9999;
-mpcGenThermal(:,QMIN) = -9999;
-mpcGenThermal(:,VG) = 1.0;
-mpcGenThermal(:,MBASE) = 100;
-mpcGenThermal(:,GEN_STATUS) = 1;
-mpcGenThermal(:,PMAX) = genData.maxPower;
-mpcGenThermal(:,PMIN) = genData.minPower;
-mpcGenThermal(:,RAMP_AGC) = genData.maxRampAgc;
-mpcGenThermal(:,RAMP_10) = genData.maxRamp10;
-mpcGenThermal(:,RAMP_30) = genData.maxRamp30;
+genThermal(:,QMAX) = 9999;
+genThermal(:,QMIN) = -9999;
+genThermal(:,VG) = 1.0;
+genThermal(:,MBASE) = 100;
+genThermal(:,GEN_STATUS) = 1;
+genThermal(:,PMAX) = genData.maxPower;
+genThermal(:,PMIN) = genData.minPower;
+genThermal(:,RAMP_AGC) = genData.maxRampAgc;
+genThermal(:,RAMP_10) = genData.maxRamp10;
+genThermal(:,RAMP_30) = genData.maxRamp30;
 
 fprintf("Finished allocating thermal generators!\n");
 
@@ -220,51 +220,54 @@ fprintf("Finished allocating wind and other renewables in NY!\n");
 
 %% scale up load and generation for external area
 
-busIDNE = busInfo.idx(busInfo.area == 1);
-isNEGen = ismember(mpc.gen(:,GEN_BUS),busIDNE);
+busIdExt = busInfo.idx(busInfo.zone == "NA");
+isExtGen = ismember(mpc.gen(:,GEN_BUS),busIdExt);
+genExt = mpc.gen(isExtGen,:);
+
+busIdNE = busInfo.idx(busInfo.area == 1);
+isNEGen = ismember(genExt(:,GEN_BUS),busIdNE);
 % Total load and generation in NE in the original NPCC-140 case
-NELoadOld = sum(mpc.bus(busIDNE,PD));
-NEGenOld = sum(mpc.gen(isNEGen,PG));
+NELoadOld = sum(mpc.bus(busIdNE,PD));
+NEGenOld = sum(genExt(isNEGen,PG));
 % Scale up NE load with the same ratio in NY
 NELoadRatio = NYLoadRatio;
-mpc.bus(busIDNE,PD) = mpc.bus(busIDNE,PD)*NELoadRatio;
+mpc.bus(busIdNE,PD) = mpc.bus(busIdNE,PD)*NELoadRatio;
 % Scale up NE generator with scaled load and interface flow data 
 NEGenRatio = (NELoadOld*NELoadRatio+flowNE2NY)/NEGenOld;
-mpc.gen(isNEGen,PG) = mpc.gen(isNEGen,PG)*NEGenRatio;
+genExt(isNEGen,PG) = genExt(isNEGen,PG)*NEGenRatio;
 
-busIDIESO = busInfo.idx(busInfo.area == 4);
-isIESOGen = ismember(mpc.gen(:,GEN_BUS),busIDIESO);
+busIdIESO = busInfo.idx(busInfo.area == 4);
+isIESOGen = ismember(genExt(:,GEN_BUS),busIdIESO);
 % Total load and geneartion in IESO in the original NPCC-140 case
-IESOLoadOld = sum(mpc.bus(busIDIESO,PD));
-IESOGenOld = sum(mpc.gen(isIESOGen,PG));
+IESOLoadOld = sum(mpc.bus(busIdIESO,PD));
+IESOGenOld = sum(genExt(isIESOGen,PG));
 % Scale up IESO load with the same ratio in NY
 IESOLoadRatio = NYLoadRatio;
-mpc.bus(busIDIESO,PD) = mpc.bus(busIDIESO,PD)*IESOLoadRatio;
+mpc.bus(busIdIESO,PD) = mpc.bus(busIdIESO,PD)*IESOLoadRatio;
 % Scale up IESO generator with scaled laod and interface flow data
 IESOGenRatio = (IESOLoadOld*IESOLoadRatio+flowIESO2NY)/IESOGenOld;
-mpc.gen(isIESOGen,PG) = mpc.gen(isIESOGen,2) * IESOGenRatio;
+genExt(isIESOGen,PG) = genExt(isIESOGen,PG)*IESOGenRatio;
 
-busIDPJM = busInfo.idx(busInfo.area == 5 | busInfo.area == 6);
-isPJMGen = ismember(mpc.gen(:,GEN_BUS),busIDPJM);
+busIdPJM = busInfo.idx(busInfo.area == 5 | busInfo.area == 6);
+isPJMGen = ismember(genExt(:,GEN_BUS),busIdPJM);
 % Total load and generation in PJM in the original NPCC-140 case
-PJMLoadOld = sum(mpc.bus(busIDPJM,PD));
-PJMGenOld = sum(mpc.gen(isPJMGen,PG));
+PJMLoadOld = sum(mpc.bus(busIdPJM,PD));
+PJMGenOld = sum(genExt(isPJMGen,PG));
 % Scale up PJM load with the same load in NY
 PJMLoadRatio = NYLoadRatio;
-mpc.bus(busIDPJM,PD) = mpc.bus(busIDPJM,PD)*PJMLoadRatio;
+mpc.bus(busIdPJM,PD) = mpc.bus(busIdPJM,PD)*PJMLoadRatio;
 % Scale up PJM generation with scaled load and interface flow data
 PJMGenRatio = (PJMLoadOld*PJMLoadRatio+flowPJM2NY)/PJMGenOld;
-mpc.gen(isPJMGen,PG) = mpc.gen(isPJMGen,PG) * PJMGenRatio;
+genExt(isPJMGen,PG) = genExt(isPJMGen,PG)*PJMGenRatio;
 
-mpcGenExt = mpc.gen(isNEGen|isIESOGen|isPJMGen, :);
 % Set negative minimum generation to zero
-mpcGenExt(mpcGenExt(:,PMIN)<0,PMIN) = 0;
+genExt(genExt(:,PMIN)<0,PMIN) = 0;
 % Set maximum generation with 9999
-mpcGenExt(:,PMAX) = mpcGenExt(:,PG)*1.5;
-mpcGenExt(:,RAMP_10) = mpcGenExt(:,PMAX)/20;
-mpcGenExt(:,RAMP_30) = mpcGenExt(:,RAMP_10)*3;
-mpcGenExt(:,RAMP_AGC) = mpcGenExt(:,RAMP_10)/10;
-mpcGenExt(:,PMIN) = 0;
+genExt(:,PMAX) = genExt(:,PG)*1.5;
+genExt(:,RAMP_10) = genExt(:,PMAX)/20;
+genExt(:,RAMP_30) = genExt(:,RAMP_10)*3;
+genExt(:,RAMP_AGC) = genExt(:,RAMP_10)/10;
+genExt(:,PMIN) = 0;
 
 % Add generator for HQ
 HQGen = zeros(1,21);
@@ -281,7 +284,9 @@ HQGen(PMAX) = flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ - 
 HQGen(PMIN) = flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
     flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
 
-mpc.gen = [mpcGenThermal;mpcGenHydroNuclear;mpcGenExt;HQGen];
+genExt = [genExt;HQGen];
+
+mpc.gen = [genThermal;genHydroNuclear;genExt];
 
 fprintf("Finished updating external load and generation!\n");
 
@@ -307,56 +312,51 @@ mpcreduced = toggle_dcline(mpcreduced, "on");
 fprintf("Finished adding DC lines!\n");
 
 %% add interface flow limit
+branchIdA2B = [-32; 34; 37; 47];
+branchIdB2C = [-28;-29; 33; 50];
+branchIdC2E = [-16;-20;-21; 56;-62];
+branchIdD2E = [-24;-18;-23];
+branchIdE2F = [-14;-12;-3;-6];
+branchIdE2G = [8];
+branchIdF2G = [4];
+branchIdG2H = [65;-66];
+branchIdH2I = [67];
+branchIdI2J = [73;74];
+branchIdI2K = [71;72];
 mpcreduced.if.map = [
-	1   -32;	%% 1 : A - B
-	1	34;
-    1   37;
-    1   47;
-	2	-28;	%% 2 : B - C
-	2	-29;
-	2	33;
-	2	50;
-	3	-16;	%% 3 : C - E
-	3	-20;
-	3	-21;
-	3	56;
-    3   -62;
-	4	-24;    %% 4 : D - E
-	4	-18;
-    4   -23;
-    5   -14;    %% 5 : E - F
-    5   -12;
-    5   -3;
-    5   -6;    	
-    6   8;      %% 6 : E - G
-    7   4;      %% 7 : F - G
-    8   65;     %% 8 : G - H
-    8   -66
-    9   67;     %% 9 : H - I
-    10  73;     %% 10 : I - J
-    10  74; 
-    11  71;     %% 11 : I - K
-    11  72
-];
-A_B = flowLimit(flowLimit.InterfaceName == "DYSINGER EAST",:);
-B_C = flowLimit(flowLimit.InterfaceName == "WEST CENTRAL",:);
-C_E = flowLimit(flowLimit.InterfaceName == "TOTAL EAST",:);
-D_E = flowLimit(flowLimit.InterfaceName == "MOSES SOUTH",:);
-E_F = flowLimit(flowLimit.InterfaceName == "CENTRAL EAST - VC",:);
-G_H = flowLimit(flowLimit.InterfaceName == "UPNY CONED",:);
-I_J = flowLimit(flowLimit.InterfaceName == "SPR/DUN-SOUTH",:);
+    ones(size(branchIdA2B)) branchIdA2B;
+    2*ones(size(branchIdB2C)) branchIdB2C;
+    3*ones(size(branchIdC2E)) branchIdC2E;
+    4*ones(size(branchIdD2E)) branchIdD2E;
+    5*ones(size(branchIdE2F)) branchIdE2F;
+    6*ones(size(branchIdE2G)) branchIdE2G;
+    7*ones(size(branchIdF2G)) branchIdF2G;
+    8*ones(size(branchIdG2H)) branchIdG2H;
+    9*ones(size(branchIdH2I)) branchIdH2I;
+    10*ones(size(branchIdI2J)) branchIdI2J;
+    11*ones(size(branchIdI2K)) branchIdI2K];
+
+% Historical interface flow limit data
+A2BLimit = flowLimit(flowLimit.InterfaceName == 'DYSINGER EAST',:);
+B2CLimit = flowLimit(flowLimit.InterfaceName == 'WEST CENTRAL',:);
+C2ELimit = flowLimit(flowLimit.InterfaceName == 'TOTAL EAST',:);
+D2ELimit = flowLimit(flowLimit.InterfaceName == 'MOSES SOUTH',:);
+E2FLimit = flowLimit(flowLimit.InterfaceName == 'CENTRAL EAST - VC',:);
+G2HLimit = flowLimit(flowLimit.InterfaceName == 'UPNY CONED',:);
+I2JLimit = flowLimit(flowLimit.InterfaceName == 'SPR/DUN-SOUTH',:);
+
 mpcreduced.if.lims = [
-	1	A_B.NegativeLimitMWH	A_B.PositiveLimitMWH;	%% 1 : A - B
-    2	B_C.NegativeLimitMWH	B_C.PositiveLimitMWH;	%% 2 : B - C
-    3   C_E.NegativeLimitMWH    C_E.PositiveLimitMWH;  %% 3 : C - E
-    4   D_E.NegativeLimitMWH   D_E.PositiveLimitMWH;   %% 4 : D - E
-    5   E_F.NegativeLimitMWH E_F.PositiveLimitMWH;       %% 5 : E - F
-    6   -1600  5650-E_F.PositiveLimitMWH ;   %% 6 : E - G
-    7   -5400   5400;   %% 7 : F - G
-    8   G_H.NegativeLimitMWH   G_H.PositiveLimitMWH;   %% 8 : G - H
-    9   -8450   8450;   %% 9 : H - I
-    10  -4350    4350;   %% 10 : I - K
-    11  -515    1290;   %% 10 : I - K
+	1	A2BLimit.NegativeLimitMWH   A2BLimit.PositiveLimitMWH;     % 1: A - B
+    2	B2CLimit.NegativeLimitMWH	B2CLimit.PositiveLimitMWH;     % 2: B - C
+    3   C2ELimit.NegativeLimitMWH   C2ELimit.PositiveLimitMWH;     % 3: C - E
+    4   D2ELimit.NegativeLimitMWH   D2ELimit.PositiveLimitMWH;     % 4: D - E
+    5   E2FLimit.NegativeLimitMWH   E2FLimit.PositiveLimitMWH;     % 5: E - F
+    6   -1600                       5650-E2FLimit.PositiveLimitMWH;% 6: E - G
+    7   -5400                       5400;                          % 7: F - G
+    8   G2HLimit.NegativeLimitMWH   G2HLimit.PositiveLimitMWH;     % 8: G - H
+    9   -8450                       8450;                          % 9: H - I
+    10  -4350                       4350;                          % 10: I - J
+    11  -515                        1290;                          % 11: I - K
 ];
 
 fprintf("Finished setting interface flow limits!\n");
@@ -364,57 +364,42 @@ fprintf("Finished setting interface flow limits!\n");
 %% add gencost
 
 % cost curve for thermal generators in NY
-NYgenthermalcost = zeros(227,6);
-NYgenthermalcost(:,MODEL) = 2; % Polynomial cost function
-NYgenthermalcost(:,NCOST) = 2; % Linear cost curve
-NYgenthermalcost(:, COST) = genData.cost_1;
-NYgenthermalcost(:, COST+1) = genData.cost_0;
+gencostThermal = zeros(size(genThermal,1),6);
+gencostThermal(:,MODEL) = 2; % Polynomial cost function
+gencostThermal(:,NCOST) = 2; % Linear cost curve
+gencostThermal(:,COST) = genData.cost_1;
+gencostThermal(:,COST+1) = genData.cost_0;
 
 % cost curve for hydro and nuclear generators in NY
-hynucost = zeros(12,6);
-hynucost(:,MODEL) = 2;
-hynucost(:,NCOST) = 2;
+gencostHydroNuclear = zeros(size(genHydroNuclear,1),6);
+gencostHydroNuclear(:,MODEL) = 2;
+gencostHydroNuclear(:,NCOST) = 2;
 count = 0;
 for i = 1:height(renewableGen)
     if renewableGen.PgNuclearCap(i) ~= 0
         count = count+1;
         % Randomly assign cost for $1-3/MWh
-        hynucost(count,COST) = 1+2*rand(1);
+        gencostHydroNuclear(count,COST) = 1+2*rand(1);
     end
     if renewableGen.PgHydroCap(i) ~= 0
         count = count +1;
         % Randomly assign cost for $0-10/MWh
-        hynucost(count,COST) = 10*rand(1);
+        gencostHydroNuclear(count,COST) = 10*rand(1);
     end
 end
 
 % Cost curve for external generators
-PJMprice = zonalPrice.LBMP(zonalPrice.ZoneName == "PJM");
-NEprice = zonalPrice.LBMP(zonalPrice.ZoneName == "NPX");
-IESOprice = zonalPrice.LBMP(zonalPrice.ZoneName == "O H");
-HQprice = zonalPrice.LBMP(zonalPrice.ZoneName == "H Q");
+gencostExt = zeros(size(genExt,1),6);
+gencostExt(:,MODEL) = 2;
+gencostExt(:,NCOST) = 2;
 
-exgencostthermal = zeros(28,6);
-exgencostthermal(:,MODEL) = 2;
-exgencostthermal(:,NCOST) = 2;
-offset = 12+227; % 227 thermal generators and 12 hydro and nuclear generators
-
-%%%% Use external price as constant cost?
-for i = 1:length(mpcreduced.gen(offset+1:offset+28,1))
-    if mpcreduced.gen(offset+i,GEN_BUS) <=35
-        exgencostthermal(i,COST) = NEprice;       
-    elseif mpcreduced.gen(offset+i,GEN_BUS) >=83 && mpcreduced.gen(offset+i,GEN_BUS)<= 113
-        exgencostthermal(i,COST) = IESOprice;
-    elseif mpcreduced.gen(offset+i,GEN_BUS)>113
-        exgencostthermal(i,COST) = PJMprice;
-    else
-        exgencostthermal(i,COST) = HQprice;
-    end
-end
+gencostExt(isNEGen,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "NPX");
+gencostExt(isIESOGen,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "O H");
+gencostExt(isPJMGen,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "PJM");
+gencostExt(end,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "H Q");
 
 % add gencost to mpc
-gencost = [NYgenthermalcost;hynucost;exgencostthermal];
-mpcreduced.gencost = gencost;
+mpcreduced.gencost = [gencostThermal;gencostHydroNuclear;gencostExt];
 
 fprintf("Finished adding generation cost matrix!\n");
 
