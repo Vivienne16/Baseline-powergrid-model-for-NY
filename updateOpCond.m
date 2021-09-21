@@ -16,8 +16,8 @@ function mpcreduced = updateOpCond(timeStamp)
 
 %% Read operation condition
 
-year = 2019; month = 12; day = 8; hour = 7;
-timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+% year = 2019; month = 12; day = 8; hour = 7;
+% timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
 % Read operation condition for NYS
 [fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);

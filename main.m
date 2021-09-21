@@ -24,5 +24,5 @@ resultPF = PFtestcase(mpcreduced, timeStamp);
 
 
 %% OPF test
-OresultOPF = OPFtestcase(mpcreduced, timeStamp);
+resultOPF = OPFtestcase(mpcreduced, timeStamp);
 

@@ -44,6 +44,12 @@ resultBranch = resultOPF.branch;
 resultGen = resultOPF.gen;
 resultGencost = resultOPF.gencost;
 
+fprintf("Finished solving optimal power flow!\n");
+
+savecase('Result\resultOPF.mat', resultOPF);
+
+fprintf("Saved optimal power flow results!\n");
+
 %% calculate zonal price
 busIdNY = busInfo.idx(busInfo.zone ~= "NA");
 busIdExt = busInfo.idx(busInfo.zone == "NA");

@@ -37,7 +37,7 @@ fprintf("Finished solving power flow!\n");
 
 savecase('Result\resultPF.mat', resultPF);
 
-fprintf("Update operation condition complete!\n");
+fprintf("Saved power flow results!\n");
 
 %% Calculate and compare power flow data
 
