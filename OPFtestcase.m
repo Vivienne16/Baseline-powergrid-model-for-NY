@@ -1,4 +1,4 @@
-function mpc = OPFtestcase(mpcreduced)
+function resultOPF = OPFtestcase(mpcreduced, timeStamp)
 %OPFTESTCASE
 % 
 %   This file run a test case for OPF using the updated mpc
@@ -17,6 +17,7 @@ function mpc = OPFtestcase(mpcreduced)
 
 % Read operation condition for NYS
 [fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);
+busInfo = importBusInfo(fullfile("Data","npcc.csv"));
 
 define_constants;
 
@@ -36,138 +37,98 @@ end
 %% Run OPF
 mpopt = mpoption( 'opf.dc.solver','GUROBI','opf.flow_lim','P');
 mpcreduced = toggle_iflims(mpcreduced, 'on');
-reducedopf = rundcopf(mpcreduced,mpopt);
-rdc = reducedopf.dcline;
-rbus = reducedopf.bus;
-rbranch = reducedopf.branch;
-rgen = reducedopf.gen;
-rgencost = reducedopf.gencost;
+resultOPF = rundcopf(mpcreduced,mpopt);
+resultDCLine = resultOPF.dcline;
+resultBus = resultOPF.bus;
+resultBranch = resultOPF.branch;
+resultGen = resultOPF.gen;
+resultGencost = resultOPF.gencost;
 
 %% calculate zonal price
-PJMbus = rbus(53:57,:);
-NEbus = rbus(1:3,:);
-IESObus = rbus(50:52,:);
-PJMPRICE = PJMbus(:,3)'*PJMbus(:,14)/sum(PJMbus(:,3));
-NEPRICE = NEbus(:,3)'*NEbus(:,14)/sum(NEbus(:,3));
-IESOPRICE = IESObus(:,3)'*IESObus(:,14)/sum(IESObus(:,3));
-busIdA = [54 55 56 57 58 59 60 61];
-busIdB = [52 53 62];
-busIdC = [50 51 63 64 65 66 67 68 70 71 72];
-busIdD = [48 49];
-busIdE = [38 43 44 45 46 47 69];
-busIdF = [37 40 41 42];
-busIdG = [39 73 75 76 77];
-busIdH = 74;
-busIdI = 78;
-busIdJ = [82 81];
-busIdK = [79 80];
-isAGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdA);
-isBGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdB);
-isCGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdC);
-isDGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdD);
-isEGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdE);
-isFGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdF);
-isGGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdG);
-isHGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdH);
-isIGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdI);
-isJGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdJ);
-isKGen = ismember(mpcreduced.gen(:,GEN_BUS),busIdK);
+busIdNY = busInfo.idx(busInfo.zone ~= "NA");
+busIdExt = busInfo.idx(busInfo.zone == "NA");
 
+busIdA = busInfo.idx(busInfo.zone == "A");
+busIdB = busInfo.idx(busInfo.zone == "B");
+busIdC = busInfo.idx(busInfo.zone == "C");
+busIdD = busInfo.idx(busInfo.zone == "D");
+busIdE = busInfo.idx(busInfo.zone == "E");
+busIdF = busInfo.idx(busInfo.zone == "F");
+busIdG = busInfo.idx(busInfo.zone == "G");
+busIdH = busInfo.idx(busInfo.zone == "H");
+busIdI = busInfo.idx(busInfo.zone == "I");
+busIdJ = busInfo.idx(busInfo.zone == "J");
+busIdK = busInfo.idx(busInfo.zone == "K");
 
-Abus = [];Bbus = [];Cbus = [];Dbus = [];Ebus = [];Fbus = [];Gbus = [];Hbus = [];Ibus = [];Kbus = [];Jbus = [];
+busIdNE = [21;29;35];
+busIdIESO = [100;102;103];
+busIdPJM = [124;125;132;134;138];
 
-Abus_copy = rbus(ismember(rbus(:,BUS_I),busIdA),:);
+%% Get simulated price
 
+priceSim = [
+    averagePrice(resultBus,busIdA);
+    averagePrice(resultBus,busIdB);
+    averagePrice(resultBus,busIdC);
+    averagePrice(resultBus,busIdD);
+    averagePrice(resultBus,busIdE);
+    averagePrice(resultBus,busIdF);
+    averagePrice(resultBus,busIdG);
+    averagePrice(resultBus,busIdH);
+    averagePrice(resultBus,busIdI);
+    averagePrice(resultBus,busIdJ);
+    averagePrice(resultBus,busIdK);
+    averagePrice(resultBus,busIdNE);
+    averagePrice(resultBus,busIdIESO);
+    averagePrice(resultBus,busIdPJM);
+];
 
+%% Get real price
 
-for i = busIdA
-    Abus = [Abus;rbus(rbus(:,1)==i,:)];
-end
-Aprice = Abus(:,PD)'*Abus(:,LAM_P)/sum(Abus(:,PD));
-for i = busIdB
-    Bbus = [Bbus;rbus(rbus(:,1)==i,:)];
-end
-Bprice = Bbus(:,PD)'*Bbus(:,LAM_P)/sum(Bbus(:,PD));
-for i = busIdC
-    Cbus = [Cbus;rbus(rbus(:,1)==i,:)];
-end
-Cprice = Cbus(:,PD)'*Cbus(:,14)/sum(Cbus(:,PD));
-for i = busIdD
-    Dbus = [Dbus;rbus(rbus(:,1)==i,:)];
-end
-Dprice = Dbus(:,PD)'*Dbus(:,14)/sum(Dbus(:,PD));
-for i = busIdE
-    Ebus = [Ebus;rbus(rbus(:,1)==i,:)];
-end
-EMHKVLprice = Ebus(:,PD)'*Ebus(:,14)/sum(Ebus(:,PD));
-for i = busIdF
-    Fbus = [Fbus;rbus(rbus(:,1)==i,:)];
-end
-FCAPITLprice = Fbus(:,PD)'*Fbus(:,14)/sum(Fbus(:,PD));
-for i = busIdG
-    Gbus = [Gbus;rbus(rbus(:,1)==i,:)];
-end
-GHUDVLprice = Gbus(:,PD)'*Gbus(:,14)/sum(Gbus(:,PD));
-for i = busIdH
-    Hbus = [Hbus;rbus(rbus(:,1)==i,:)];
-end
-HMILLWDprice = Hbus(:,PD)'*Hbus(:,14)/sum(Hbus(:,PD));
-for i = busIdI
-    Ibus = [Ibus;rbus(rbus(:,1)==i,:)];
-end
-IDUNWODprice = Ibus(:,PD)'*Ibus(:,14)/sum(Ibus(:,PD));
-for i = busIdJ
-    Jbus = [Jbus;rbus(rbus(:,1)==i,:)];
-end
-JNYCprice = Jbus(:,PD)'*Jbus(:,14)/sum(Jbus(:,PD));
-for i = busIdK
-    Kbus = [Kbus;rbus(rbus(:,1)==i,:)];
-end
-KLIprice = Kbus(:,PD)'*Kbus(:,14)/sum(Kbus(:,PD));
-simprice = [Aprice,Bprice,Cprice,Dprice,EMHKVLprice,FCAPITLprice,GHUDVLprice,HMILLWDprice,IDUNWODprice,JNYCprice,KLIprice,PJMPRICE,NEPRICE,IESOPRICE];
+priceReal = [
+    zonalPrice.LBMP(zonalPrice.ZoneName == "WEST");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "GENESE");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "CENTRL");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "NORTH");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "MHK VL");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "CAPITL");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "HUD VL");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "MILLWD");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "DUNWOD");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "N.Y.C.");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "LONGIL");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "PJM");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "NPX");
+    zonalPrice.LBMP(zonalPrice.ZoneName == "O H")
+    ];
 
-%% read real price
-% load('Data/NYRTMprice.mat');
-% NYzp = NYRTMprice(NYRTMprice.month == month & NYRTMprice.day == day & NYRTMprice.hour == hour,:);
-NYzp.Name = string(NYzp.Name);
-Apr = NYzp.mean_LBMPMWHr(NYzp.Name == 'WEST');
-Bpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'GENESE');
-Cpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'CENTRL');
-Dpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'NORTH');
-Epr = NYzp.mean_LBMPMWHr(NYzp.Name == 'MHK VL');
-Fpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'CAPITL');
-Gpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'HUD VL');
-Hpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'MILLWD');
-Ipr = NYzp.mean_LBMPMWHr(NYzp.Name == 'DUNWOD');
-Jpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'N.Y.C.');
-Kpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'LONGIL');
-PJMpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'PJM');
-NEpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'NPX');
-IESOpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'O H');
-HQpr = NYzp.mean_LBMPMWHr(NYzp.Name == 'H Q');
-realprice = [Apr,Bpr,Cpr,Dpr,Epr,Fpr,Gpr,Hpr,Ipr,Jpr,Kpr,PJMpr,NEpr,IESOpr];
+%% Plot price comparison
 
-
-x0=10;
-y0=10;
-width=550;
-height=400;
+x0=100;
+y0=100;
+width=800;
+height=600;
+ftsz = 16;
 %%%%%%%%%%%%%plot figure%%%%%%%%%%%%%%%%%
-figure
-set(gca,'FontSize',18)
-set(gcf,'position',[x0,y0,width,height])
-plot(realprice,'LineWidth',3)
-hold on
-plot(simprice,'LineWidth',3)
-h = legend({'Historical LMP','Simulated LMP'},'FontSize', 18);
-set(h,'Location','best')
-ax = gca;
-ax.FontSize = 16; 
+f = figure();
+hold on;
+p1 = plot(priceReal,'LineWidth',3);
+p2 = plot(priceSim,'LineWidth',3);
+legend([p1,p2],["Historical LMP","Simulated LMP"],"FontSize",ftsz,"Location","northeast");
 xticks([1:14])
 xticklabels({'West','Genese','Central','North','MHK VL','Capital','HUD VL','MILLWD','DUNWOD','NYC','Long IL','PJM','NE','Ontario'})
+gca.FontSize = ftsz;
 xtickangle(45)
-xlabel('Zone','FontSize', 18)
-ylabel('LMP ($/MW)','FontSize', 18)
+xlabel('Zone','FontSize', ftsz)
+ylabel('LMP ($/MW)','FontSize', ftsz)
+set(f,'position',[x0,y0,width,height]);
+
 end
 
+function avgPrice = averagePrice(resultBus, busId)
+%AVGPRICE Calculate weighted average price of a zone
+define_constants;
+busM = resultBus(ismember(resultBus(:,BUS_I),busId),:);
+avgPrice = sum(busM(:,PD).*busM(:,LAM_P))/sum(busM(:,PD));
+end
        

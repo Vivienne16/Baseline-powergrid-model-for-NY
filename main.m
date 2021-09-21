@@ -15,14 +15,14 @@ day = 10;
 hour = 16;
 
 timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
-[mpcreduced,interflow,flowlimit,fuelsum,NYzp] = updateOpCond(timeStamp);
+mpcreduced = updateOpCond(timeStamp);
 
 
 %% PF test
-PFResults = PFtestcase(mpc,interflow,flowlimit);
+resultPF = PFtestcase(mpcreduced, timeStamp);
 
 
 
 %% OPF test
-OPFResults = OPFtestcase(mpc,fuelsum,month,NYzp);
+OresultOPF = OPFtestcase(mpcreduced, timeStamp);
 

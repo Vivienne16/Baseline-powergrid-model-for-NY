@@ -191,8 +191,9 @@ NYloadOld = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
 NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
 NYLoadRatio = NYLoadTot/NYloadOld;
 
-mpc.bus(37:82,PD) = loadData.PD;
-mpc.bus(37:82,QD) = loadData.QD; 
+busIdNY = busInfo.idx(busInfo.zone ~= "NA");
+mpc.bus(busIdNY,PD) = loadData.PD;
+mpc.bus(busIdNY,QD) = loadData.QD; 
 
 fprintf("Finished updating load in NY!\n");
 
@@ -405,7 +406,7 @@ fprintf("Finished adding generation cost matrix!\n");
 
 %% Save updated operation condtion
 
-savecase('mpcreduced.mat',mpcreduced);
+savecase('Result\mpcreduced.mat',mpcreduced);
 
 fprintf("Update operation condition complete!\n");
 

@@ -1,4 +1,4 @@
-function resultPF = PFtestcase(mpcreduced)
+function resultPF = PFtestcase(mpcreduced, timeStamp)
 %PFTESTCASE
 %   
 %   This file run a test case for PF using the updatedmpc
@@ -34,6 +34,10 @@ resultBranch = resultPF.branch;
 resultGen = resultPF.gen;
 
 fprintf("Finished solving power flow!\n");
+
+savecase('Result\resultPF.mat', resultPF);
+
+fprintf("Update operation condition complete!\n");
 
 %% Calculate and compare power flow data
 
