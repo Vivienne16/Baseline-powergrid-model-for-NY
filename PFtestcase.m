@@ -19,16 +19,21 @@ if nargin <= 2 || isempty(savefig)
     savefig = true;
 end
 
-% Read operation condition for NYS
-[~,interFlow,flowLimit,~,~,~] = readOpCond(timeStamp);
-
-define_constants;
+% Testing timestamp
+if isempty(timeStamp)
+    year = 2019; month = 12; day = 8; hour = 7;
+    timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
+end
 
 if isempty(mpcreduced)
     mpcreduced = loadcase("Result/mpcreduced.mat");
 end
 
-fprintf("Finished reading MATPOWER case!\n");
+%% Read operation condition for NYS
+
+[fuelMix,interFlow,flowLimit,~,~,~] = readOpCond(timeStamp);
+
+define_constants;
 
 %% Run reduced MATPOWER case
 
@@ -51,11 +56,10 @@ fprintf("Saved power flow results!\n");
 
 % Plot simulated and real interface flow
 f = figure();
-flow4plot = [flowSim,flowReal];
-bar(flow4plot);
+bar([flowSim,flowReal]);
 xticklabels(flowName);
 legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
-xlabel("Interface name","FontSize", 14);
+xlabel("Interface","FontSize", 14);
 ylabel("Interface flow (MW)","FontSize", 14);
 title("PF: Real and simulated interface flow "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
 set(gca,"FontSize",16);
@@ -63,6 +67,7 @@ set(f,"Position",[100,100,800,600]);
 if savefig
     figName = "Result\Figure\"+"resultPF_IF_Com_"+timeStampStr+".png";
     saveas(f,figName);
+    close(f);
 end
 
 % Plot interface flow error
@@ -70,7 +75,7 @@ f = figure();
 bar(flowError*100);
 xticklabels(flowName);
 ytickformat('percentage');
-ylabel("Power Flow Error %","FontSize",16);
+ylabel("Power flow Error %","FontSize",16);
 xlabel("Interface","FontSize",16);
 title("PF: Interface flow error "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
 set(gca,"FontSize",16);
@@ -78,6 +83,43 @@ set(f,"Position",[100,100,800,600]);
 if savefig
     figName = "Result\Figure\"+"resultPF_IF_Err_"+timeStampStr+".png";
     saveas(f,figName);
+    close(f);
+end
+
+%% Show fuel mix results
+
+[fuelSim,fuelReal,fuelError,fuelName] = fuel4Plot(resultPF,resultGen,fuelMix,interFlow);
+
+% Plot simulated and real interface flow
+f = figure();
+bar([fuelSim,fuelReal]);
+xticklabels(fuelName);
+legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
+xlabel("Fuel","FontSize", 14);
+ylabel("Fuel mix (MW)","FontSize", 14);
+title("PF: Real and simulated fuel mix "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
+set(gca,"FontSize",16);
+set(f,"Position",[100,100,800,600]);
+if savefig
+    figName = "Result\Figure\"+"resultPF_FM_Com_"+timeStampStr+".png";
+    saveas(f,figName);
+    close(f);
+end
+
+% Plot interface flow error
+f = figure();
+bar(fuelError*100);
+xticklabels(fuelName);
+ytickformat('percentage');
+ylabel("Fuel mix Error %","FontSize",16);
+xlabel("Fuel","FontSize",16);
+title("PF: Fuel mix error "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
+set(gca,"FontSize",16);
+set(f,"Position",[100,100,800,600]);
+if savefig
+    figName = "Result\Figure\"+"resultPF_FM_Err_"+timeStampStr+".png";
+    saveas(f,figName);
+    close(f);
 end
 
 end

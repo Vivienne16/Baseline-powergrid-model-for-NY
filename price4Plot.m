@@ -61,7 +61,7 @@ priceReal = [
     zonalPrice.LBMP(zonalPrice.ZoneName == "H Q")];
 
 % Price error
-priceError = (priceReal - priceSim)./priceSim;
+priceError = (priceSim-priceReal)./priceReal;
 
 % Zone name
 zoneName = ["A";"B";"C";"D";"E";"F";"G";"H";"I";"J";"K";"PJM";"NE";"IESO";"HQ"];

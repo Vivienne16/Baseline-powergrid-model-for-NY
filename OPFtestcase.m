@@ -19,15 +19,22 @@ if nargin <= 2 || isempty(savefig)
     savefig = true;
 end
 
-% Read operation condition for NYS
-[~,interFlow,flowLimit,~,~,zonalPrice] = readOpCond(timeStamp);
-busInfo = importBusInfo(fullfile("Data","npcc.csv"));
-
-define_constants;
+% Testing timestamp
+if isempty(timeStamp)
+    year = 2019; month = 12; day = 8; hour = 7;
+    timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
+end
 
 if isempty(mpcreduced)
     mpcreduced = loadcase("Result/mpcreduced.mat");
 end
+
+%% Read operation condition for NYS
+
+[fuelMix,interFlow,flowLimit,~,~,zonalPrice] = readOpCond(timeStamp);
+busInfo = importBusInfo(fullfile("Data","npcc.csv"));
+
+define_constants;
 
 %% additional constraints for large hydro to avoid dispatch at upper gen limit
 
@@ -36,8 +43,6 @@ end
 % STLcf = [0.9133,0.9483, 1.0112,0.9547,0.9921,1.0984,1.0761,1.0999,1.0976,1.0053,1.0491,1.0456];
 % mpcreduced.gen(228,9) = 0.8*(fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Hydro')-910)-STLcf(month)*860;
 % mpcreduced.gen(234,9) = STLcf(month)*860;
-
-
 
 %% Run OPF
 mpopt = mpoption( 'opf.dc.solver','GUROBI','opf.flow_lim','P');
@@ -62,8 +67,7 @@ fprintf("Saved optimal power flow results!\n");
 
 % Plot simulated and real price
 f = figure();
-price = [priceSim priceReal];
-bar(price)
+bar([priceSim priceReal])
 xticklabels(zoneName);
 legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
 xlabel("Zone","FontSize", 12);
@@ -72,8 +76,9 @@ title("OPF: Real and simulated price "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"Fo
 set(gca,"FontSize",16);
 set(f,"position",[100,100,800,600]);
 if savefig
-    figName = "Result\Figure\"+"resultOPF_LMP_Err_"+timeStampStr+".png";
+    figName = "Result\Figure\"+"resultOPF_LMP_Com_"+timeStampStr+".png";
     saveas(f,figName);
+    close(f);
 end
 
 % Plot price error
@@ -89,6 +94,7 @@ set(f,"Position",[100,100,800,600]);
 if savefig
     figName = "Result\Figure\"+"resultOPF_LMP_Err_"+timeStampStr+".png";
     saveas(f,figName);
+    close(f);
 end
 
 %% Show interface flow results
@@ -98,11 +104,10 @@ end
 
 % Plot simulated and real interface flow
 f = figure();
-flow4plot = [flowSim,flowReal];
-bar(flow4plot);
+bar([flowSim,flowReal]);
 xticklabels(flowName);
 legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
-xlabel("Interface name","FontSize", 14);
+xlabel("Interface","FontSize", 14);
 ylabel("Interface flow (MW)","FontSize", 14);
 title("OPF: Real and simulated interface flow "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
 set(gca,"FontSize",16);
@@ -110,6 +115,7 @@ set(f,"Position",[100,100,800,600]);
 if savefig
     figName = "Result\Figure\"+"resultOPF_IF_Com_"+timeStampStr+".png";
     saveas(f,figName);
+    close(f);
 end
 
 % Plot interface flow error
@@ -125,6 +131,43 @@ set(f,"Position",[100,100,800,600]);
 if savefig
     figName = "Result\Figure\"+"resultOPF_IF_Err_"+timeStampStr+".png";
     saveas(f,figName);
+    close(f);
+end
+
+%% Show fuel mix results
+
+[fuelSim,fuelReal,fuelError,fuelName] = fuel4Plot(resultOPF,resultGen,fuelMix,interFlow);
+
+% Plot simulated and real interface flow
+f = figure();
+bar([fuelSim,fuelReal]);
+xticklabels(fuelName);
+legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
+xlabel("Fuel","FontSize", 14);
+ylabel("Fuel mix (MW)","FontSize", 14);
+title("OPF: Real and simulated fuel mix "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
+set(gca,"FontSize",16);
+set(f,"Position",[100,100,800,600]);
+if savefig
+    figName = "Result\Figure\"+"resultOPF_FM_Com_"+timeStampStr+".png";
+    saveas(f,figName);
+    close(f);
+end
+
+% Plot interface flow error
+f = figure();
+bar(fuelError*100);
+xticklabels(fuelName);
+ytickformat('percentage');
+ylabel("Fuel mix Error %","FontSize",16);
+xlabel("Fuel","FontSize",16);
+title("OPF: Fuel mix error "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
+set(gca,"FontSize",16);
+set(f,"Position",[100,100,800,600]);
+if savefig
+    figName = "Result\Figure\"+"resultOPF_FM_Err_"+timeStampStr+".png";
+    saveas(f,figName);
+    close(f);
 end
 
 end

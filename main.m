@@ -31,9 +31,9 @@ resultOPF = OPFtestcase(mpcreduced,timeStamp);
 %% Loop through the whole year 2019
 
 year = 2019;
-for month = 1:12
-    for day = 1:eomday(year,month)
-        for hour = 1:24
+for month = 7
+    parfor day = 1:eomday(year,month)
+        for hour = 1:3:24
             % Operation condition update
             timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
             mpcreduced = updateOpCond(timeStamp);

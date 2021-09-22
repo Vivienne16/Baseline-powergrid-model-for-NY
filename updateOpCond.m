@@ -14,7 +14,7 @@ function mpcreduced = updateOpCond(timeStamp,verbose)
 %   Created by Vivienne Liu, Cornell University
 %   Last modified on Sept. 21, 2021
 
-%% Read operation condition
+%% Input parameters
 
 if nargin <= 1 || isempty(verbose)
     verbose = true;
@@ -25,6 +25,8 @@ if isempty(timeStamp)
     year = 2019; month = 12; day = 8; hour = 7;
     timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
 end
+
+%% Read operation condition
 
 fprintf("Start updating operation condition at %s.\n",datestr(timeStamp));
 
@@ -338,8 +340,9 @@ genHQ(PMIN) = flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ - 
     flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
 
 genExt = [genExt;genHQ];
+numExt = size(genExt,1);
 
-mpc.gen = [genThermal;genHydro;genNuclear;genExt];
+mpc.gen = [genThermal;genNuclear;genHydro;genExt];
 
 if verbose
     fprintf("PJM: total generation: %.2f MW, total load: %.2f MW.\n",....
@@ -476,6 +479,14 @@ gencostExt(end,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "H Q");
 mpcreduced.gencost = [gencostThermal;gencostNuclear;gencostHydro;gencostExt];
 
 fprintf("Finished adding generation cost matrix!\n");
+
+%% Add gentype
+
+gentypeThermal = string(genData.UnitType);
+gentypeNuclear = repelem("Nuclear",numNuclear)';
+gentypeHydro = repelem("Hydro",numHydro)';
+gentypeExt = repelem("Import",numExt)';
+mpcreduced.gentype = [gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt];
 
 %% Save updated operation condtion
 
