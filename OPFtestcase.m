@@ -16,13 +16,13 @@ function resultOPF = OPFtestcase(mpcreduced, timeStamp)
 %% Input parameters
 
 % Read operation condition for NYS
-[fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);
+[~,~,~,~,~,zonalPrice] = readOpCond(timeStamp);
 busInfo = importBusInfo(fullfile("Data","npcc.csv"));
 
 define_constants;
 
 if isempty(mpcreduced)
-    mpcreduced = loadcase('Result/mpcreduced.mat');
+    mpcreduced = loadcase("Result/mpcreduced.mat");
 end
 
 %% additional constraints for large hydro to avoid dispatch at upper gen limit
@@ -46,11 +46,14 @@ resultGencost = resultOPF.gencost;
 
 fprintf("Finished solving optimal power flow!\n");
 
-savecase('Result\resultOPF.mat', resultOPF);
+timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
+outfilename = "Result\"+"resultOPF_"+timeStampStr+".mat";
+save(outfilename,"resultOPF");
 
 fprintf("Saved optimal power flow results!\n");
 
-%% calculate zonal price
+%% Define bus indices
+
 busIdNY = busInfo.idx(busInfo.zone ~= "NA");
 busIdExt = busInfo.idx(busInfo.zone == "NA");
 
@@ -70,7 +73,7 @@ busIdNE = [21;29;35];
 busIdIESO = [100;102;103];
 busIdPJM = [124;125;132;134;138];
 
-%% Get simulated price
+%% Get simulated and real price
 
 priceSim = [
     averagePrice(resultBus,busIdA);
@@ -84,13 +87,11 @@ priceSim = [
     averagePrice(resultBus,busIdI);
     averagePrice(resultBus,busIdJ);
     averagePrice(resultBus,busIdK);
-    averagePrice(resultBus,busIdNE);
-    averagePrice(resultBus,busIdIESO);
     averagePrice(resultBus,busIdPJM);
-];
+    averagePrice(resultBus,busIdNE);
+    averagePrice(resultBus,busIdIESO)];
 
-%% Get real price
-
+% Get real price
 priceReal = [
     zonalPrice.LBMP(zonalPrice.ZoneName == "WEST");
     zonalPrice.LBMP(zonalPrice.ZoneName == "GENESE");
@@ -105,29 +106,19 @@ priceReal = [
     zonalPrice.LBMP(zonalPrice.ZoneName == "LONGIL");
     zonalPrice.LBMP(zonalPrice.ZoneName == "PJM");
     zonalPrice.LBMP(zonalPrice.ZoneName == "NPX");
-    zonalPrice.LBMP(zonalPrice.ZoneName == "O H")
-    ];
+    zonalPrice.LBMP(zonalPrice.ZoneName == "O H")];
 
 %% Plot price comparison
 
-x0=100;
-y0=100;
-width=800;
-height=600;
-ftsz = 16;
-%%%%%%%%%%%%%plot figure%%%%%%%%%%%%%%%%%
+zoneName = ["A";"B";"C";"D";"E";"F";"G";"H";"I";"J";"K";"PJM";"NE";"IESO"];
 f = figure();
-hold on;
-p1 = plot(priceReal,'LineWidth',3);
-p2 = plot(priceSim,'LineWidth',3);
-legend([p1,p2],["Historical LMP","Simulated LMP"],"FontSize",ftsz,"Location","northeast");
-xticks([1:14])
-xticklabels({'West','Genese','Central','North','MHK VL','Capital','HUD VL','MILLWD','DUNWOD','NYC','Long IL','PJM','NE','Ontario'})
-gca.FontSize = ftsz;
-xtickangle(45)
-xlabel('Zone','FontSize', ftsz)
-ylabel('LMP ($/MW)','FontSize', ftsz)
-set(f,'position',[x0,y0,width,height]);
+price = [priceSim priceReal];
+bar(price)
+xticklabels(zoneName);
+legend(["Historical LMP","Simulated LMP"],"FontSize",14,"Location","northwest");
+xlabel("Zone","FontSize", 12);
+ylabel("LMP ($/MW)","FontSize", 12); 
+set(f,"position",[100,100,800,600]);
 
 end
 

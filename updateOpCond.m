@@ -16,8 +16,11 @@ function mpcreduced = updateOpCond(timeStamp)
 
 %% Read operation condition
 
-% year = 2019; month = 12; day = 8; hour = 7;
-% timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+% Testing timestamp
+year = 2019; month = 12; day = 8; hour = 7;
+timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+
+fprintf("Start updating operation condition at %s.\n",datestr(timeStamp));
 
 % Read operation condition for NYS
 [fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);
@@ -38,24 +41,19 @@ define_constants;
 
 fprintf("Finished reading operation conditions!\n");
 
-%% allocate hydro and nuclear generators in NY
+%% Allocate nuclear generators in NY
 
-genHydroNuclear = []; % Matrix to store hydro and nuclear gen matrix
+fprintf("Start allocating nuclear generation ...\n");
 
-% Renewable generation in NYISO"s fuel mix data
+numNuclear = nnz(renewableGen.PgNuclearCap);
+genNuclear = zeros(numNuclear,21);
+
+% Nuclear generation in NYISO"s fuel mix data
 nuclearGen = fuelMix.GenMW(fuelMix.FuelCategory == "Nuclear");
-hydroGen = fuelMix.GenMW(fuelMix.FuelCategory == "Hydro");
-
-rmnCap = 2460; % Niagara hydropower capacity
-stlCap = 856; % St. Lawrence hydropower capacity
-
-% Total capacity and capacify factor of renewables
+% Total capacity of nuclear generation
 nuclearCapTot = sum(renewableGen.PgNuclearCap);
-hydroCapTot = sum(renewableGen.PgHydroCap);
-hydroCapSmall = hydroCapTot-rmnCap-stlCap; % only small hydros
 
-count = 0; % Count number of hydro and nuclear generators
-
+count = 0;
 for i = 1:height(renewableGen)
     % Add nuclear generators
     if renewableGen.PgNuclearCap(i) ~= 0       
@@ -68,9 +66,11 @@ for i = 1:height(renewableGen)
             % Bus 74: zone H, Indian Point 2 and 3
             renewableGen.PgNuclear(i) = nuclearCf.IndianPoint2Gen...
                 +nuclearCf.IndianPoint3Gen;
-        else
+        elseif renewableGen.BusID(i) == 53
             % Bus 53: zone B, Gina
             renewableGen.PgNuclear(i) = nuclearCf.GinnaGen;
+        else
+            error("Error: Undefined nuclear generator!");
         end     
         
         % Add a new row in the mpc.gen matrix
@@ -86,8 +86,33 @@ for i = 1:height(renewableGen)
         newrow(RAMP_AGC) = 0.01*newrow(PMAX);
         newrow(RAMP_10) = 0.1*newrow(PMAX);
         newrow(RAMP_30) = 0.3*newrow(PMAX);
-        genHydroNuclear = [genHydroNuclear;newrow];       
-    end   
+        genNuclear(count,:) = newrow;
+    end
+end
+
+nuclearError = nuclearGen - sum(genNuclear(:,PG));
+fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
+    nuclearCapTot,nuclearGen,nuclearError);
+fprintf("Finished allocating nuclear generation!\n");
+
+%% Allocate hydro generation in NY
+
+fprintf("Start allocating hydro generation ...\n");
+
+numHydro = nnz(renewableGen.PgHydroCap);
+genHydro = zeros(numHydro,21);
+
+% Hydro generation in NYISO's fuel mix data
+hydroGen = fuelMix.GenMW(fuelMix.FuelCategory == "Hydro");
+% Total capacity and capacify factor of renewables
+hydroCapTot = sum(renewableGen.PgHydroCap);
+
+rmnCap = 2460; % Niagara hydropower capacity
+stlCap = 856; % St. Lawrence hydropower capacity
+hydroCapSmall = hydroCapTot-rmnCap-stlCap; % only small hydros
+
+count = 0;
+for i = 1:height(renewableGen)    
     % Add hydro generators
     if renewableGen.PgHydroCap(i) ~= 0       
         count = count +1;
@@ -116,25 +141,24 @@ for i = 1:height(renewableGen)
         newrow(RAMP_AGC) = 0.09*newrow(PMAX);
         newrow(RAMP_10) = 0.9*newrow(PMAX);
         newrow(RAMP_30) = newrow(PMAX);
-        genHydroNuclear = [genHydroNuclear;newrow];        
+        genHydro(count,:) = newrow;        
     end
 end
 
-% Error in nuclear and hydro generation allocation
-nuclearError = nuclearGen - sum(renewableGen.PgNuclear);
-hydroError = hydroGen - sum(renewableGen.PgHydro);
-fprintf("Error in nuclear generation allocation: %f MW.\n",nuclearError);
-fprintf("Error in hydro generation allocation: %f MW.\n",hydroError);
-
+hydroError = hydroGen - sum(genHydro(:,PG));
+fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
+    hydroCapTot,hydroGen,hydroError);
 fprintf("Finished allocating hydro and nuclear generators!\n");
 
-%% allocate thermal generators in NY
+%% Allocate thermal generators in NY
 
-% Needed thermal generation from NYISO fuel mix data
+fprintf("Start allocating hydro generation ...\n");
+
+% Total thermal generation in NYISO fuel mix data
 thermalGen = fuelMix.GenMW(fuelMix.FuelCategory == "Dual Fuel")...
     +fuelMix.GenMW(fuelMix.FuelCategory == "Natural Gas")...
     +fuelMix.GenMW(fuelMix.FuelCategory == "Other Fossil Fuels");
-
+thermalCapTot = sum(genData.maxPower);
 % Replace missing generation data with zero
 genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyHeatInput"]);
 
@@ -164,9 +188,12 @@ genThermal(:,RAMP_AGC) = genData.maxRampAgc;
 genThermal(:,RAMP_10) = genData.maxRamp10;
 genThermal(:,RAMP_30) = genData.maxRamp30;
 
+thermalError = thermalGen - sum(genThermal(:,PG));
+fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
+    thermalCapTot,thermalGen,thermalError);
 fprintf("Finished allocating thermal generators!\n");
 
-%% calculate external flow below
+%% Calculate external interface flow
 
 flowPJM2NY = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - PJ - NY")+...
     interFlow.FlowMWH(interFlow.InterfaceName == "SCH - PJM_HTP")+...
@@ -185,7 +212,9 @@ flowCSC = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - NPX_CSC");
 
 fprintf("Finished calculating interface flow!\n");
 
-%% update load in NY
+%% Update load in NY
+
+fprintf("Start updating load in NY ...\n");
 
 NYloadOld = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
 NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
@@ -195,9 +224,12 @@ busIdNY = busInfo.idx(busInfo.zone ~= "NA");
 mpc.bus(busIdNY,PD) = loadData.PD;
 mpc.bus(busIdNY,QD) = loadData.QD; 
 
+fprintf("Total load: %.2f MW.\n",sum(mpc.bus(:,PD)));
 fprintf("Finished updating load in NY!\n");
 
 %% Add wind and other renewables as negative load
+
+fprintf("Start allocating wind and other renewables ...\n");
 
 windGen = fuelMix.GenMW(fuelMix.FuelCategory == "Wind");
 otherGen = fuelMix.GenMW(fuelMix.FuelCategory == "Other Renewables");
@@ -217,6 +249,8 @@ for i = 1:height(renewableGen)
     end
 end
 
+fprintf("Wind: capacity: %.2f MW; generation: %.2f MW.\n",windCapTot,windGen);
+fprintf("Other renewable: capacity: %.2f MW; generation: %.2f MW.\n",otherCapTot,otherGen);
 fprintf("Finished allocating wind and other renewables in NY!\n");
 
 %% scale up load and generation for external area
@@ -271,23 +305,23 @@ genExt(:,RAMP_AGC) = genExt(:,RAMP_10)/10;
 genExt(:,PMIN) = 0;
 
 % Add generator for HQ
-HQGen = zeros(1,21);
-HQGen(GEN_BUS) = 48;
-HQGen(PG) = flowHQ2NY;
-HQGen(QMAX) = 9999;
-HQGen(QMIN) = -9999;
-HQGen(VG) = 1;
-HQGen(MBASE) = 100;
-HQGen(GEN_STATUS) = 1;
+genHQ = zeros(1,21);
+genHQ(GEN_BUS) = 48;
+genHQ(PG) = flowHQ2NY;
+genHQ(QMAX) = 9999;
+genHQ(QMIN) = -9999;
+genHQ(VG) = 1;
+genHQ(MBASE) = 100;
+genHQ(GEN_STATUS) = 1;
 % Positive and negative interface flow limit from HQ to NY
-HQGen(PMAX) = flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
+genHQ(PMAX) = flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
     flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
-HQGen(PMIN) = flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
+genHQ(PMIN) = flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
     flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
 
-genExt = [genExt;HQGen];
+genExt = [genExt;genHQ];
 
-mpc.gen = [genThermal;genHydroNuclear;genExt];
+mpc.gen = [genThermal;genHydro;genNuclear;genExt];
 
 fprintf("Finished updating external load and generation!\n");
 
@@ -318,10 +352,10 @@ branchIdB2C = [-28;-29; 33; 50];
 branchIdC2E = [-16;-20;-21; 56;-62];
 branchIdD2E = [-24;-18;-23];
 branchIdE2F = [-14;-12;-3;-6];
-branchIdE2G = [8];
-branchIdF2G = [4];
+branchIdE2G = 8;
+branchIdF2G = 4;
 branchIdG2H = [65;-66];
-branchIdH2I = [67];
+branchIdH2I = 67;
 branchIdI2J = [73;74];
 branchIdI2K = [71;72];
 mpcreduced.if.map = [
@@ -362,30 +396,38 @@ mpcreduced.if.lims = [
 
 fprintf("Finished setting interface flow limits!\n");
 
-%% add gencost
+%% Add gencost
 
-% cost curve for thermal generators in NY
+% Cost curve for thermal generators in NY
 gencostThermal = zeros(size(genThermal,1),6);
 gencostThermal(:,MODEL) = 2; % Polynomial cost function
 gencostThermal(:,NCOST) = 2; % Linear cost curve
 gencostThermal(:,COST) = genData.cost_1;
 gencostThermal(:,COST+1) = genData.cost_0;
 
-% cost curve for hydro and nuclear generators in NY
-gencostHydroNuclear = zeros(size(genHydroNuclear,1),6);
-gencostHydroNuclear(:,MODEL) = 2;
-gencostHydroNuclear(:,NCOST) = 2;
+% Cost curve for nuclear generators in NY
+gencostNuclear = zeros(numNuclear,6);
+gencostNuclear(:,MODEL) = 2;
+gencostNuclear(:,NCOST) = 2;
 count = 0;
 for i = 1:height(renewableGen)
     if renewableGen.PgNuclearCap(i) ~= 0
         count = count+1;
         % Randomly assign cost for $1-3/MWh
-        gencostHydroNuclear(count,COST) = 1+2*rand(1);
+        gencostNuclear(count,COST) = 1+2*rand(1);
     end
+end
+
+% Cost curve for hydro generators in NY
+gencostHydro = zeros(numHydro,6);
+gencostHydro(:,MODEL) = 2;
+gencostHydro(:,NCOST) = 2;
+count = 0;
+for i = 1:height(renewableGen)
     if renewableGen.PgHydroCap(i) ~= 0
         count = count +1;
         % Randomly assign cost for $0-10/MWh
-        gencostHydroNuclear(count,COST) = 10*rand(1);
+        gencostHydro(count,COST) = 10*rand(1);
     end
 end
 
@@ -400,7 +442,7 @@ gencostExt(isPJMGen,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "PJM");
 gencostExt(end,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "H Q");
 
 % add gencost to mpc
-mpcreduced.gencost = [gencostThermal;gencostHydroNuclear;gencostExt];
+mpcreduced.gencost = [gencostThermal;gencostNuclear;genCostHydro;gencostExt];
 
 fprintf("Finished adding generation cost matrix!\n");
 

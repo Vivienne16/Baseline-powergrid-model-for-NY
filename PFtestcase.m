@@ -35,7 +35,10 @@ resultGen = resultPF.gen;
 
 fprintf("Finished solving power flow!\n");
 
-savecase('Result\resultPF.mat', resultPF);
+timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
+outfilename = "Result\"+"resultPF_"+timeStampStr+".mat";
+save(outfilename,"resultPF");
+
 
 fprintf("Saved power flow results!\n");
 
