@@ -11,7 +11,7 @@ end
 
 try
     %% Read interface flow data
-    interflowFileDir = fullfile('Prep','interflow');
+    interflowFileDir = fullfile('..\Prep','interflow');
     interflowFileName = string(year)+"*";
     interflowDataStore = fileDatastore(fullfile(interflowFileDir,interflowFileName),...
         "ReadFcn",@importInterflow,"UniformRead",true,"FileExtensions",'.csv');
@@ -36,7 +36,7 @@ try
     interflowHourly = sortrows(interflowHourly,"TimeStamp","ascend");
     
     %% Write hourly interface flow data
-    outfilename = fullfile('Data','interflowHourly.csv');
+    outfilename = fullfile('..\Data','interflowHourly.csv');
     writetable(interflowHourly,outfilename);
     msg = "Success!";
 catch ME

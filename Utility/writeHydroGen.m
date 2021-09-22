@@ -31,7 +31,7 @@ hydro_gen = hydro_gen(year(hydro_gen.TimeStamp) == yr, :);
 hydro_gen.TimeStamp = datetime(hydro_gen.TimeStamp,"Format","MM/dd/uuuu");
 
 % Save the data
-outfilename = fullfile('Data','hydroGenMonthly.csv');
+outfilename = fullfile('..\Data','hydroGenMonthly.csv');
 writetable(hydro_gen,outfilename);
 msg = "Success!";
 end

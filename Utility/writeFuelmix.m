@@ -11,7 +11,7 @@ end
 
 try
     % Read fuel mix data
-    fuelmixFileDir = fullfile('Prep','fuelmix');
+    fuelmixFileDir = fullfile('..\Prep','fuelmix');
     fuelmixFileName = string(year)+"*";
     fuelmixDataStore = fileDatastore(fullfile(fuelmixFileDir,fuelmixFileName),...
         "ReadFcn",@importFuelmix,"UniformRead",true,"FileExtensions",'.csv');
@@ -36,7 +36,7 @@ try
     fuelmixHourly = sortrows(fuelmixHourly,"TimeStamp","ascend");
     
     % Write hourly fuel mix data
-    outfilename = fullfile('Data','fuelmixHourly.csv');
+    outfilename = fullfile('..\Data','fuelmixHourly.csv');
     writetable(fuelmixHourly,outfilename);
     msg = "Success!";
 catch ME

@@ -9,7 +9,7 @@ if nargin < 1 && isempty(year)
 end
 
 %% Downlaod data from NRC
-nuclearDir = fullfile('Prep','nuclear');
+nuclearDir = fullfile('..\Prep','nuclear');
 apiroot = "https://www.nrc.gov/reading-rm/doc-collections/event-status/reactor-status/%d/";
 api = sprintf(apiroot,year);
 suffix = "PowerStatus.txt";
@@ -58,7 +58,7 @@ for n=2:numUnit
 end
 
 %% Save the data
-outfilename = fullfile('Data','nuclearGenDaily.csv');
+outfilename = fullfile('..\Data','nuclearGenDaily.csv');
 writetable(nuclearTable,outfilename);
 msg = "Success!";
 end

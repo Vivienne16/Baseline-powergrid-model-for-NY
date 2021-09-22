@@ -11,7 +11,7 @@ end
 
 try
     % Read fuel mix data
-    priceFileDir = fullfile('Prep','rtprice');
+    priceFileDir = fullfile('..\Prep','rtprice');
     priceFileName = string(year)+"*";
     priceDataStore = fileDatastore(fullfile(priceFileDir,priceFileName),...
         "ReadFcn",@importPrice,"UniformRead",true,"FileExtensions",'.csv');
@@ -36,7 +36,7 @@ try
     priceHourly = sortrows(priceHourly,"TimeStamp","ascend");
     
     % Write hourly fuel mix data
-    outfilename = fullfile('Data','priceHourly.csv');
+    outfilename = fullfile('..\Data','priceHourly.csv');
     writetable(priceHourly,outfilename);
     msg = "Success!";
 catch ME
