@@ -1,4 +1,4 @@
-function mpcreduced = updateOpCond(timeStamp)
+function mpcreduced = updateOpCond(timeStamp,verbose)
 %UPDATEOPERATIONCONDITION
 %
 %   This file should be run after the ModifyMPC.m file. The operation
@@ -12,13 +12,19 @@ function mpcreduced = updateOpCond(timeStamp)
 %       mpcreduced - reduced MATPOWER case file.
 
 %   Created by Vivienne Liu, Cornell University
-%   Last modified on August 17, 2021
+%   Last modified on Sept. 21, 2021
 
 %% Read operation condition
 
+if nargin <= 1 || isempty(verbose)
+    verbose = true;
+end
+
 % Testing timestamp
-year = 2019; month = 12; day = 8; hour = 7;
-timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+if isempty(timeStamp)
+    year = 2019; month = 12; day = 8; hour = 7;
+    timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
+end
 
 fprintf("Start updating operation condition at %s.\n",datestr(timeStamp));
 
@@ -91,8 +97,10 @@ for i = 1:height(renewableGen)
 end
 
 nuclearError = nuclearGen - sum(genNuclear(:,PG));
-fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
+if verbose
+    fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
     nuclearCapTot,nuclearGen,nuclearError);
+end
 fprintf("Finished allocating nuclear generation!\n");
 
 %% Allocate hydro generation in NY
@@ -146,8 +154,10 @@ for i = 1:height(renewableGen)
 end
 
 hydroError = hydroGen - sum(genHydro(:,PG));
-fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
-    hydroCapTot,hydroGen,hydroError);
+if verbose
+    fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
+        hydroCapTot,hydroGen,hydroError);
+end
 fprintf("Finished allocating hydro and nuclear generators!\n");
 
 %% Allocate thermal generators in NY
@@ -189,8 +199,10 @@ genThermal(:,RAMP_10) = genData.maxRamp10;
 genThermal(:,RAMP_30) = genData.maxRamp30;
 
 thermalError = thermalGen - sum(genThermal(:,PG));
-fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
-    thermalCapTot,thermalGen,thermalError);
+if verbose
+    fprintf("Total capacity: %.2f MW. Generation: %.2f MW. Error: %.2f MW.\n",...
+        thermalCapTot,thermalGen,thermalError);
+end
 fprintf("Finished allocating thermal generators!\n");
 
 %% Calculate external interface flow
@@ -224,7 +236,9 @@ busIdNY = busInfo.idx(busInfo.zone ~= "NA");
 mpc.bus(busIdNY,PD) = loadData.PD;
 mpc.bus(busIdNY,QD) = loadData.QD; 
 
-fprintf("Total load: %.2f MW.\n",sum(mpc.bus(:,PD)));
+if verbose
+    fprintf("Total load: %.2f MW.\n",sum(mpc.bus(:,PD)));
+end
 fprintf("Finished updating load in NY!\n");
 
 %% Add wind and other renewables as negative load
@@ -249,15 +263,31 @@ for i = 1:height(renewableGen)
     end
 end
 
-fprintf("Wind: capacity: %.2f MW; generation: %.2f MW.\n",windCapTot,windGen);
-fprintf("Other renewable: capacity: %.2f MW; generation: %.2f MW.\n",otherCapTot,otherGen);
+if verbose
+    fprintf("Wind: capacity: %.2f MW; generation: %.2f MW.\n",windCapTot,windGen);
+    fprintf("Other renewable: capacity: %.2f MW; generation: %.2f MW.\n",otherCapTot,otherGen);
+end
 fprintf("Finished allocating wind and other renewables in NY!\n");
 
-%% scale up load and generation for external area
+%% Scale up load and generation for external area
+
+fprintf("Start updating external load and generation ...\n");
 
 busIdExt = busInfo.idx(busInfo.zone == "NA");
 isExtGen = ismember(mpc.gen(:,GEN_BUS),busIdExt);
 genExt = mpc.gen(isExtGen,:);
+
+busIdPJM = busInfo.idx(busInfo.area == 5 | busInfo.area == 6);
+isPJMGen = ismember(genExt(:,GEN_BUS),busIdPJM);
+% Total load and generation in PJM in the original NPCC-140 case
+PJMLoadOld = sum(mpc.bus(busIdPJM,PD));
+PJMGenOld = sum(genExt(isPJMGen,PG));
+% Scale up PJM load with the same load in NY
+PJMLoadRatio = NYLoadRatio;
+mpc.bus(busIdPJM,PD) = mpc.bus(busIdPJM,PD)*PJMLoadRatio;
+% Scale up PJM generation with scaled load and interface flow data
+PJMGenRatio = (PJMLoadOld*PJMLoadRatio+flowPJM2NY)/PJMGenOld;
+genExt(isPJMGen,PG) = genExt(isPJMGen,PG)*PJMGenRatio;
 
 busIdNE = busInfo.idx(busInfo.area == 1);
 isNEGen = ismember(genExt(:,GEN_BUS),busIdNE);
@@ -282,18 +312,6 @@ mpc.bus(busIdIESO,PD) = mpc.bus(busIdIESO,PD)*IESOLoadRatio;
 % Scale up IESO generator with scaled laod and interface flow data
 IESOGenRatio = (IESOLoadOld*IESOLoadRatio+flowIESO2NY)/IESOGenOld;
 genExt(isIESOGen,PG) = genExt(isIESOGen,PG)*IESOGenRatio;
-
-busIdPJM = busInfo.idx(busInfo.area == 5 | busInfo.area == 6);
-isPJMGen = ismember(genExt(:,GEN_BUS),busIdPJM);
-% Total load and generation in PJM in the original NPCC-140 case
-PJMLoadOld = sum(mpc.bus(busIdPJM,PD));
-PJMGenOld = sum(genExt(isPJMGen,PG));
-% Scale up PJM load with the same load in NY
-PJMLoadRatio = NYLoadRatio;
-mpc.bus(busIdPJM,PD) = mpc.bus(busIdPJM,PD)*PJMLoadRatio;
-% Scale up PJM generation with scaled load and interface flow data
-PJMGenRatio = (PJMLoadOld*PJMLoadRatio+flowPJM2NY)/PJMGenOld;
-genExt(isPJMGen,PG) = genExt(isPJMGen,PG)*PJMGenRatio;
 
 % Set negative minimum generation to zero
 genExt(genExt(:,PMIN)<0,PMIN) = 0;
@@ -323,11 +341,21 @@ genExt = [genExt;genHQ];
 
 mpc.gen = [genThermal;genHydro;genNuclear;genExt];
 
+if verbose
+    fprintf("PJM: total generation: %.2f MW, total load: %.2f MW.\n",....
+        sum(genExt(isPJMGen,PG)),sum(mpc.bus(busIdPJM,PD)));
+    fprintf("NE: total generation: %.2f MW, total load: %.2f MW.\n",....
+        sum(genExt(isNEGen,PG)),sum(mpc.bus(busIdNE,PD)));
+    fprintf("IESO: total generation: %.2f MW, total load: %.2f MW.\n",....
+        sum(genExt(isIESOGen,PG)),sum(mpc.bus(busIdIESO,PD)));
+    fprintf("NE: total generation: %.2f MW, total load: %.2f MW.\n",....
+        genHQ(PG),0);
+end
 fprintf("Finished updating external load and generation!\n");
 
 %% Equivelent Reduction
+
 % Define external buses
-%%%% Change this to data reading instead of hard coded 
 Exbus = [1:20,22:28,30:34,36,83:99,101,104:123,126:131,133,135:137,139:140];
 % Perform network reduction algorithm
 pf_flag = 1; % Solve dc power flow
@@ -335,7 +363,7 @@ pf_flag = 1; % Solve dc power flow
 
 fprintf("Finished calculating network reduction!\n");
 
-%% add HVDC lines 
+%% Add HVDC lines 
 %	fbus	tbus	status	Pf	Pt	Qf	Qt	Vf	Vt	Pmin	Pmax	QminF	QmaxF	QminT	QmaxT	loss0	loss1
 mpcreduced.dcline = [
 	21 80	1	flowNPX1385+flowCSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
@@ -346,7 +374,8 @@ mpcreduced = toggle_dcline(mpcreduced, "on");
 
 fprintf("Finished adding DC lines!\n");
 
-%% add interface flow limit
+%% Add interface flow limit
+
 branchIdA2B = [-32; 34; 37; 47];
 branchIdB2C = [-28;-29; 33; 50];
 branchIdC2E = [-16;-20;-21; 56;-62];
@@ -398,6 +427,8 @@ fprintf("Finished setting interface flow limits!\n");
 
 %% Add gencost
 
+fprintf("Start adding generation cost matrix ...\n");
+
 % Cost curve for thermal generators in NY
 gencostThermal = zeros(size(genThermal,1),6);
 gencostThermal(:,MODEL) = 2; % Polynomial cost function
@@ -442,14 +473,14 @@ gencostExt(isPJMGen,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "PJM");
 gencostExt(end,COST) = zonalPrice.LBMP(zonalPrice.ZoneName == "H Q");
 
 % add gencost to mpc
-mpcreduced.gencost = [gencostThermal;gencostNuclear;genCostHydro;gencostExt];
+mpcreduced.gencost = [gencostThermal;gencostNuclear;gencostHydro;gencostExt];
 
 fprintf("Finished adding generation cost matrix!\n");
 
 %% Save updated operation condtion
 
 savecase('Result\mpcreduced.mat',mpcreduced);
-
+fprintf("Saved reduced MATPOWER case!\n");
 fprintf("Update operation condition complete!\n");
 
 end

@@ -3,26 +3,47 @@
 %
 %
 
+%% Parameter settings
+savefig = true;
+verbose = true;
+
 %% Modify MPC
 modifyMPC;
 
-
-%% Operation condition update
-
+%% Test case
 year = 2019;
 month = 1;
-day = 10;
-hour = 16;
+day = 1;
+hour = 24;
 
 timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+
+% Operation condition update
 mpcreduced = updateOpCond(timeStamp);
 
+% PF test
+resultPF = PFtestcase(mpcreduced,timeStamp);
 
-%% PF test
-resultPF = PFtestcase(mpcreduced, timeStamp);
+% OPF test
+resultOPF = OPFtestcase(mpcreduced,timeStamp);
 
 
+%% Loop through the whole year 2019
 
-%% OPF test
-resultOPF = OPFtestcase(mpcreduced, timeStamp);
+year = 2019;
+for month = 1:12
+    for day = 1:eomday(year,month)
+        for hour = 1:24
+            % Operation condition update
+            timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+            mpcreduced = updateOpCond(timeStamp);
+
+            % PF test
+            resultPF = PFtestcase(mpcreduced, timeStamp);
+
+            % OPF test
+            resultOPF = OPFtestcase(mpcreduced, timeStamp);
+        end
+    end
+end
 

@@ -9,22 +9,19 @@ function mpc = modifyMPC()
 %   Created by Vivienne Liu, Cornell University
 %   Last modified on July 28, 2021
 
-%%%% Notes:
-%%%% Consider reading the interface limits from a external file
-%%%% Why do you only set rate A-C for the NE lines?
-
 close all;
 clear mpc;
 
 %% Load the original MATPOWER case
+
 % Load original NPCC-140 bus MATPOWER case
 mpc = loadcase('Data/npcc.mat');
 
 % Add MATPOWER constant parameter names
 define_constants;
 
-%% Modify MATPOWER case
 %% Bus modification
+
 % fix negative load
 mpc.bus(:,PD) = abs(mpc.bus(:,PD));
 
@@ -46,6 +43,7 @@ mpc.bus(mpc.bus(:,BUS_I) == 78,BUS_TYPE) = PQ;
 mpc.bus(mpc.bus(:,BUS_I) == 74,BUS_TYPE) = REF;
 
 %% Branch modification
+
 % delete transmission lines between PJM and IESO
 mpc.branch((mpc.branch(:,F_BUS) == 84)&(mpc.branch(:,T_BUS)==116),:)=[];
 mpc.branch((mpc.branch(:,F_BUS) == 87)&(mpc.branch(:,T_BUS)==115),:)=[];
@@ -74,6 +72,7 @@ newlineEG = [38 77 0.02 0.02 0 0 0 0 0 0 1 -360 360];
 mpc.branch = [mpc.branch;newlineEG];
 
 %% Save updated MATPOWER case
+
 savecase('Result/mpcupdated.mat',mpc);
 disp('Updated MPC saved!');
 end
