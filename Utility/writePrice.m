@@ -1,5 +1,5 @@
 function writePrice(year)
-%WRITEFUELMIX write NYISO hourly real-time zonal price data in 2019
+%WRITEFUELMIX write NYISO hourly real-time zonal price data
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on September 13, 2021
@@ -41,9 +41,7 @@ if ~isfile(outfilename) % File doesn't exist
     priceHourly = sortrows(priceHourly,"TimeStamp","ascend");
     
     %% Write hourly price data
-    outfilename = fullfile('Data','priceHourly_'+string(year)+'.csv');
     writetable(priceHourly,outfilename);
-    
     fprintf("Finished writing price data in %s!\n",outfilename);
     
 else
@@ -54,7 +52,7 @@ end
 
 end
 
-function realtimezone = importPrice(filename, dataLines)
+function priceData = importPrice(filename, dataLines)
 %IMPORTPRICE Import NYISO real-time zonal price data
 
 %% Input handling
@@ -84,6 +82,6 @@ opts = setvaropts(opts, ["ZoneName", "PTID"], "EmptyFieldRule", "auto");
 opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
 
 % Import the data
-realtimezone = readtable(filename, opts);
+priceData = readtable(filename, opts);
 
 end
