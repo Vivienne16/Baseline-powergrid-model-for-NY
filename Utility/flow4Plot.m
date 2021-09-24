@@ -1,7 +1,9 @@
-function [flowSim,flowReal,flowError,flowName] = flow4Plot(resultBranch,interFlow,flowLimit)
+function [flowSim,flowReal,flowError,flowName] = flow4Plot(result,interFlow,flowLimit)
 %FLOW4PLOT Construct matrices for plotting interface flow
 
 define_constants;
+
+resultBranch = result.branch;
 
 % Simulated interface flow data
 A2BResult = -resultBranch(32,PF)+resultBranch(34,PF)+resultBranch(37,PF)+resultBranch(47,PF);

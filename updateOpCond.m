@@ -1,23 +1,23 @@
-function mpcreduced = updateOpCond(timeStamp,verbose)
-%UPDATEOPERATIONCONDITION
-%
-%   This file should be run after the ModifyMPC.m file. The operation
-%   condition of the chosen hour will be updated to the mpc 
-%   Modify year month day hour for another operation condition.
-%   The updated and reduced mpc struct will be saved to the Result folder.
+function mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose)
+%UPDATEOPCOND Update operation condition at a speficied timestamp
 % 
 %   Inputs:
-%       year, month, day, hour - testing time.
+%       mpc - struct, updated NPCC MATPOWER case
+%       timeStamp - datetime, in "MM/dd/uuuu HH:mm:ss"
+%       savedata - boolean, default to be true
+%       verbose - boolean, default to be true
 %   Outputs:
 %       mpcreduced - reduced MATPOWER case file.
 
 %   Created by Vivienne Liu, Cornell University
-%   Last modified on Sept. 21, 2021
+%   Last modified on Sept. 24, 2021
 
 %% Input parameters
 
-if nargin <= 1 || isempty(verbose)
-    verbose = true;
+% Read updated MATPOWER case
+if isempty(mpc)
+    % Read updated mpc case
+    mpc = loadcase(fullfile('Result','mpcupdated.mat'));
 end
 
 % Testing timestamp
@@ -25,6 +25,20 @@ if isempty(timeStamp)
     year = 2019; month = 12; day = 8; hour = 7;
     timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
 end
+
+% Save reduced mpc or not (default to save)
+if isempty(savedata)
+    savedata = true;
+end
+
+% Verbose printing or not (default to print)
+if isempty(verbose)
+    verbose = true;
+end
+
+% Create directory for store OPF results and plots
+resultDir = fullfile('Result','mpcreduced');
+createDir(resultDir);
 
 %% Read operation condition
 
@@ -40,9 +54,6 @@ genData = allocateGen(timeStamp);
 % Read renewable generation capacity allocation table
 renewableGen = importRenewableGen(fullfile("Data","RenewableGen.csv"));
 busInfo = importBusInfo(fullfile("Data","npcc.csv"));
-
-% Read updated mpc case
-mpc = loadcase(fullfile("Result","mpcupdated.mat"));
 
 % Define constants for MATPOWER
 define_constants;
@@ -422,7 +433,7 @@ mpcreduced.if.lims = [
     7   -5400                       5400;                          % 7: F - G
     8   G2HLimit.NegativeLimitMWH   G2HLimit.PositiveLimitMWH;     % 8: G - H
     9   -8450                       8450;                          % 9: H - I
-    10  -4350                       4350;                          % 10: I - J
+    10  I2JLimit.NegativeLimitMWH   I2JLimit.PositiveLimitMWH      % 10: I - J
     11  -515                        1290;                          % 11: I - K
 ];
 
@@ -489,9 +500,13 @@ gentypeExt = repelem("Import",numExt)';
 mpcreduced.gentype = [gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt];
 
 %% Save updated operation condtion
+if savedata
+    timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
+    outfilename = fullfile(resultDir,"mpcreduced_"+timeStampStr+".mat");
+    save(outfilename,"mpcreduced");
+    fprintf("Saved reduced MATPOWER case %s!\n",outfilename);    
+end
 
-savecase('Result\mpcreduced.mat',mpcreduced);
-fprintf("Saved reduced MATPOWER case!\n");
 fprintf("Update operation condition complete!\n");
 
 end

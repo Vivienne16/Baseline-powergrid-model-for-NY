@@ -1,28 +1,33 @@
-function msg = writeFuelmix(year)
+function writeFuelmix(year)
 %WRITEFUELMIX write NYISO hourly fuel mix data in 2019
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on August 17, 2021
 
-% Input handling
-if nargin < 1 && isempty(year)
+%% Input handling
+if isempty(year)
     year = 2019; % Default data in year 2019
 end
 
-try
-    % Read fuel mix data
-    fuelmixFileDir = fullfile('..\Prep','fuelmix');
+outfilename = fullfile('Data','fuelmixHourly_'+string(year)+'.csv');
+
+if ~isfile(outfilename) % File doesn't exist
+    %% Download fuel mix data
+    downloadData(year,'fuelmix');
+
+    %% Read fuel mix data
+    fuelmixFileDir = fullfile('Prep',string(year),'fuelmix');
     fuelmixFileName = string(year)+"*";
     fuelmixDataStore = fileDatastore(fullfile(fuelmixFileDir,fuelmixFileName),...
         "ReadFcn",@importFuelmix,"UniformRead",true,"FileExtensions",'.csv');
     fuelmixAll = readall(fuelmixDataStore);
     clear fuelMixDataStore;
-    
+
     %% Format fuel mix data
     fuelCats = unique(fuelmixAll.FuelCategory);
     numFuel = length(fuelCats);
     fuelmixHourly = table();
-    
+
     for n=1:numFuel
         T = fuelmixAll(fuelmixAll.FuelCategory == fuelCats(n), :);
         T = table2timetable(T(:,["TimeStamp","GenMW"]));
@@ -32,16 +37,17 @@ try
         T = movevars(T,"FuelCategory","After","TimeStamp");
         fuelmixHourly = [fuelmixHourly; T];
     end
-    
     fuelmixHourly = sortrows(fuelmixHourly,"TimeStamp","ascend");
+
+    %% Write hourly fuel mix data
+    writetable(fuelmixHourly,outfilename);    
+    fprintf("Finished writing fuel mix data in %s!\n",outfilename);
     
-    % Write hourly fuel mix data
-    outfilename = fullfile('..\Data','fuelmixHourly.csv');
-    writetable(fuelmixHourly,outfilename);
-    msg = "Success!";
-catch ME
-    msg = ME.message;
+else
+    fprintf("Fuel mix data already exists in %s!\n",outfilename);  
+    
 end
+
 end
 
 function fuelMix = importFuelmix(filename, dataLines)

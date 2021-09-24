@@ -1,4 +1,4 @@
-function [fuelSim,fuelReal,fuelError,fuelName] = fuel4Plot(resultPF,resultGen,fuelMix,interFlow)
+function [fuelSim,fuelReal,fuelError,fuelName] = fuel4Plot(result,fuelMix,interFlow)
 %FUEL4PLOT Construct matrices for plotting fuel mix
 
 define_constants;
@@ -7,6 +7,8 @@ busIdNE = [21;29;35];
 busIdIESO = [100;102;103];
 busIdPJM = [124;125;132;134;138];
 busIdHQ = 48;
+
+resultGen = result.gen;
 
 % Real fuel mix data
 thermalGen = fuelMix.GenMW(fuelMix.FuelCategory == "Dual Fuel")...
@@ -29,12 +31,12 @@ thermalType = [
     "Internal Combustion";
     "Jet Engine";
     "Steam Turbine"];
-isThermal = ismember(resultPF.gentype,thermalType);
-isNuclear = (resultPF.gentype == "Nuclear");
-isHydro = (resultPF.gentype == "Hydro");
-isImport = (resultPF.gentype == "Import");
-isExtBus = ismember(resultPF.bus(:,BUS_I),[busIdNE;busIdIESO;busIdPJM;busIdHQ]);
-demandExt = sum(resultPF.bus(isExtBus,PD));
+isThermal = ismember(result.gentype,thermalType);
+isNuclear = (result.gentype == "Nuclear");
+isHydro = (result.gentype == "Hydro");
+isImport = (result.gentype == "Import");
+isExtBus = ismember(result.bus(:,BUS_I),[busIdNE;busIdIESO;busIdPJM;busIdHQ]);
+demandExt = sum(result.bus(isExtBus,PD));
 
 fuelSim = [
     sum(resultGen(isThermal,PG));

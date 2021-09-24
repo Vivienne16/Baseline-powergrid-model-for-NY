@@ -1,33 +1,45 @@
-function resultPF = PFtestcase(mpcreduced,timeStamp,savefig)
-%PFTESTCASE
-%   
-%   This file run a test case for PF using the updatedmpc
-%   This file should be run after the OperationConditionUpdate.m file. 
-%   MATPOWER should have been installed properly to run the test.
+function resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata)
+%PFTESTCASE Run power flow at a specified timestamp and show results.
 % 
 %   Inputs:
-%       mpc - reduced MATPOWER case
+%       mpcreduced - struct, reduced MATPOWER case
+%       timeStamp - datetime, in "MM/dd/uuuu HH:mm:ss"
+%       savefig - boolean, default to be true
+%       savedata - boolean, default to be true
 %   Outputs:
-%       mpc - updated MATPOWER case with Power Flow results
-% 
+%       resultPF - struct, power flow results
+
 %   Created by Vivienne Liu, Cornell University
-%   Last modified on Sept. 21, 2021
+%   Last modified on Sept. 24, 2021
 
 %% Input parameters
 
-if nargin <= 2 || isempty(savefig)
-    savefig = true;
+% Read reduced MATPOWER case
+if isempty(mpcreduced)
+    mpcreduced = loadcase(fullfile('Result','mpcreduced.mat'));
 end
 
 % Testing timestamp
 if isempty(timeStamp)
-    year = 2019; month = 12; day = 8; hour = 7;
+    year = 2019; month = 1; day = 1; hour = 1;
     timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
 end
 
-if isempty(mpcreduced)
-    mpcreduced = loadcase("Result/mpcreduced.mat");
+% Save figure or not (default to save)
+if isempty(savefig)
+    savefig = true;
 end
+
+% Save OPF results or not (default to save)
+if isempty(savedata)
+    savedata = true;
+end
+
+% Create directory for store OPF results and plots
+resultDir = fullfile('Result','PF');
+createDir(resultDir);
+figDir = fullfile('Result','Figure','PF');
+createDir(figDir);
 
 %% Read operation condition for NYS
 
@@ -38,88 +50,25 @@ define_constants;
 %% Run reduced MATPOWER case
 
 resultPF = rundcpf(mpcreduced);
-resultBranch = resultPF.branch;
-resultGen = resultPF.gen;
 
 fprintf("Finished solving power flow!\n");
 
-timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
-outfilename = "Result\"+"resultPF_"+timeStampStr+".mat";
-save(outfilename,"resultPF");
-
-fprintf("Saved power flow results!\n");
-
-%% Show interface flow results
-
-[flowSim,flowReal,flowError,flowName] = ...
-    flow4Plot(resultBranch,interFlow,flowLimit);
-
-% Plot simulated and real interface flow
-f = figure();
-bar([flowSim,flowReal]);
-xticklabels(flowName);
-legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
-xlabel("Interface","FontSize", 14);
-ylabel("Interface flow (MW)","FontSize", 14);
-title("PF: Real and simulated interface flow "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultPF_IF_Com_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
+if savedata
+    timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
+    outfilename = fullfile(resultDir,"resultPF_"+timeStampStr+".mat");
+    save(outfilename,"resultPF");
+    fprintf("Saved power flow results!\n");
 end
 
-% Plot interface flow error
-f = figure();
-bar(flowError*100);
-xticklabels(flowName);
-ytickformat('percentage');
-ylabel("Power flow Error %","FontSize",16);
-xlabel("Interface","FontSize",16);
-title("PF: Interface flow error "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultPF_IF_Err_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
-end
+%% Create plots
 
-%% Show fuel mix results
+type = "PF";
 
-[fuelSim,fuelReal,fuelError,fuelName] = fuel4Plot(resultPF,resultGen,fuelMix,interFlow);
+% Plot interface flow and error
+plotFlow(timeStamp,resultPF,interFlow,flowLimit,type,savefig,figDir);
 
-% Plot simulated and real interface flow
-f = figure();
-bar([fuelSim,fuelReal]);
-xticklabels(fuelName);
-legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
-xlabel("Fuel","FontSize", 14);
-ylabel("Fuel mix (MW)","FontSize", 14);
-title("PF: Real and simulated fuel mix "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultPF_FM_Com_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
-end
+% Plot fuel mix and error
+plotFuel(timeStamp,resultPF,fuelMix,interFlow,type,savefig,figDir);
 
-% Plot interface flow error
-f = figure();
-bar(fuelError*100);
-xticklabels(fuelName);
-ytickformat('percentage');
-ylabel("Fuel mix Error %","FontSize",16);
-xlabel("Fuel","FontSize",16);
-title("PF: Fuel mix error "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultPF_FM_Err_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
-end
 
 end

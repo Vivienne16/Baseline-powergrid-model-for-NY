@@ -1,24 +1,29 @@
-function msg = writePrice(year)
+function writePrice(year)
 %WRITEFUELMIX write NYISO hourly real-time zonal price data in 2019
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on September 13, 2021
 
-% Input handling
-if nargin < 1 && isempty(year)
+%% Input handling
+if isempty(year)
     year = 2019; % Default data in year 2019
 end
 
-try
-    % Read fuel mix data
-    priceFileDir = fullfile('..\Prep','rtprice');
+outfilename = fullfile('Data','priceHourly_'+string(year)+'.csv');
+
+if ~isfile(outfilename) % File doesn't exist
+    %% Down load price data
+    downloadData(year,'rtprice');
+    
+    %% Read price data
+    priceFileDir = fullfile('Prep',string(year),'rtprice');
     priceFileName = string(year)+"*";
     priceDataStore = fileDatastore(fullfile(priceFileDir,priceFileName),...
         "ReadFcn",@importPrice,"UniformRead",true,"FileExtensions",'.csv');
     priceAll = readall(priceDataStore);
     clear priceDataStore;
     
-    %% Format fuel mix data
+    %% Format price data
     zoneCats = unique(priceAll.ZoneName);
     numZone = length(zoneCats);
     priceHourly = table();
@@ -35,13 +40,18 @@ try
     
     priceHourly = sortrows(priceHourly,"TimeStamp","ascend");
     
-    % Write hourly fuel mix data
-    outfilename = fullfile('..\Data','priceHourly.csv');
+    %% Write hourly price data
+    outfilename = fullfile('Data','priceHourly_'+string(year)+'.csv');
     writetable(priceHourly,outfilename);
-    msg = "Success!";
-catch ME
-    msg = ME.message;
+    
+    fprintf("Finished writing price data in %s!\n",outfilename);
+    
+else
+    
+    fprintf("Price data already exists in %s!\n",outfilename); 
+        
 end
+
 end
 
 function realtimezone = importPrice(filename, dataLines)

@@ -1,7 +1,9 @@
-function [priceSim,priceReal,priceError,zoneName] = price4Plot(resultBus,zonalPrice,busInfo)
+function [priceSim,priceReal,priceError,zoneName] = price4Plot(result,zonalPrice,busInfo)
 %FLOW4PLOT Construct matrices for plotting interface flow
 
 define_constants;
+
+resultBus = result.bus;
 
 % Define bus indices
 busIdNY = busInfo.idx(busInfo.zone ~= "NA");

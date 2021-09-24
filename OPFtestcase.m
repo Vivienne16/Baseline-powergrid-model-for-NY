@@ -1,33 +1,45 @@
-function resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig)
-%OPFTESTCASE
-% 
-%   This file run a test case for OPF using the updated mpc
-%   This file should be run after the OperationConditionUpdate.m file. 
-%   MATPOWER should have been installed properly to run the test.
+function resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata)
+%OPFTESTCASE Run optimal power flow at a specified timestamp and show results.
 % 
 %   Inputs:
-%       mpc - reduced MATPOWER case
+%       mpcreduced - struct, reduced MATPOWER case
+%       timeStamp - datetime, in "MM/dd/uuuu HH:mm:ss"
+%       savefig - boolean, default to be true
+%       savedata - boolean, default to be true
 %   Outputs:
-%       mpc - updated mpc with Optimal Power Flow results
+%       resultOPF - struct, optimal power flow results
 
 %   Created by Vivienne Liu, Cornell University
-%   Last modified on Sept. 21, 2021
+%   Last modified on Sept. 24, 2021
 
 %% Input parameters
 
-if nargin <= 2 || isempty(savefig)
-    savefig = true;
+% Read reduced MATPOWER case
+if isempty(mpcreduced)
+    mpcreduced = loadcase(fullfile('Result','mpcreduced.mat'));
 end
 
 % Testing timestamp
 if isempty(timeStamp)
-    year = 2019; month = 12; day = 8; hour = 7;
+    year = 2019; month = 1; day = 1; hour = 1;
     timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
 end
 
-if isempty(mpcreduced)
-    mpcreduced = loadcase("Result/mpcreduced.mat");
+% Save figure or not (default to save)
+if isempty(savefig)
+    savefig = true;
 end
+
+% Save OPF results or not (default to save)
+if isempty(savedata)
+    savedata = true;
+end
+
+% Create directory for store OPF results and plots
+resultDir = fullfile('Result','OPF');
+createDir(resultDir);
+figDir = fullfile('Result','Figure','OPF');
+createDir(figDir);
 
 %% Read operation condition for NYS
 
@@ -35,14 +47,6 @@ end
 busInfo = importBusInfo(fullfile("Data","npcc.csv"));
 
 define_constants;
-
-%% additional constraints for large hydro to avoid dispatch at upper gen limit
-
-%hydro gen constraints
-% RMNcf = [0.8072,0.7688,0.815,0.7178,0.8058,0.7785,0.8275,0.8007,0.7931,0.7626,0.7764,0.8540];
-% STLcf = [0.9133,0.9483, 1.0112,0.9547,0.9921,1.0984,1.0761,1.0999,1.0976,1.0053,1.0491,1.0456];
-% mpcreduced.gen(228,9) = 0.8*(fuelsum.mean_GenMW(string(fuelsum.FuelCategory) == 'Hydro')-910)-STLcf(month)*860;
-% mpcreduced.gen(234,9) = STLcf(month)*860;
 
 %% Run OPF
 mpopt = mpoption( 'opf.dc.solver','GUROBI','opf.flow_lim','P');
@@ -54,121 +58,26 @@ resultGen = resultOPF.gen;
 
 fprintf("Finished solving optimal power flow!\n");
 
-timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
-outfilename = "Result\"+"resultOPF_"+timeStampStr+".mat";
-save(outfilename,"resultOPF");
-
-fprintf("Saved optimal power flow results!\n");
-
-%% Show price results
-
-[priceSim,priceReal,priceError,zoneName] = ...
-    price4Plot(resultBus,zonalPrice,busInfo);
-
-% Plot simulated and real price
-f = figure();
-bar([priceSim priceReal])
-xticklabels(zoneName);
-legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
-xlabel("Zone","FontSize", 12);
-ylabel("LMP ($/MW)","FontSize", 12); 
-title("OPF: Real and simulated price "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultOPF_LMP_Com_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
+if savedata
+    timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
+    outfilename = fullfile(resultDir,"resultPF_"+timeStampStr+".mat");
+    save(outfilename,"resultOPF");
+    fprintf("Saved optimal power flow results!\n");
 end
 
-% Plot price error
-f = figure();
-bar(priceError*100);
-xticklabels(zoneName);
-ytickformat('percentage');
-ylabel("Price Error %","FontSize",16);
-xlabel("Zone","FontSize",16);
-title("OPF: Price error "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultOPF_LMP_Err_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
-end
+%% Create plots
 
-%% Show interface flow results
+type = "OPF";
 
-[flowSim,flowReal,flowError,flowName] = ...
-    flow4Plot(resultBranch,interFlow,flowLimit);
+% Plot interface flow data and error
+plotFlow(timeStamp,resultOPF,interFlow,flowLimit,type,savefig,figDir);
 
-% Plot simulated and real interface flow
-f = figure();
-bar([flowSim,flowReal]);
-xticklabels(flowName);
-legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
-xlabel("Interface","FontSize", 14);
-ylabel("Interface flow (MW)","FontSize", 14);
-title("OPF: Real and simulated interface flow "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultOPF_IF_Com_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
-end
+% Plot fuel mix data and error
+plotFuel(timeStamp,resultOPF,fuelMix,interFlow,type,savefig,figDir);
 
-% Plot interface flow error
-f = figure();
-bar(flowError*100);
-xticklabels(flowName);
-ytickformat('percentage');
-ylabel("Power Flow Error %","FontSize",16);
-xlabel("Interface","FontSize",16);
-title("OPF: Interface flow error "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultOPF_IF_Err_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
-end
+% Plot price data and error
+plotPrice(timeStamp,resultOPF,zonalPrice,busInfo,type,savefig,figDir)
 
-%% Show fuel mix results
-
-[fuelSim,fuelReal,fuelError,fuelName] = fuel4Plot(resultOPF,resultGen,fuelMix,interFlow);
-
-% Plot simulated and real interface flow
-f = figure();
-bar([fuelSim,fuelReal]);
-xticklabels(fuelName);
-legend(["Simulated","Real"],"FontSize",14,"Location","northwest");
-xlabel("Fuel","FontSize", 14);
-ylabel("Fuel mix (MW)","FontSize", 14);
-title("OPF: Real and simulated fuel mix "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultOPF_FM_Com_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
-end
-
-% Plot interface flow error
-f = figure();
-bar(fuelError*100);
-xticklabels(fuelName);
-ytickformat('percentage');
-ylabel("Fuel mix Error %","FontSize",16);
-xlabel("Fuel","FontSize",16);
-title("OPF: Fuel mix error "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",16);
-set(gca,"FontSize",16);
-set(f,"Position",[100,100,800,600]);
-if savefig
-    figName = "Result\Figure\"+"resultOPF_FM_Err_"+timeStampStr+".png";
-    saveas(f,figName);
-    close(f);
-end
 
 end
 

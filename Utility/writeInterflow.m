@@ -1,17 +1,22 @@
-function msg = writeInterflow(year)
+function writeInterflow(year)
 %WRITEINTERFLOW write NYISO hourly interface flow data in 2019
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on Septemper 9, 2021
 
-% Input handling
-if nargin < 1 && isempty(year)
+%% Input handling
+if isempty(year)
     year = 2019; % Default data in year 2019
 end
 
-try
+outfilename = fullfile('Data','interflowHourly_'+string(year)+'.csv');
+
+if ~isfile(outfilename) % File doesn't exist
+    %% Download interface flow data
+    downloadData(year,'interflow');
+    
     %% Read interface flow data
-    interflowFileDir = fullfile('..\Prep','interflow');
+    interflowFileDir = fullfile('Prep',string(year),'interflow');
     interflowFileName = string(year)+"*";
     interflowDataStore = fileDatastore(fullfile(interflowFileDir,interflowFileName),...
         "ReadFcn",@importInterflow,"UniformRead",true,"FileExtensions",'.csv');
@@ -36,11 +41,14 @@ try
     interflowHourly = sortrows(interflowHourly,"TimeStamp","ascend");
     
     %% Write hourly interface flow data
-    outfilename = fullfile('..\Data','interflowHourly.csv');
-    writetable(interflowHourly,outfilename);
-    msg = "Success!";
-catch ME
-    msg = ME.message;
+    outfilename = fullfile('Data','interflowHourly_'+string(year)+'.csv');
+    writetable(interflowHourly,outfilename);    
+    fprintf("Finished writing interface flow data in %s!\n",outfilename);
+  
+else
+    
+    fprintf("Interface flow data already exists in %s!\n",outfilename);
+    
 end
 
 end

@@ -1,13 +1,28 @@
 function [fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp)
-%READOPCOND Read hourly fuelmix data, hourly interface flow data, hourly
-%zonal price data, daily nuclear generation capacity factor data, monthly
-%hydro generation capacity factor data
+%READOPCOND Read operation condition at specified timestamp
+%   Read hourly fuelmix data, hourly interface flow data, hourly
+%   zonal price data, daily nuclear generation capacity factor data, monthly
+%   hydro generation capacity factor data.
+%   Inputs:
+%       timeStamp - datetime in "MM/dd/uuuu HH:mm:ss"
+%   Outputs:
+%       fuelMix - hourly fuel mix data from NYISO
+%       interFlow - hourly interface flow data from NYISO
+%       flowLimit - hourly interface flow limit data from NYISO 
+%                   (both positive limit and negative limit)
+%       nuclearCf - daily nuclear generation and capacity factor data
+%       hydroCf - monthly hydro generation and capacity factor data
+%       zonalPrice - hourly zonal price data from NYISO
 
-fuelMixAll = importFuelMix(fullfile('Data','fuelmixHourly.csv'));
-interFlowAll = importInterFlow(fullfile('Data','interflowHourly.csv'));
-zonalPriceAll = importZonalPrice(fullfile('Data','priceHourly.csv'));
-nuclearCfAll = importNuclearGen(fullfile('Data','nuclearGenDaily.csv'));
-hydroCfAll = importHydroGen(fullfile('Data','hydroGenMonthly.csv'));
+%   Created by Bo Yuan, Cornell University
+%   Last modified on Sept. 24, 2021
+
+
+fuelMixAll = importFuelMix(fullfile('Data','fuelmixHourly_'+string(year(timeStamp))+'.csv'));
+interFlowAll = importInterFlow(fullfile('Data','interflowHourly_'+string(year(timeStamp))+'.csv'));
+zonalPriceAll = importZonalPrice(fullfile('Data','priceHourly_'+string(year(timeStamp))+'.csv'));
+nuclearCfAll = importNuclearGen(fullfile('Data','nuclearGenDaily_'+string(year(timeStamp))+'.csv'));
+hydroCfAll = importHydroGen(fullfile('Data','hydroGenMonthly_'+string(year(timeStamp))+'.csv'));
 
 % Get time-specific data
 fuelMix = fuelMixAll(fuelMixAll.TimeStamp == timeStamp,:);
