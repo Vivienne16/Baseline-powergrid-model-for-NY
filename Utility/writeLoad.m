@@ -15,7 +15,7 @@ if ~isfile(outfilename) % File doesn't exist
     %% Down load price data
     downloadData(year,'rtload');
     
-    %% Read price data
+    %% Read load data
     loadFileDir = fullfile('Prep',string(year),'rtload');
     loadFileName = string(year)+"*";
     loadDataStore = fileDatastore(fullfile(loadFileDir,loadFileName),...
@@ -39,6 +39,20 @@ if ~isfile(outfilename) % File doesn't exist
     end
     
     loadHourly = sortrows(loadHourly,"TimeStamp","ascend");
+    
+    % Add zone ID
+%     loadHourly.zoneID = categorical(height(loadHourly),1);
+    loadHourly.ZoneID(loadHourly.ZoneName == 'CAPITL') = 'F';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'CENTRL') = 'C';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'DUNWOD') = 'I';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'GENESE') = 'B';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'HUD VL') = 'G';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'LONGIL') = 'K';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'MHK VL') = 'E';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'MILLWD') = 'H';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'N.Y.C.') = 'J';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'NORTH') = 'D';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'WEST') = 'A';
     
     %% Write hourly price data
     writetable(loadHourly,outfilename);  

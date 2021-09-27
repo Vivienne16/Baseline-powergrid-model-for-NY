@@ -17,7 +17,7 @@ function sampleHourGen = allocateGen(timeStamp,costType)
 
 %% Default function inputs
 % Use linear cost function by default
-if nargin <= 1
+if isempty(costType)
     costType = "lm";
 end
 
