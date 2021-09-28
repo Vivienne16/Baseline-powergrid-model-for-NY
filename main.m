@@ -33,6 +33,7 @@ writeHydroGen(year);
 writeNuclearGen(year);
 writePrice(year);
 writeInterflow(year);
+writeFuelPrice(year);
 
 %% Modify MPC
 
@@ -48,7 +49,7 @@ mpc = modifyMPC();
 % historical data, including interface flow, fuel mix and locational
 % marginal price (LMP).
 
-year = 2019;
+year = 2020;
 month = 1;
 day = 1;
 hour = 1;
@@ -76,8 +77,10 @@ if runloop
         for day = 1:eomday(year,month)
             for hour = 1:3:24
                 
-                % Operation condition update
                 timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+                fprintf("Start running ")
+                
+                % Operation condition update
                 mpcreduced = updateOpCond(timeStamp);
                 
                 % PF test

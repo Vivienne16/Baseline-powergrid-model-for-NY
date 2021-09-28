@@ -14,7 +14,7 @@ function sampleHourLoad = allocateLoad(timeStamp,method)
 %   Last modified on Sept. 27, 2021
 
 %% Default function inputs
-if isempty(method)
+if nargin <= 1 || isempty(method)
     method = "weighted";
 end
 

@@ -16,46 +16,53 @@ function sampleHourGen = allocateGen(timeStamp,costType)
 %   Last modified on July 28, 2021
 
 %% Default function inputs
+
 % Use linear cost function by default
-if isempty(costType)
+if nargin <= 1 || isempty(costType)
     costType = "lm";
 end
 
 %% Generator allocation
+
 % Read generator allocation table
 genAllocation = importNearestBus(fullfile("Data","gen_bus_assignment.csv"));
+
 % Read generator parameter table
 genParamAll = importGenParam(fullfile("Data","genParamAll.csv"));
+
 % Allocate generator to the nearest PV bus
 genParamWBus = innerjoin(genParamAll,genAllocation,"Keys",["NYISOName","PTID"], ...
     "RightVariables","BusName");
 
 %% Sample hour generation
+
 % Read hourly generation and heat input data for large generators
-load(fullfile("Data","hourlyGenLarge.mat"),"hourlyGenLarge","-mat");
-% Time stamp range checking (only support 2019 hourly data)
-startTimeStamp = hourlyGenLarge.TimeStamp(1);
-endTimeStamp = hourlyGenLarge.TimeStamp(end);
-if timeStamp < startTimeStamp || timeStamp > endTimeStamp
-    error("Time stamp not supported!");
-else
-    sampleHourlyGen = hourlyGenLarge(hourlyGenLarge.TimeStamp == timeStamp, :);
-    % Combine it with generator allocation table
-    sampleHourlyGenLarge = outerjoin(genParamWBus,sampleHourlyGen,"Keys",["NYISOName","PTID"],...
-        "MergeKeys",true,"Type","left","RightVariables",["hourlyGen","hourlyHeatInput"]);
-end
+hourlyGenLarge = importThermalGen(fullfile('Data','thermalGenHourly_'+string(year(timeStamp))+'.csv'));
+
+% Hour specific value
+sampleHourlyGen = hourlyGenLarge(hourlyGenLarge.TimeStamp == timeStamp, :);
+
+% Combine it with generator allocation table
+sampleHourlyGenLarge = outerjoin(genParamWBus,sampleHourlyGen,"Keys",["NYISOName","PTID"],...
+    "MergeKeys",true,"Type","left","RightVariables",["hourlyGen","hourlyHeatInput"]);
+
 %% Sample hour generation cost curve
+
 % Read weekly fuel price table in NYISO 2019
-load(fullfile("Data","fuelPriceTable.mat"),"fuelPriceTable");
+fuelPriceTable = importFuelPrice(fullfile('Data','fuelPriceWeekly_'+string(year(timeStamp))+'.csv'));
+
 % Get fuel price for the sampled hour
 sampleFuelPrice = fuelPriceTable(fuelPriceTable.TimeStamp <= timeStamp, :);
 sampleFuelPrice = sampleFuelPrice(end, :);
+
 % Calculate generation cost curve using heat rate curve and fuel price
 sampleCostCurve = createGenCost(genParamAll,sampleFuelPrice,costType);
+
 % combine the results with generation parameters table
 sampleHourGen = outerjoin(sampleHourlyGenLarge,sampleCostCurve,"Keys",["NYISOName","PTID"],"MergeKeys",true);
 sampleHourGen = removevars(sampleHourGen, ["HeatRateLM_1", "HeatRateLM_0",...
     "HeatRateQM_2","HeatRateQM_1","HeatRateQM_0","useQM"]);
+
 end
 
 function costTable = createGenCost(genParam, priceTable, costType)
@@ -122,4 +129,57 @@ elseif costType == "qm"
 else
     error("Error: Undefined cost type");
 end
+end
+
+function fuelPriceTable = importFuelPrice(filename, dataLines)
+%IMPORTFILE Import fuel price
+
+% If dataLines is not specified, define defaults
+if nargin < 2
+    dataLines = [2, Inf];
+end
+% Set up the Import Options and import the data
+opts = delimitedTextImportOptions("NumVariables", 10);
+% Specify range and delimiter
+opts.DataLines = dataLines;
+opts.Delimiter = ",";
+% Specify column names and types
+opts.VariableNames = ["TimeStamp", "NG_A2E", "NG_F2I", "NG_J", "NG_K", ...
+    "FO2_UPNY", "FO2_DSNY", "FO6_UPNY", "FO6_DSNY", "coal_NY"];
+opts.VariableTypes = ["datetime", "double", "double", "double", "double", ...
+    "double", "double", "double", "double", "double"];
+% Specify file level properties
+opts.ExtraColumnsRule = "ignore";
+opts.EmptyLineRule = "read";
+% Specify variable properties
+opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy");
+% Import the data
+fuelPriceTable = readtable(filename, opts);
+
+end
+
+function thermalGenHourly = importThermalGen(filename, dataLines)
+%IMPORTTHERMALGEN Import hourly thermal generation
+
+% If dataLines is not specified, define defaults
+if nargin < 2
+    dataLines = [2, Inf];
+end
+% Set up the Import Options and import the data
+opts = delimitedTextImportOptions("NumVariables", 5);
+% Specify range and delimiter
+opts.DataLines = dataLines;
+opts.Delimiter = ",";
+% Specify column names and types
+opts.VariableNames = ["TimeStamp", "NYISOName", "PTID", "hourlyGen", "hourlyHeatInput"];
+opts.VariableTypes = ["datetime", "categorical", "categorical", "double", "double"];
+% Specify file level properties
+opts.ExtraColumnsRule = "ignore";
+opts.EmptyLineRule = "read";
+% Specify variable properties
+opts = setvaropts(opts, ["NYISOName", "PTID"], "EmptyFieldRule", "auto");
+opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
+% Import the data
+thermalGenHourly = readtable(filename, opts);
+
 end

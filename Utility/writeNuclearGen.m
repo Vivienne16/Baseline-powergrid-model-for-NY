@@ -22,7 +22,7 @@ if ~isfile(outfilename) % File doesn't exist
     
     filename = sprintf('%d%s',year,suffix);
     url = api+filename;
-    outfilename = websave(fullfile(nuclearDir,filename),url);
+    downloadname = websave(fullfile(nuclearDir,filename),url);
     
     %% Read the delimited text data
     opts = delimitedTextImportOptions("NumVariables",3);
@@ -38,14 +38,14 @@ if ~isfile(outfilename) % File doesn't exist
     % Specify variable properties
     opts = setvaropts(opts, "Unit", "WhitespaceRule", "preserve");
     opts = setvaropts(opts, "Unit", "EmptyFieldRule", "auto");
-    % Different datetime format before and after yaer 2020
+    % Different datetime format before and after year 2020
     if year >= 2020
         opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy hh:mm:ss aa");
     else
         opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy");
     end
     % Import the data
-    nuclearAll = readtable(outfilename, opts);
+    nuclearAll = readtable(downloadname, opts);
     % Clear temporary variables
     clear opts;
     
@@ -69,8 +69,9 @@ if ~isfile(outfilename) % File doesn't exist
         nuclearTable.Properties.VariableNames(end) = erase(string(unitNames(n))," ")+"Gen";
     end
     
+    nuclearTable.TimeStamp.Format = "MM/dd/yyyy";
+    
     %% Save the data
-    outfilename = fullfile('Data','nuclearGenDaily_'+string(year)+'.csv');
     writetable(nuclearTable,outfilename);
     fprintf("Finished writing nuclear generation data in %s!\n",outfilename);
     

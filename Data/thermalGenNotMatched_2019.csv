@@ -1,0 +1,156 @@
+﻿Line Ref. No.,Billing Organization,NYISO Name,Zone,PTID,Town,County,State,In-Service Date,Name Plate Rating (MW),2019 CRIS Summer (MW),2019 CRIS Winter (MW),2019 Capability Summer (MW),2019 Capability Winter (MW),Dual Fuel,Unit Type,Fuel Type (primary),Fuel Type (secondary),2018 Net Energy (GWh),Latitude,Longitude
+R1403,Long Island Power Authority,59 St.  GT 1,J,24138,Manhattan,061,36,25355,17.1,15.4,20.1,15.5,21.6,YES,Combustion Turbine,Kerosene,Natural Gas,0.2,40.772385,-73.993028
+R1709,"Wheelabrator Westchester, LP",74 St.  GT 1,J,24260,Manhattan,061,36,25112,18.5,19,23.5,19,19.9,,Combustion Turbine,Kerosene,,0.2,40.768421,-73.951731
+R1433,Long Island Power Authority,74 St.  GT 2,J,24261,Manhattan,061,36,25112,18.5,20.1,25.7,18.9,21.2,,Combustion Turbine,Kerosene,,0.2,40.768421,-73.951731
+R1067,"Binghamton BOP, LLC",AA Dairy,C,5013,Ithaca,109,36,35947,0.1,0,0,0,0,,Internal Combustion,Methane,,0,,
+R1381,Long Island Power Authority,Albany LFGE,F,323615,Albany,001,36,35916,5.6,4.5,4.5,5.6,5.6,,Internal Combustion,Methane,,28.7,,
+R1382,Long Island Power Authority,Allied Frozen Storage,A,23774,Cheektowaga,029,36,39569,0.1,0,0,0,0,,Internal Combustion,Natural Gas,,0.1,42.842029,-78.722673
+R1383,Long Island Power Authority,Arthur Kill Cogen,J,323718,Staten Island,085,36,43242,11.1,11.1,11.1,0,0,,Internal Combustion,Natural Gas,,0.2,40.5915,-74.2027
+R1384,Long Island Power Authority,Arthur Kill GT 1,J,23520,Staten Island,085,36,25720,20,16.5,21.6,12.1,15.1,,Combustion Turbine,Natural Gas,,1,40.5915,-74.2027
+R1537,Niagara Mohawk Power Corp.,Astoria GT 01,J,23523,Queens,081,36,24654,16,15.7,20.5,14.2,18.9,,Combustion Turbine,Natural Gas,,1,40.7864,-73.9133
+R1369,Jamestown Board of Public Utilities,Auburn - State St.,C,24147,Auburn,011,36,34700,7.4,5.8,8.2,1.7,7.3,,Combustion Turbine,Natural Gas,,0,,
+R1414,Long Island Power Authority,Babylon (RR),K,323704,Babylon,103,36,32599,17,15.5,15.5,14.6,14.6,,Steam Turbine,Refuse,,112.1,,
+R1343,"Helix Ravenswood, LLC",Barrett 09,K,23700,Island Park,059,36,26085,41.8,43.4,55.2,40.6,48.6,YES,Jet Engine,Natural Gas,Fuel Oil 2,23,40.616689,-73.647881
+R1344,"Helix Ravenswood, LLC",Barrett 10,K,23701,Island Park,059,36,26085,41.8,42.7,54.3,41.1,52.2,YES,Jet Engine,Natural Gas,Fuel Oil 2,16.7,40.616689,-73.647881
+R1370,Jamestown Board of Public Utilities,Barrett 11,K,23702,Island Park,059,36,26085,41.8,43.3,55.1,40.6,49.3,YES,Jet Engine,Natural Gas,Fuel Oil 2,38.6,40.616689,-73.647881
+R1041,Astoria Generating Company L.P.,Barrett 12,K,23703,Island Park,059,36,26085,41.8,44,56,40.1,49.4,YES,Jet Engine,Natural Gas,Fuel Oil 2,30,40.616689,-73.647881
+R1042,Astoria Generating Company L.P.,Binghamton (RET - 1/9/18),C,23790,Binghamton,007,36,36951,47.7,43.8,57.2,0,0,YES,Combined Cycle,Natural Gas,Kerosene,3.5,42.107192,-75.927782
+R1043,Astoria Generating Company L.P.,Broome 2 LFGE,C,323671,Binghamton,007,36,41305,2.1,2,2,2,2,,Internal Combustion,Methane,,18.6,,
+R1044,Astoria Generating Company L.P.,Broome LFGE,C,323600,Binghamton,007,36,39326,2.4,2.1,2.1,2.1,2.1,,Internal Combustion,Methane,,6.3,,
+R1045,Astoria Generating Company L.P.,"Burrstone Engy Center, LLC LU",E,23633,Utica,065,36,40118,1.1,0,0,0,0,,Internal Combustion,Natural Gas,,0.9,43.09534,-75.278357
+R1046,Astoria Generating Company L.P.,"Burrstone Engy Center, LLC U",E,23633,Utica,065,36,40118,2.2,0,0,0,0,,Internal Combustion,Natural Gas,,0.1,43.09534,-75.278357
+R1047,Astoria Generating Company L.P.,Cal Ban Power,A,23774,Allegany,003,36,34851,0.1,0,0,0,0,,Internal Combustion,Natural Gas,,0,,
+R1048,Astoria Generating Company L.P.,Cayuga IC 1,C,23629,Lansing,109,36,24685,2.8,0,0,0,0,,Internal Combustion,Fuel Oil 2,,0,42.6028,-76.6336
+R1049,Astoria Generating Company L.P.,Cayuga IC 2,C,23629,Lansing,109,36,24685,2.8,0,0,0,0,,Internal Combustion,Fuel Oil 2,,0,42.6028,-76.6336
+R1050,Astoria Generating Company L.P.,Chaffee,A,323603,Chaffee,029,36,39303,6.4,6.4,6.4,6.4,6.4,,Internal Combustion,Methane,,46.8,,
+R1051,Astoria Generating Company L.P.,Charles P Keller 07,K,1661,Rockville Centre,059,36,15585,2,2,2,0,0,,Internal Combustion,Fuel Oil 2,,0,40.658333,-73.640556
+R1052,Astoria Generating Company L.P.,Charles P Keller 09,K,1661,Rockville Centre,059,36,19968,3.5,3.3,3.3,3.2,3.2,YES,Internal Combustion,Fuel Oil 2,Natural Gas,0.2,40.658333,-73.640556
+R1053,Astoria Generating Company L.P.,Charles P Keller 10,K,1661,Rockville Centre,059,36,19968,3.5,3.2,3.2,3.2,3.2,YES,Internal Combustion,Fuel Oil 2,Natural Gas,0.3,40.658333,-73.640556
+R1054,Astoria Generating Company L.P.,Charles P Keller 11,K,1661,Rockville Centre,059,36,22890,5.2,5.2,5.2,5.2,5.2,YES,Internal Combustion,Fuel Oil 2,Natural Gas,0.3,40.658333,-73.640556
+R1055,Astoria Generating Company L.P.,Charles P Keller 12,K,1661,Rockville Centre,059,36,24716,5.5,5.5,5.5,5.5,5.5,YES,Internal Combustion,Fuel Oil 2,Natural Gas,0,40.658333,-73.640556
+R1056,Astoria Generating Company L.P.,Charles P Keller 13,K,1661,Rockville Centre,059,36,27273,5.5,5.6,5.6,5.5,5.5,YES,Internal Combustion,Fuel Oil 2,Natural Gas,0,40.658333,-73.640556
+R1086,Central Hudson Gas & Elec. Corp.,Charles P Keller 14,K,1661,Rockville Centre,059,36,34578,6.2,6.3,6.3,6.3,6.3,YES,Internal Combustion,Fuel Oil 2,Natural Gas,1.2,40.658333,-73.640556
+R1094,Central Hudson Gas & Elec. Corp.,Chautauqua LFGE,A,323629,Jamestown,013,36,40221,9.6,0,0,0,0,,Internal Combustion,Methane,,43.5,,
+R1394,Long Island Power Authority,Clinton LFGE,D,323618,Morrisonville,019,36,39722,6.4,6.4,6.4,6.4,6.4,,Internal Combustion,Methane,,28.8,,
+R1445,"Lyonsdale Biomass, LLC",Colonie LFGTE,F,323577,Colonie,001,36,38777,6.4,6.4,6.4,6.4,6.4,,Internal Combustion,Methane,,33.7,,
+R1009,Astoria Generating Company L.P.,Coxsackie GT,G,23611,Coxsackie,039,36,25538,21.6,19.9,26,19.5,23.7,YES,Combustion Turbine,Kerosene,Natural Gas,0.6,42.350889,-73.815798
+R1010,Astoria Generating Company L.P.,DANC LFGE,E,323619,Watertown,045,36,39699,6.4,6.4,6.4,6.4,6.4,,Internal Combustion,Methane,,33.4,,
+R1011,Astoria Generating Company L.P.,DCRRA,G,23765,Poughkeepsie,027,36,32021,9.2,8.8,8.8,6.2,6.9,,Steam Turbine,Refuse,,23.4,,
+R1012,Astoria Generating Company L.P.,East Hampton 2,K,23722,E Hampton,103,36,22981,2,2,2,2,2,,Internal Combustion,Fuel Oil 2,,0.7,40.961706,-72.210277
+R1013,Astoria Generating Company L.P.,East Hampton 3,K,23722,E Hampton,103,36,22981,2,2,2,2,2,,Internal Combustion,Fuel Oil 2,,0.7,40.961706,-72.210277
+R1014,Astoria Generating Company L.P.,East Hampton 4,K,23722,E Hampton,103,36,22981,2,2,2,2,2,,Internal Combustion,Fuel Oil 2,,0.7,40.961706,-72.210277
+R1015,Astoria Generating Company L.P.,East Hampton GT 01,K,23717,E Hampton,103,36,25903,21.3,19.2,24.4,18.4,23.4,,Jet Engine,Fuel Oil 2,,11.7,40.961706,-72.210277
+R1016,Astoria Generating Company L.P.,Freeport 1-2,K,1660,Freeport,059,36,18111,2.9,2,2,2.2,2.9,,Internal Combustion,Fuel Oil 2,,0,40.6447,-73.5683
+R1017,Astoria Generating Company L.P.,Freeport 1-3,K,1660,Freeport,059,36,19937,3.1,2.1,2.1,2.1,3.1,,Internal Combustion,Fuel Oil 2,,0,40.6447,-73.5683
+R1018,Astoria Generating Company L.P.,Freeport 1-4,K,1660,Freeport,059,36,23651,5.1,4.4,4.4,4.5,5,,Internal Combustion,Fuel Oil 2,,0.1,40.6447,-73.5683
+R1019,Astoria Generating Company L.P.,Freeport 2-3,K,1660,Freeport,059,36,26785,18.1,18.1,18.1,18.2,17.9,,Combustion Turbine,Kerosene,,0.1,40.6447,-73.5683
+R1020,Astoria Generating Company L.P.,Fulton LFGE,F,323630,Johnstown,035,36,40333,3.2,0,0,0,0,,Internal Combustion,Methane,,13.8,,
+R1021,Astoria Generating Company L.P.,General Mills Inc,A,23808,Buffalo,029,36,32478,3.8,3.8,3.8,0,0,,Combustion Turbine,Natural Gas,,1.6,42.870968,-78.875549
+R1022,Astoria Generating Company L.P.,Glenwood GT 01,K,23712,Glenwood,059,36,24563,16,14.6,19.1,11.6,13.5,,Combustion Turbine,Fuel Oil 2,,0,,
+R1023,Astoria Generating Company L.P.,Gloversville Johnstown WWT,F,23643,Gloversville,035,36,40179,0.7,0,0,0,0,,Internal Combustion,Methane,,1.2,,
+R1024,Astoria Generating Company L.P.,Gowanus 1-1,J,24077,Brooklyn,047,36,26085,20,19.1,24.9,18.8,24.4,,Combustion Turbine,Fuel Oil 2,,0.3,40.6635,-74.0051
+R1025,Astoria Generating Company L.P.,Gowanus 1-2,J,24078,Brooklyn,047,36,26085,20,17.1,22.3,19.4,24.9,,Combustion Turbine,Fuel Oil 2,,0.2,40.6635,-74.0051
+R1026,Astoria Generating Company L.P.,Gowanus 1-3,J,24079,Brooklyn,047,36,26085,20,17.2,22.5,17.7,22.9,,Combustion Turbine,Fuel Oil 2,,0.2,40.6635,-74.0051
+R1027,Astoria Generating Company L.P.,Gowanus 1-4,J,24080,Brooklyn,047,36,26085,20,17.1,22.3,16.7,21.3,,Combustion Turbine,Fuel Oil 2,,0.1,40.6635,-74.0051
+R1028,Astoria Generating Company L.P.,Gowanus 1-5,J,24084,Brooklyn,047,36,26085,20,16.5,21.6,17.2,22.3,,Combustion Turbine,Fuel Oil 2,,0.1,40.6635,-74.0051
+R1029,Astoria Generating Company L.P.,Gowanus 1-6,J,24111,Brooklyn,047,36,26085,20,18,23.5,16.6,21.4,,Combustion Turbine,Fuel Oil 2,,0.1,40.6635,-74.0051
+R1030,Astoria Generating Company L.P.,Gowanus 1-7,J,24112,Brooklyn,047,36,26085,20,17.6,23,17.6,22.4,,Combustion Turbine,Fuel Oil 2,,0.1,40.6635,-74.0051
+R1031,Astoria Generating Company L.P.,Gowanus 1-8,J,24113,Brooklyn,047,36,26085,20,16.1,21,15.9,20.9,,Combustion Turbine,Fuel Oil 2,,0,40.6635,-74.0051
+R1032,Astoria Generating Company L.P.,Gowanus 2-1,J,24114,Brooklyn,047,36,26085,20,17.9,23.4,17,22.5,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,1.9,40.6635,-74.0051
+R1033,Astoria Generating Company L.P.,Gowanus 2-2,J,24115,Brooklyn,047,36,26085,20,18.8,24.6,18.3,24.1,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,1.8,40.6635,-74.0051
+R1034,Astoria Generating Company L.P.,Gowanus 2-3,J,24116,Brooklyn,047,36,26085,20,20.6,26.9,19.1,24.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,1.9,40.6635,-74.0051
+R1035,Astoria Generating Company L.P.,Gowanus 2-4,J,24117,Brooklyn,047,36,26085,20,19.3,25.2,17.3,23.1,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,0.8,40.6635,-74.0051
+R1036,Astoria Generating Company L.P.,Gowanus 2-5,J,24118,Brooklyn,047,36,26085,20,18.6,24.3,18,23.4,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,0.6,40.6635,-74.0051
+R1037,Astoria Generating Company L.P.,Gowanus 2-6,J,24119,Brooklyn,047,36,26085,20,20.3,26.5,19.5,24.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,1,40.6635,-74.0051
+R1038,Astoria Generating Company L.P.,Gowanus 2-7,J,24120,Brooklyn,047,36,26085,20,19.6,25.6,19.1,24.7,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,1,40.6635,-74.0051
+R1039,Astoria Generating Company L.P.,Gowanus 2-8,J,24121,Brooklyn,047,36,26085,20,17.7,23.1,17.7,22.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,0.4,40.6635,-74.0051
+R1040,Astoria Generating Company L.P.,Gowanus 3-1,J,24122,Brooklyn,047,36,26115,20,17.7,23.1,16.9,21.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,0.9,40.6635,-74.0051
+R1646,NRG Power Marketing LLC,Gowanus 3-2,J,24123,Brooklyn,047,36,26115,20,17.7,23.1,17.1,22.6,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,0.7,40.6635,-74.0051
+R1342,"Helix Ravenswood, LLC",Gowanus 3-3,J,24124,Brooklyn,047,36,26115,20,19.8,25.9,18,23.8,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,1,40.6635,-74.0051
+R1434,Long Island Power Authority,Gowanus 3-4,J,24125,Brooklyn,047,36,26115,20,17.9,23.4,16.2,21.4,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,1,40.6635,-74.0051
+R1102,"Consolidated Edison Co. of NY, Inc.",Gowanus 3-5,J,24126,Brooklyn,047,36,26115,20,19,24.8,17.3,22.8,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,1.4,40.6635,-74.0051
+R1103,"Consolidated Edison Co. of NY, Inc.",Gowanus 3-6,J,24127,Brooklyn,047,36,26115,20,17.6,23,15.5,21,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,0.7,40.6635,-74.0051
+R1337,Freeport Electric,Gowanus 3-7,J,24128,Brooklyn,047,36,26115,20,18.1,23.6,18.1,23.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,0.5,40.6635,-74.0051
+R1101,"Consolidated Edison Co. of NY, Inc.",Gowanus 3-8,J,24129,Brooklyn,047,36,26115,20,19,24.8,16.9,23.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,0.5,40.6635,-74.0051
+R1375,Long Island Power Authority,Gowanus 4-1,J,24130,Brooklyn,047,36,26115,20,16.8,21.9,18.9,24.4,,Combustion Turbine,Fuel Oil 2,,0.2,40.6635,-74.0051
+R1110,"Consolidated Edison Co. of NY, Inc.",Gowanus 4-2,J,24131,Brooklyn,047,36,26115,20,17.3,22.6,17.6,22.5,,Combustion Turbine,Fuel Oil 2,,0.2,40.6635,-74.0051
+R1111,"Consolidated Edison Co. of NY, Inc.",Gowanus 4-3,J,24132,Brooklyn,047,36,26115,20,17.6,23,16.6,20.4,,Combustion Turbine,Fuel Oil 2,,0.1,40.6635,-74.0051
+R1109,"Consolidated Edison Co. of NY, Inc.",Gowanus 4-4,J,24133,Brooklyn,047,36,26115,20,17.1,22.3,16.5,22.3,,Combustion Turbine,Fuel Oil 2,,0.1,40.6635,-74.0051
+R1397,Long Island Power Authority,Gowanus 4-5,J,24134,Brooklyn,047,36,26115,20,17.1,22.3,16.4,22.1,,Combustion Turbine,Fuel Oil 2,,0.1,40.6635,-74.0051
+R1429,Long Island Power Authority,Gowanus 4-6,J,24135,Brooklyn,047,36,26115,20,18.6,24.3,18.1,23,,Combustion Turbine,Fuel Oil 2,,0.1,40.6635,-74.0051
+R1421,Long Island Power Authority,Gowanus 4-7,J,24136,Brooklyn,047,36,26115,20,16.6,21.7,17.2,21.7,,Combustion Turbine,Fuel Oil 2,,0,40.6635,-74.0051
+R1008,Astoria Generating Company L.P.,Gowanus 4-8,J,24137,Brooklyn,047,36,26115,20,19,24.8,17.4,21.9,,Combustion Turbine,Fuel Oil 2,,0.2,40.6635,-74.0051
+R1708,"Wheelabrator Hudson Falls, LLC",Greenport IC 4,K,1652,Greenport,103,36,20977,1.2,1.7,1.7,0.9,1.1,,Internal Combustion,Fuel Oil 2,,0,,
+R1439,Long Island Power Authority,Greenport IC 5,K,1652,Greenport,103,36,23931,1.8,1.7,1.7,1.4,1.6,,Internal Combustion,Fuel Oil 2,,0,,
+R1415,Long Island Power Authority,Greenport IC 6,K,1652,Greenport,103,36,26193,3.8,2.7,2.7,3,2.6,,Internal Combustion,Fuel Oil 2,,0,,
+R1432,Long Island Power Authority,Harris Lake,D,5018,Newcomb,031,36,24685,1.7,0,0,0,0,,Internal Combustion,Fuel Oil 2,,0,,
+R1687,"Seneca Energy II, LLC",Hempstead (RR),K,23647,Hempstead,059,36,32782,78.6,73.7,73.7,72.8,74.7,,Steam Turbine,Refuse,,594.1,,
+R1133,Cubit Power One Inc.,High Acres,C,23767,Fairport,117,36,33390,9.6,9.6,9.6,9.6,9.6,,Internal Combustion,Methane,,6.4,,
+R1325,"Exelon Generation Company, LLC",Hudson Ave 3,J,23810,Brooklyn,047,36,25750,16.3,16,20.9,16.7,19.5,,Combustion Turbine,Kerosene,,0.2,40.7052,-73.9807
+R1362,"Innovative Energy Systems, Inc.",Hudson Ave 4,J,23540,Brooklyn,047,36,25750,16.3,13.9,18.2,0,0,,Combustion Turbine,Kerosene,,0.1,40.7052,-73.9807
+R1089,Central Hudson Gas & Elec. Corp.,Hudson Ave 5,J,23657,Brooklyn,047,36,25750,16.3,15.1,19.7,14.7,19,,Combustion Turbine,Kerosene,,0.2,40.7052,-73.9807
+R1688,"Seneca Energy II, LLC",Huntington (RR),K,323705,Huntington,103,36,33573,28,24.7,24.7,24,24.1,,Steam Turbine,Refuse,,188.8,,
+R1689,"Seneca Energy II, LLC",Hydrocarbon-Algny,A,23774,Allegany,003,36,33939,0.2,0,0,0,0,,Internal Combustion,Natural Gas,,0,,
+R1499,New York State Elec. & Gas Corp.,Hyland LFGE,B,323620,Angelica,003,36,39699,4.8,4.8,4.8,4.8,4.8,,Internal Combustion,Methane,,36.1,,
+R1364,"Innovative Energy Systems, Inc.",Intl. Crossroads,G,5056,Mahwah NJ,003,34,32112,3,0,0,0,0,YES,Internal Combustion,Natural Gas,Fuel Oil 2,0,,
+R1450,"Modern Innovative Energy, LLC",Islip (RR),K,323679,Ronkonkoma,103,36,32933,12.5,11.2,11.2,8.3,8.5,,Steam Turbine,Refuse,,55.7,,
+R1324,"Exelon Generation Company, LLC",Jamestown 5,A,1658,Jamestown,013,36,18841,28.7,23,23,22,21.6,,Steam Turbine,Natural Gas,Coal,0.8,42.0917,-79.2417
+R1328,"Exelon Generation Company, LLC",Jamestown 6,A,1658,Jamestown,013,36,25051,25,22.4,22.4,19,18.8,,Steam Turbine,Natural Gas,Coal,23.7,42.0917,-79.2417
+R1363,"Innovative Energy Systems, Inc.",Laidlaw Energy,A,23774,Ellicottville,009,36,33420,3.4,0,0,0,0,,Combustion Turbine,Natural Gas,,0,,
+R1365,"Innovative Energy Systems, Inc.",Laidlaw Energy,A,23774,Ellicottville,009,36,33420,2.4,0,0,0,0,,Steam Turbine,Natural Gas,,0,,
+R1686,"Rockville Centre, Village of",Landfill G.Part19,G,5057,Goshen,071,36,32478,2.5,0,0,0,0,,Internal Combustion,Methane,,0,,
+R1449,Model City Energy LLC,Lyonsdale  (IIFO - 4/1/18),E,23803,Lyonsdale,049,36,33817,21.1,20.2,20.2,0,0,,Steam Turbine,Wood,,0,,
+R1112,"Consolidated Edison Energy, Inc.",Madison County LF,E,323628,Wampsville,053,36,40238,1.6,1.6,1.6,1.6,1.6,,Internal Combustion,Methane,,4.5,,
+R1684,"Rockville Centre, Village of",Middletown LFG,G,5058,Goshen,071,36,32478,3,0,0,0,0,,Internal Combustion,Methane,,0,,
+R1685,"Rockville Centre, Village of",Mill Seat,B,323607,Riga,055,36,39283,6.4,6.4,6.4,6.4,6.4,,Internal Combustion,Methane,,52.8,,
+R1683,"Rockville Centre, Village of",Model City Energy,A,24167,Lewiston,063,36,37043,5.6,5.6,5.6,5.6,5.6,,Internal Combustion,Methane,,39.5,,
+R1336,Freeport Electric,Modern LF,A,323580,Lewiston,063,36,38749,6.4,6.4,6.4,6.4,6.4,,Internal Combustion,Methane,,19.9,,
+R1367,"Innovative Energy Systems, Inc.",Monroe Livingston,B,24207,Scottsville,055,36,32448,2.4,2.4,2.4,2.4,2.4,,Internal Combustion,Methane,,7.7,,
+R1533,Niagara Mohawk Power Corp.,Narrows 1-1,J,24228,Brooklyn,047,36,26420,22,21,27.4,19.3,24.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,6.4,40.648611,-74.020833
+R1473,New York Power Authority,Narrows 1-2,J,24229,Brooklyn,047,36,26420,22,19.5,25.5,17.1,23.8,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,3.6,40.648611,-74.020833
+R1609,Niagara Mohawk Power Corp.,Narrows 1-3,J,24230,Brooklyn,047,36,26420,22,20.4,26.6,18.3,24.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,4,40.648611,-74.020833
+R1681,"Rockville Centre, Village of",Narrows 1-4,J,24231,Brooklyn,047,36,26420,22,20.1,26.3,18.8,24.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,2.7,40.648611,-74.020833
+R1682,"Rockville Centre, Village of",Narrows 1-5,J,24232,Brooklyn,047,36,26420,22,19.8,25.9,19.9,24.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,3,40.648611,-74.020833
+R1595,Niagara Mohawk Power Corp.,Narrows 1-6,J,24233,Brooklyn,047,36,26420,22,18.9,24.7,16.5,22.2,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,3,40.648611,-74.020833
+R1366,"Innovative Energy Systems, Inc.",Narrows 1-7,J,24234,Brooklyn,047,36,26420,22,18.4,24,19.4,24.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,6.1,40.648611,-74.020833
+R1368,"Innovative Energy Systems, Inc.",Narrows 1-8,J,24235,Brooklyn,047,36,26420,22,19.9,26,17.5,23.2,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,4.6,40.648611,-74.020833
+R1330,"Exelon Generation Company, LLC",Narrows 2-1,J,24236,Brooklyn,047,36,26451,22,19.4,25.3,19.2,24.8,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,3.4,40.648611,-74.020833
+R1335,Freeport Electric,Narrows 2-2,J,24237,Brooklyn,047,36,26451,22,18.7,24.4,16.4,22.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,3.4,40.648611,-74.020833
+R1669,Orange and Rockland Utilities,Narrows 2-3,J,24238,Brooklyn,047,36,26451,22,18.4,24,17.5,23.8,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,3.4,40.648611,-74.020833
+R1667,Orange and Rockland Utilities,Narrows 2-4,J,24239,Brooklyn,047,36,26451,22,18.4,24,17.9,24.2,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,7,40.648611,-74.020833
+R1334,Freeport Electric,Narrows 2-5,J,24240,Brooklyn,047,36,26451,22,19.9,26,18.1,24.4,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,4.8,40.648611,-74.020833
+R1084,"Cayuga Operating Company, LLC ",Narrows 2-6,J,24241,Brooklyn,047,36,26451,22,18.1,23.6,16.3,21.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,2.8,40.648611,-74.020833
+R1085,"Cayuga Operating Company, LLC ",Narrows 2-7,J,24242,Brooklyn,047,36,26451,22,20.7,27,18.5,24.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,6.6,40.648611,-74.020833
+R1668,Orange and Rockland Utilities,Narrows 2-8,J,24243,Brooklyn,047,36,26451,22,17.5,22.9,16.3,21.9,YES,Combustion Turbine,Fuel Oil 2,Natural Gas,6.4,40.648611,-74.020833
+R1329,"Exelon Generation Company, LLC",Northport GT,K,23718,Northport,103,36,24532,16,13.8,18,12.1,11.8,,Combustion Turbine,Fuel Oil 2,,0.1,40.9231,-73.3417
+R1500,New York State Elec. & Gas Corp.,Oceanside (LF),K,5008,Oceanside,059,36,33270,2.1,1.1,1.1,0,0,,Internal Combustion,Methane,,0,,
+R1596,Niagara Mohawk Power Corp.,Oneida-Herkimer  LFGE,E,323681,Boonville,065,36,41000,3.2,3.2,3.2,3.2,3.2,,Internal Combustion,Methane,,27,,
+R1552,Niagara Mohawk Power Corp.,Onondaga County,C,23987,North Syracuse,067,36,34669,39.5,32.6,32.6,0,0,,Steam Turbine,Refuse,,216.8,,
+R1422,Long Island Power Authority,Onondaga Energy Partners,C,23634,Onondaga,067,36,32112,1.4,0,0,0,0,,Internal Combustion,Methane,,0,,
+R1114,"Consolidated Edison Energy, Inc.",Ontario LFGE,C,23819,Canandaigua,069,36,37956,11.2,7.6,7.6,11.2,11.2,,Internal Combustion,Methane,,71.7,,
+R1680,"Rockville Centre, Village of",Oswego County,C,23634,Oswego,075,36,31472,3.6,0,0,0,0,,Steam Turbine,Refuse,,4.3,,
+R1391,Long Island Power Authority,Oswego IC 1,C,5052,Oswego,075,36,24685,0.7,0,0,0,0,,Internal Combustion,Fuel Oil 2,,0,,
+R1392,Long Island Power Authority,Oswego IC 2,C,5053,Oswego,075,36,27791,0.8,0,0,0,0,,Internal Combustion,Fuel Oil 2,,0,,
+R1393,Long Island Power Authority,Oswego IC 3,C,5054,Oswego,075,36,29403,0.8,0,0,0,0,,Internal Combustion,Fuel Oil 2,,0,,
+R1331,"Exelon Generation Company, LLC",Oyster Bay (LF),K,5009,Bethpage,059,36,31594,1.3,0,0,0,0,,Internal Combustion,Methane,,0,,
+R1472,New York Power Authority,Port Jefferson GT 01,K,23713,Port Jefferson,103,36,24442,16,14.1,18.4,12.2,15.7,,Combustion Turbine,Fuel Oil 2,,-0.1,,
+R1506,New York State Elec. & Gas Corp.,Ravenswood 01,J,23729,Queens,081,36,24654,18.6,8.8,11.5,7.8,6.4,,Combustion Turbine,Natural Gas,,0.2,40.7585,-73.9451
+R1444,Long Island Power Authority,Ravenswood 10,J,24258,Queens,081,36,25781,25,21.2,27,16.7,23.7,YES,Jet Engine,Kerosene,Natural Gas,2.1,40.7585,-73.9451
+R1327,"Exelon Generation Company, LLC",Ravenswood 11,J,24259,Queens,081,36,25781,25,20.2,25.7,16.7,24.4,YES,Jet Engine,Kerosene,Natural Gas,2.6,40.7585,-73.9451
+R1608,Niagara Mohawk Power Corp.,S Hampton 1,K,23720,South Hampton,103,36,23071,11.5,10.3,13.5,8.8,11.9,,Combustion Turbine,Fuel Oil 2,,1.5,40.899997,-72.381977
+R1423,Long Island Power Authority,Seneca Energy 1,C,23797,Seneca Falls,099,36,35125,8.8,8.8,8.8,8.8,8.8,,Internal Combustion,Methane,,106.6,,
+R1471,New York Power Authority,Seneca Energy 2,C,23797,Seneca Falls,099,36,35643,8.8,8.8,8.8,8.8,8.8,,Internal Combustion,Methane,,0,,
+R1437,Long Island Power Authority,Shoreham 1,K,23715,Shoreham,103,36,26115,52.9,48.9,63.9,0,64.5,,Combustion Turbine,Fuel Oil 2,,1.8,40.9572,-72.8664
+R1551,Niagara Mohawk Power Corp.,Shoreham 2,K,23716,Shoreham,103,36,30773,18.6,18.5,23.5,16.6,22.1,,Jet Engine,Fuel Oil 2,,0.6,40.9572,-72.8664
+R1438,Long Island Power Authority,Smithtown (LF),K,5010,Smithtown,103,36,31382,1.1,0,0,0,0,,Internal Combustion,Methane,,0,,
+R1664,NRG Power Marketing LLC,South Cairo,G,23612,Cairo,039,36,25720,21.6,19.8,25.9,18.6,23.4,,Combustion Turbine,Kerosene,,0.3,42.291275,-73.986452
+R1665,NRG Power Marketing LLC,South Oaks Hosp,K,5011,Amityville,103,36,33025,1,0,0,0,0,,Internal Combustion,Natural Gas,,0,,
+R1663,NRG Power Marketing LLC,Southold 1,K,23719,Southold,103,36,23590,14,12.3,16.1,10,13.1,,Combustion Turbine,Fuel Oil 2,,1.8,41.1059,-72.3761
+R1583,Niagara Mohawk Power Corp.,St. Elizabeth Medical Center,E,23633,Utica,065,36,40940,0.6,0,0,0,0,,Internal Combustion,Natural Gas,,0.4,43.082104,-75.2661
+R1619,Niagara Mohawk Power Corp.,Steuben County LF,C,323667,Bath,101,36,41122,3.2,3.2,3.2,3.2,3.2,,Internal Combustion,Methane,,16.6,,
+R1614,Niagara Mohawk Power Corp.,Sustainable Bioelectric LLC,A,23774,Wheatfield,063,36,41699,0.6,0,0,0,0,,Internal Combustion,Methane,,0.9,,
+R1591,Niagara Mohawk Power Corp.,Synergy Biogas,B,323694,Wyoming,121,36,41153,2,2,2,0,0,,Internal Combustion,Methane,,3.1,,
+R1492,New York State Elec. & Gas Corp.,Tri-City JATC,F,23643,Latham,001,36,40118,0,0,0,0,0,,Internal Combustion,Natural Gas,,0,,
+R1542,Niagara Mohawk Power Corp.,Wheelabrator Hudson Falls,F,23798,Hudson Falls,115,36,33512,14.4,12.7,12.7,10.5,11,,Steam Turbine,Refuse,,76.8,,
+R1561,Niagara Mohawk Power Corp.,Wheelabrator Westchester,H,23653,Peekskill,119,36,30773,59.7,53.5,53.5,52,51.6,,Steam Turbine,Refuse,,392,,
+R1625,Niagara Mohawk Power Corp.,Yaphank (LF),K,5012,Yaphank,103,36,30560,1.6,1.5,1.5,0,0,,Internal Combustion,Methane,,0,,
