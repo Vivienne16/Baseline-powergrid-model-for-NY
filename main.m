@@ -27,13 +27,13 @@ runloop = false; % Loop through the whole year or not
 %   3. NRC: (1) Daily nuclear capacity factor
 %   4. EIA: (1) Monthly hydro generation data for Niagara and St. Lawrence
 
-year = 2020;
-writeFuelmix(year);
-writeHydroGen(year);
-writeNuclearGen(year);
-writePrice(year);
-writeInterflow(year);
-writeFuelPrice(year);
+testyear = 2020;
+writeFuelmix(testyear);
+writeHydroGen(testyear);
+writeNuclearGen(testyear);
+writePrice(testyear);
+writeInterflow(testyear);
+writeFuelPrice(testyear);
 
 %% Modify MPC
 
@@ -49,12 +49,12 @@ mpc = modifyMPC();
 % historical data, including interface flow, fuel mix and locational
 % marginal price (LMP).
 
-year = 2020;
-month = 1;
-day = 1;
-hour = 1;
+testyear = 2020;
+testmonth = 1;
+testday = 1;
+testhour = 1;
 
-timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
 % Operation condition update
 mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose);
@@ -73,11 +73,11 @@ resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata);
 % run PF and OPF.
 
 if runloop
-    for month = 7
-        for day = 1:eomday(year,month)
-            for hour = 1:3:24
+    for testmonth = 7
+        for testday = 1:eomday(testyear,testmonth)
+            for testhour = 1:3:24
                 
-                timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+                timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
                 fprintf("Start running ")
                 
                 % Operation condition update

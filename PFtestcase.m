@@ -19,12 +19,6 @@ if isempty(mpcreduced)
     mpcreduced = loadcase(fullfile('Result','mpcreduced.mat'));
 end
 
-% Testing timestamp
-if isempty(timeStamp)
-    year = 2019; month = 1; day = 1; hour = 1;
-    timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
-end
-
 % Save figure or not (default to save)
 if isempty(savefig)
     savefig = true;
@@ -36,9 +30,9 @@ if isempty(savedata)
 end
 
 % Create directory for store OPF results and plots
-resultDir = fullfile('Result','PF');
+resultDir = fullfile('Result',string(year(timeStamp)),'PF');
 createDir(resultDir);
-figDir = fullfile('Result','Figure','PF');
+figDir = fullfile('Result',string(year(timeStamp)),'Figure','PF');
 createDir(figDir);
 
 %% Read operation condition for NYS

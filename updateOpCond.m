@@ -20,12 +20,6 @@ if isempty(mpc)
     mpc = loadcase(fullfile('Result','mpcupdated.mat'));
 end
 
-% Testing timestamp
-if isempty(timeStamp)
-    year = 2019; month = 12; day = 8; hour = 7;
-    timeStamp = datetime(year,month,day,hour,0,0,"Format","MM/dd/uuuu HH:mm:ss");    
-end
-
 % Save reduced mpc or not (default to save)
 if isempty(savedata)
     savedata = true;
@@ -37,7 +31,7 @@ if isempty(verbose)
 end
 
 % Create directory for store OPF results and plots
-resultDir = fullfile('Result','mpcreduced');
+resultDir = fullfile('Result',string(year(timeStamp)),'mpcreduced');
 createDir(resultDir);
 
 %% Read operation condition
