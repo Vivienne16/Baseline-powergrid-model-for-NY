@@ -1,4 +1,4 @@
-function resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata)
+function resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew)
 %OPFTESTCASE Run optimal power flow at a specified timestamp and show results.
 % 
 %   Inputs:
@@ -6,6 +6,7 @@ function resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata)
 %       timeStamp - datetime, in "MM/dd/uuuu HH:mm:ss"
 %       savefig - boolean, default to be true
 %       savedata - boolean, default to be true
+%       addrenew - boolean, default to false
 %   Outputs:
 %       resultOPF - struct, optimal power flow results
 
@@ -16,7 +17,9 @@ function resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata)
 
 % Read reduced MATPOWER case
 if isempty(mpcreduced)
-    mpcreduced = loadcase(fullfile('Result','mpcreduced.mat'));
+    mpcfilename = fullfile('Result',string(year(timeStamp)),'mpcreduced',...
+        "mpcreduced_"+datestr(timeStamp,"yyyymmdd_hh")+".mat");
+    load(mpcfilename,"mpcreduced");
 end
 
 % Save figure or not (default to save)
@@ -27,6 +30,11 @@ end
 % Save OPF results or not (default to save)
 if isempty(savedata)
     savedata = true;
+end
+
+% Add additional renewable or not (default to not)
+if isempty(addrenew)
+    addrenew = false;
 end
 
 % Create directory for store OPF results and plots
@@ -42,13 +50,19 @@ busInfo = importBusInfo(fullfile("Data","npcc.csv"));
 
 define_constants;
 
+%% Add additional renewables
+
+if addrenew
+    fprintf("Start allocating additional renewables ...\n");
+    mpcreduced.bus = addRenewable(mpcreduced.bus,timeStamp);
+    fprintf("Finished allocating additional renewables in NY!\n");
+end
+
 %% Run OPF
+
 mpopt = mpoption( 'opf.dc.solver','GUROBI','opf.flow_lim','P');
 mpcreduced = toggle_iflims(mpcreduced, 'on');
 resultOPF = rundcopf(mpcreduced,mpopt);
-resultBus = resultOPF.bus;
-resultBranch = resultOPF.branch;
-resultGen = resultOPF.gen;
 
 fprintf("Finished solving optimal power flow!\n");
 

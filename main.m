@@ -13,6 +13,7 @@ savefig = true; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
 runloop = false; % Loop through the whole year or not
+addrenew = true; % Add additional renewable or not
 
 %% Data preparation
 
@@ -37,7 +38,7 @@ writeFuelPrice(testyear);
 
 %% Modify MPC
 
-% Read
+% Read original NPCC 140 MATPOWER case and make modifications.
 
 mpc = modifyMPC();
 
@@ -50,9 +51,9 @@ mpc = modifyMPC();
 % marginal price (LMP).
 
 testyear = 2020;
-testmonth = 1;
-testday = 1;
-testhour = 1;
+testmonth = 7;
+testday = 7;
+testhour = 12;
 
 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
@@ -72,23 +73,27 @@ resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata);
 % though, update operation condition for the specified timestamps, and then
 % run PF and OPF.
 
-if runloop
-    for testmonth = 7
-        for testday = 1:eomday(testyear,testmonth)
-            for testhour = 1:3:24
-                
-                timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
-                fprintf("Start running ")
-                
-                % Operation condition update
-                mpcreduced = updateOpCond(timeStamp);
-                
-                % PF test
-                resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata);
-                
-                % OPF test
-                resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata);
-            end
+testyear = 2020;
+
+for testmonth = 7
+    for testday = 1:7
+        parfor testhour = 1:24
+            
+            timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
+            fprintf("Start running %s ...\n",datestr(timeStamp));
+            
+            % Operation condition update
+            mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose);
+            
+            % PF test
+            resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
+            
+            % OPF test
+            resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
+            
+            fprintf("Success!\n");
+            
         end
     end
 end
+
