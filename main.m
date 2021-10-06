@@ -13,7 +13,7 @@ savefig = true; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
 runloop = false; % Loop through the whole year or not
-addrenew = true; % Add additional renewable or not
+addrenew = false; % Add additional renewable or not
 
 %% Data preparation
 
@@ -50,7 +50,7 @@ mpc = modifyMPC();
 % historical data, including interface flow, fuel mix and locational
 % marginal price (LMP).
 
-testyear = 2020;
+testyear = 2019;
 testmonth = 7;
 testday = 7;
 testhour = 12;
@@ -61,10 +61,10 @@ timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuu
 mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose);
 
 % PF test
-resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata);
+resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
 
 % OPF test
-resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata);
+resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
 
 
 %% Loop through the whole year 2019
@@ -73,7 +73,7 @@ resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata);
 % though, update operation condition for the specified timestamps, and then
 % run PF and OPF.
 
-testyear = 2020;
+testyear = 2019;
 
 for testmonth = 7
     for testday = 1:7

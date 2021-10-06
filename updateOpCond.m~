@@ -181,7 +181,7 @@ genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyH
 
 % Thermal generator that matched in the RGGI database?
 genThermal = zeros(height(genData),21);
-genThermal(:,GEN_BUS) = str2num(char(genData.BusName));
+genThermal(:,GEN_BUS) = genData.BusName;
 genThermal(:,PG) = genData.hourlyGen;
 
 % Allocate extra thermal generation in zone J and K
@@ -376,8 +376,7 @@ fprintf("Finished calculating network reduction!\n");
 mpcreduced.dcline = [
 	21 80	1	flowNPX1385+flowCSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
 	124 79	1	flowNeptune     0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
-    125 81	1	flowHTP         0	0	0	1.01	1	-660	660	-100	100	-100    100	0	0;
-    124 75	1	flowVFT         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
+    125 81	1	flowHTP         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
 ];
 mpcreduced = toggle_dcline(mpcreduced, "on");
 
@@ -387,7 +386,7 @@ fprintf("Finished adding DC lines!\n");
 
 branchIdA2B = [-32; 34; 37; 47];
 branchIdB2C = [-28;-29; 33; 50];
-branchIdC2E = [-16;-20;-21; 56;-62;8];
+branchIdC2E = [-16;-20;-21; 56;-62];
 branchIdD2E = [-24;-18;-23];
 branchIdE2F = [-14;-12;-3;-6];
 branchIdE2G = 8;
