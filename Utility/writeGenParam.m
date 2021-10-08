@@ -1,4 +1,4 @@
-function writeGenParam(year)
+function writeGenParam(testyear)
 %WRITEGENPARAM Calculate generator parameters
 %   Only supports 2019 generation parameter calculation now.
 %   For other years, bad fitting handling is not finished.
@@ -6,9 +6,14 @@ function writeGenParam(year)
 %   Created by Bo Yuan, Cornell University
 %   Last modified on Sept. 27, 2021
 
+
+outfilename = fullfile('Data','genParamAll.csv');
+matfilename = fullfile('Data','genParamAll.mat');
+
+if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
 %% Import hourly generation data of large generators in RGGI database
-genFileDir = fullfile('Prep',string(year),'rtgen');
-genFileName = string(year)+"*";
+genFileDir = fullfile('Prep',string(testyear),'rtgen');
+genFileName = string(testyear)+"*";
 genDataStore = fileDatastore(fullfile(genFileDir,genFileName),...
     "ReadFcn",@importGenData,"UniformRead",true,"FileExtensions",'.csv');
 genLarge = readall(genDataStore);
@@ -80,9 +85,11 @@ hourlyGenLarge.Properties.VariableNames(end-1:end) = ["hourlyGen","hourlyHeatInp
 hourlyGenLarge = removevars(hourlyGenLarge,"GroupCount");
 
 % Save hourly generation data
-outfilename = fullfile('Data','thermalGenHourly_'+string(year)+'.csv');
-writetable(hourlyGenLarge,outfilename);
-fprintf("Finished writing thermal generation data in %s\n",outfilename);
+outfilename2 = fullfile('Data','thermalGenHourly_'+string(testyear)+'.csv');
+matfilename2 = fullfile('Data','thermalGenHourly_'+string(testyear)+'.mat');
+writetable(hourlyGenLarge,outfilename2);
+save(matfilename2,'hourlyGenLarge');
+fprintf("Finished writing thermal generation data in %s and %s\n",outfilename2,matfilename2);
 
 %% Generator parameter calculation
 
@@ -428,15 +435,20 @@ paramUnmatched.useQM = zeros(numNMGen,1);
 
 %% Combine matched and unmatched generator information
 
-paramAll = [paramMatchedFinal; paramUnmatched];
-paramAll.useQM = logical(paramAll.useQM);
+genParamAll = [paramMatchedFinal; paramUnmatched];
+genParamAll.useQM = logical(genParamAll.useQM);
 
 %% Write parameter table of the matched generators
-outfilename = fullfile('Data','genParamAll.csv');
-% outfilename = fullfile('Data','genParamAll_'+string(year)+'.csv');
-writetable(paramAll,outfilename);
-fprintf("Finished writing thermal generator parameters in %s!\n",outfilename);
 
+writetable(genParamAll,outfilename);
+save(matfilename,'genParamAll');
+fprintf("Finished writing thermal generator parameter data in %s and %s!\n",outfilename,matfilename);
+
+else
+    
+    fprintf("Thermal generator parameter data already exists in %s and %s!\n",outfilename,matfilename);
+    
+end
 
 end
 

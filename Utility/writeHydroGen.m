@@ -1,4 +1,4 @@
-function writeHydroGen(yr)
+function writeHydroGen(testyear)
 %WRITEHYDROGEN Download and write monthly hydro generation of Niagara and
 %St. Lawrence hydropower plant, calculate capacity factor, and write it to
 %csv files.
@@ -7,13 +7,14 @@ function writeHydroGen(yr)
 %   Last modified on September 13, 2021
 
 %% Input handling
-if isempty(yr)
-    yr = 2019; % Default data in year 2019
+if isempty(testyear)
+    testyear = 2019; % Default data in year 2019
 end
 
-outfilename = fullfile('Data','hydroGenMonthly_'+string(yr)+'.csv');
+outfilename = fullfile('Data','hydroGenMonthly_'+string(testyear)+'.csv');
+matfilename = fullfile('Data','hydroGenMonthly_'+string(testyear)+'.mat');
 
-if ~isfile(outfilename) % File doesn't exist
+if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     %% Download hydro data
     % Robert Moses Niagara
     series_id_rmn = "ELEC.PLANT.GEN.2693-ALL-ALL.M";
@@ -26,20 +27,21 @@ if ~isfile(outfilename) % File doesn't exist
     gen_data_stl = downloadGenEia(series_id_stl,cap_stl);
     
     % Combine data for hydro generation
-    hydro_gen = outerjoin(gen_data_rmn,gen_data_stl,"Keys","TimeStamp",...
+    hydroGenMonthly = outerjoin(gen_data_rmn,gen_data_stl,"Keys","TimeStamp",...
         "MergeKeys",true);
-    hydro_gen.Properties.VariableNames = ["TimeStamp","rmnGen","rmnCF","stlGen","stlCF"];
+    hydroGenMonthly.Properties.VariableNames = ["TimeStamp","rmnGen","rmnCF","stlGen","stlCF"];
     
     % Get data for a specific year
-    hydro_gen = hydro_gen(year(hydro_gen.TimeStamp) == yr, :);
-    hydro_gen.TimeStamp = datetime(hydro_gen.TimeStamp,"Format","MM/dd/uuuu");
+    hydroGenMonthly = hydroGenMonthly(year(hydroGenMonthly.TimeStamp) == testyear, :);
+    hydroGenMonthly.TimeStamp = datetime(hydroGenMonthly.TimeStamp,"Format","MM/dd/uuuu");
     
     %% Save the data
-    writetable(hydro_gen,outfilename);
-    fprintf("Finished writing hydro generation data in %s!\n",outfilename);
+    writetable(hydroGenMonthly,outfilename);
+    save(matfilename,"hydroGenMonthly");
+    fprintf("Finished writing hydro generation data in %s and %s!\n",outfilename,matfilename);
     
 else
-    fprintf("Hydro generation data already exists in %s!\n",outfilename);
+    fprintf("Hydro generation data already exists in %s and %s!\n",outfilename,matfilename);
     
 end
 

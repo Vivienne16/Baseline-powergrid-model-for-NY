@@ -1,23 +1,24 @@
-function writeInterflow(year)
+function writeInterflow(testyear)
 %WRITEINTERFLOW write NYISO hourly interface flow data in 2019
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on Septemper 9, 2021
 
 %% Input handling
-if isempty(year)
-    year = 2019; % Default data in year 2019
+if isempty(testyear)
+    testyear = 2019; % Default data in year 2019
 end
 
-outfilename = fullfile('Data','interflowHourly_'+string(year)+'.csv');
+outfilename = fullfile('Data','interflowHourly_'+string(testyear)+'.csv');
+matfilename = fullfile('Data','interflowHourly_'+string(testyear)+'.mat');
 
-if ~isfile(outfilename) % File doesn't exist
+if ~isfile(outfilename) || ~isfile(matfilename)% File doesn't exist
     %% Download interface flow data
-    downloadData(year,'interflow');
+    downloadData(testyear,'interflow');
     
     %% Read interface flow data
-    interflowFileDir = fullfile('Prep',string(year),'interflow');
-    interflowFileName = string(year)+"*";
+    interflowFileDir = fullfile('Prep',string(testyear),'interflow');
+    interflowFileName = string(testyear)+"*";
     interflowDataStore = fileDatastore(fullfile(interflowFileDir,interflowFileName),...
         "ReadFcn",@importInterflow,"UniformRead",true,"FileExtensions",'.csv');
     interflowAll = readall(interflowDataStore);
@@ -41,13 +42,13 @@ if ~isfile(outfilename) % File doesn't exist
     interflowHourly = sortrows(interflowHourly,"TimeStamp","ascend");
     
     %% Write hourly interface flow data
-    outfilename = fullfile('Data','interflowHourly_'+string(year)+'.csv');
     writetable(interflowHourly,outfilename);    
-    fprintf("Finished writing interface flow data in %s!\n",outfilename);
+    save(matfilename,'interflowHourly');
+    fprintf("Finished writing interface flow data in %s and %s!\n",outfilename,matfilename);
   
 else
     
-    fprintf("Interface flow data already exists in %s!\n",outfilename);
+    fprintf("Interface flow data already exists in %s and %s!\n",outfilename,matfilename);
     
 end
 

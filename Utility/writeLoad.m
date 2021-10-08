@@ -1,23 +1,24 @@
-function writeLoad(year)
+function writeLoad(testyear)
 %WRITEFUELMIX write NYISO hourly real-time zonal load data
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on September 13, 2021
 
 %% Input handling
-if isempty(year)
-    year = 2019; % Default data in year 2019
+if isempty(testyear)
+    testyear = 2019; % Default data in year 2019
 end
 
-outfilename = fullfile('Data','loadHourly_'+string(year)+'.csv');
+outfilename = fullfile('Data','loadHourly_'+string(testyear)+'.csv');
+matfilename = fullfile('Data','loadHourly_'+string(testyear)+'.mat');
 
-if ~isfile(outfilename) % File doesn't exist
+if ~isfile(outfilename) || ~isfile(matfilename)% File doesn't exist
     %% Down load price data
-    downloadData(year,'rtload');
+    downloadData(testyear,'rtload');
     
     %% Read load data
-    loadFileDir = fullfile('Prep',string(year),'rtload');
-    loadFileName = string(year)+"*";
+    loadFileDir = fullfile('Prep',string(testyear),'rtload');
+    loadFileName = string(testyear)+"*";
     loadDataStore = fileDatastore(fullfile(loadFileDir,loadFileName),...
         "ReadFcn",@importLoad,"UniformRead",true,"FileExtensions",'.csv');
     loadAll = readall(loadDataStore);
@@ -41,26 +42,27 @@ if ~isfile(outfilename) % File doesn't exist
     loadHourly = sortrows(loadHourly,"TimeStamp","ascend");
     
     % Add zone ID
-%     loadHourly.zoneID = categorical(height(loadHourly),1);
-    loadHourly.ZoneID(loadHourly.ZoneName == 'CAPITL') = 'F';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'CENTRL') = 'C';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'DUNWOD') = 'I';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'GENESE') = 'B';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'HUD VL') = 'G';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'LONGIL') = 'K';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'MHK VL') = 'E';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'MILLWD') = 'H';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'N.Y.C.') = 'J';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'NORTH') = 'D';
-    loadHourly.ZoneID(loadHourly.ZoneName == 'WEST') = 'A';
+    loadHourly.ZoneID(loadHourly.ZoneName == 'CAPITL') = "F";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'CENTRL') = "C";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'DUNWOD') = "I";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'GENESE') = "B";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'HUD VL') = "G";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'LONGIL') = "K";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'MHK VL') = "E";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'MILLWD') = "H";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'N.Y.C.') = "J";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'NORTH') = "D";
+    loadHourly.ZoneID(loadHourly.ZoneName == 'WEST') = "A";
+    loadHourly.ZoneID = categorical(loadHourly.ZoneID);
     
     %% Write hourly price data
     writetable(loadHourly,outfilename);  
-    fprintf("Finished writing price data in %s!\n",outfilename);
+    save(matfilename,"loadHourly");
+    fprintf("Finished writing price data in %s and %s!\n",outfilename,matfilename);
     
 else
     
-    fprintf("Load data already exists in %s!\n",outfilename); 
+    fprintf("Load data already exists in %s and %s!\n",outfilename,matfilename); 
         
 end
 

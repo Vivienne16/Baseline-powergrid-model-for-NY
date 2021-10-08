@@ -1,4 +1,4 @@
-function sampleHourLoad = allocateLoad(timeStamp,method)
+function sampleHourLoad = allocateLoad(timeStamp,method,usemat)
 %ALLOCATELOADHOURLY Allocate hourly load to the buses in NYS.
 %   
 %   Use the ALLOCATELOADHOURLY function to produces a table of power demand
@@ -14,11 +14,17 @@ function sampleHourLoad = allocateLoad(timeStamp,method)
 %   Last modified on Sept. 27, 2021
 
 %% Default function inputs
-if nargin <= 1 || isempty(method)
+
+if nargin < 2 || isempty(method)
     method = "weighted";
 end
 
+if nargin < 3 || isempty(usemat)
+    usemat = 1;
+end
+
 %% Read NYS bus table
+
 % NYSBus = readtable("Data/bus_ny_type_zone_new.csv");
 busInfo = importBusInfo(fullfile("Data","npcc.csv"));
 NYSBus = busInfo(busInfo.zone ~= 'NA', :);
@@ -52,10 +58,16 @@ numLoadBusTot = sum(numLoadBusZone);
 
 %% Read load data
 
-hourlyLoadNY = importLoad(fullfile('Data','loadHourly_'+string(year(timeStamp))+'.csv'));
-sampleLoadZonal = hourlyLoadNY(hourlyLoadNY.TimeStamp == timeStamp, :);
+if usemat
+    load(fullfile('Data','loadHourly_'+string(year(timeStamp))+'.mat'),'loadHourly');
+else
+    loadHourly = importLoad(fullfile('Data','loadHourly_'+string(year(timeStamp))+'.csv'));
+end
+
+sampleLoadZonal = loadHourly(loadHourly.TimeStamp == timeStamp, :);
 
 %% Distribute load to buses
+
 if method == "evenly"
     sampleHourLoad = addLoadEvenly(sampleLoadZonal,NYSBus,zoneIDs);
 elseif method == "weighted"

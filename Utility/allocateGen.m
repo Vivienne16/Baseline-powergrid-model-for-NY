@@ -1,4 +1,4 @@
-function sampleHourGen = allocateGen(timeStamp,costType)
+function sampleHourGen = allocateGen(timeStamp,costtype,usemat)
 %ALLOCATEGENHOURLY Allocate hourly generation to buses in NYS
 %   
 %   Use the ALLOCATEGENHOURLY function to produces a table of generation
@@ -18,8 +18,12 @@ function sampleHourGen = allocateGen(timeStamp,costType)
 %% Default function inputs
 
 % Use linear cost function by default
-if nargin <= 1 || isempty(costType)
-    costType = "lm";
+if nargin < 2 || isempty(costtype)
+    costtype = "lm";
+end
+
+if nargin < 3 || isempty(usemat)
+    usemat = 1;
 end
 
 %% Generator allocation
@@ -28,7 +32,11 @@ end
 genAllocation = importNearestBus(fullfile("Data","gen_bus_assignment.csv"));
 
 % Read generator parameter table
-genParamAll = importGenParam(fullfile("Data","genParamAll.csv"));
+if usemat
+    load(fullfile("Data","genParamAll.mat"),'genParamAll');
+else
+    genParamAll = importGenParam(fullfile("Data","genParamAll.csv"));
+end
 
 % Allocate generator to the nearest PV bus
 genParamWBus = innerjoin(genParamAll,genAllocation,"Keys",["NYISOName","PTID"], ...
@@ -37,7 +45,11 @@ genParamWBus = innerjoin(genParamAll,genAllocation,"Keys",["NYISOName","PTID"], 
 %% Sample hour generation
 
 % Read hourly generation and heat input data for large generators
-hourlyGenLarge = importThermalGen(fullfile('Data','thermalGenHourly_'+string(year(timeStamp))+'.csv'));
+if usemat
+    load(fullfile('Data','thermalGenHourly_'+string(year(timeStamp))+'.mat'),'hourlyGenLarge');
+else
+    hourlyGenLarge = importThermalGen(fullfile('Data','thermalGenHourly_'+string(year(timeStamp))+'.csv'));
+end
 
 % Hour specific value
 sampleHourlyGen = hourlyGenLarge(hourlyGenLarge.TimeStamp == timeStamp, :);
@@ -56,7 +68,7 @@ sampleFuelPrice = fuelPriceTable(fuelPriceTable.TimeStamp <= timeStamp, :);
 sampleFuelPrice = sampleFuelPrice(end, :);
 
 % Calculate generation cost curve using heat rate curve and fuel price
-sampleCostCurve = createGenCost(genParamAll,sampleFuelPrice,costType);
+sampleCostCurve = createGenCost(genParamAll,sampleFuelPrice,costtype);
 
 % combine the results with generation parameters table
 sampleHourGen = outerjoin(sampleHourlyGenLarge,sampleCostCurve,"Keys",["NYISOName","PTID"],"MergeKeys",true);

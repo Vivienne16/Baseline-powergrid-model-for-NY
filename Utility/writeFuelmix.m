@@ -1,23 +1,24 @@
-function writeFuelmix(year)
+function writeFuelmix(testyear)
 %WRITEFUELMIX write NYISO hourly fuel mix data in 2019
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on August 17, 2021
 
 %% Input handling
-if isempty(year)
-    year = 2019; % Default data in year 2019
+if isempty(testyear)
+    testyear = 2019; % Default data in year 2019
 end
 
-outfilename = fullfile('Data','fuelmixHourly_'+string(year)+'.csv');
+outfilename = fullfile('Data','fuelmixHourly_'+string(testyear)+'.csv');
+matfilename = fullfile('Data','fuelmixHourly_'+string(testyear)+'.mat');
 
-if ~isfile(outfilename) % File doesn't exist
+if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     %% Download fuel mix data
-    downloadData(year,'fuelmix');
+    downloadData(testyear,'fuelmix');
 
     %% Read fuel mix data
-    fuelmixFileDir = fullfile('Prep',string(year),'fuelmix');
-    fuelmixFileName = string(year)+"*";
+    fuelmixFileDir = fullfile('Prep',string(testyear),'fuelmix');
+    fuelmixFileName = string(testyear)+"*";
     fuelmixDataStore = fileDatastore(fullfile(fuelmixFileDir,fuelmixFileName),...
         "ReadFcn",@importFuelmix,"UniformRead",true,"FileExtensions",'.csv');
     fuelmixAll = readall(fuelmixDataStore);
@@ -41,10 +42,11 @@ if ~isfile(outfilename) % File doesn't exist
 
     %% Write hourly fuel mix data
     writetable(fuelmixHourly,outfilename);    
-    fprintf("Finished writing fuel mix data in %s!\n",outfilename);
+    save(matfilename,"fuelmixHourly");
+    fprintf("Finished writing fuel mix data in %s and %s!\n",outfilename,matfilename);
     
 else
-    fprintf("Fuel mix data already exists in %s!\n",outfilename);  
+    fprintf("Fuel mix data already exists in %s and %s!\n",outfilename,matfilename);  
     
 end
 

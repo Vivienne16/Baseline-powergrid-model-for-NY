@@ -1,4 +1,4 @@
-function writeNuclearGen(year)
+function writeNuclearGen(testyear)
 %WRITENUCLEARGEN Download and process daily nuclear capacity factor data from NRC
 
 %   Created by Bo Yuan, Cornell University
@@ -6,21 +6,22 @@ function writeNuclearGen(year)
 
 %% Input handling
 
-if isempty(year)
-    year = 2019; % Default data in year 2019
+if isempty(testyear)
+    testyear = 2019; % Default data in year 2019
 end
 
-outfilename = fullfile('Data','nuclearGenDaily_'+string(year)+'.csv');
+outfilename = fullfile('Data','nuclearGenDaily_'+string(testyear)+'.csv');
+matfilename = fullfile('Data','nuclearGenDaily_'+string(testyear)+'.mat');
 
-if ~isfile(outfilename) % File doesn't exist
+if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     %% Downlaod data from NRC
-    nuclearDir = fullfile('Prep',string(year),'nuclear');
+    nuclearDir = fullfile('Prep',string(testyear),'nuclear');
     createDir(nuclearDir);
     apiroot = "https://www.nrc.gov/reading-rm/doc-collections/event-status/reactor-status/%d/";
-    api = sprintf(apiroot,year);
+    api = sprintf(apiroot,testyear);
     suffix = "PowerStatus.txt";
     
-    filename = sprintf('%d%s',year,suffix);
+    filename = sprintf('%d%s',testyear,suffix);
     url = api+filename;
     downloadname = websave(fullfile(nuclearDir,filename),url);
     
@@ -39,7 +40,7 @@ if ~isfile(outfilename) % File doesn't exist
     opts = setvaropts(opts, "Unit", "WhitespaceRule", "preserve");
     opts = setvaropts(opts, "Unit", "EmptyFieldRule", "auto");
     % Different datetime format before and after year 2020
-    if year >= 2020
+    if testyear >= 2020
         opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy hh:mm:ss aa");
     else
         opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy");
@@ -56,28 +57,29 @@ if ~isfile(outfilename) % File doesn't exist
     nuclearDaily.Power = nuclearDaily.Power/100;
     
     numUnit = length(unitNames);
-    nuclearTable = nuclearDaily(nuclearDaily.Unit == unitNames(1), ["TimeStamp","Power"]);
-    nuclearTable.Gen = nuclearTable.Power*unitCaps(1);
-    nuclearTable.Properties.VariableNames(end-1) = erase(string(unitNames(1))," ")+"CF";
-    nuclearTable.Properties.VariableNames(end) = erase(string(unitNames(1))," ")+"Gen";
+    nuclearGenDaily = nuclearDaily(nuclearDaily.Unit == unitNames(1), ["TimeStamp","Power"]);
+    nuclearGenDaily.Gen = nuclearGenDaily.Power*unitCaps(1);
+    nuclearGenDaily.Properties.VariableNames(end-1) = erase(string(unitNames(1))," ")+"CF";
+    nuclearGenDaily.Properties.VariableNames(end) = erase(string(unitNames(1))," ")+"Gen";
     
     for n=2:numUnit
         T = nuclearDaily(nuclearDaily.Unit == unitNames(n), ["TimeStamp","Power"]);
-        nuclearTable = outerjoin(nuclearTable,T,"Keys","TimeStamp","MergeKeys",true);
-        nuclearTable.Gen = nuclearTable.Power*unitCaps(n);
-        nuclearTable.Properties.VariableNames(end-1) = erase(string(unitNames(n))," ")+"CF";
-        nuclearTable.Properties.VariableNames(end) = erase(string(unitNames(n))," ")+"Gen";
+        nuclearGenDaily = outerjoin(nuclearGenDaily,T,"Keys","TimeStamp","MergeKeys",true);
+        nuclearGenDaily.Gen = nuclearGenDaily.Power*unitCaps(n);
+        nuclearGenDaily.Properties.VariableNames(end-1) = erase(string(unitNames(n))," ")+"CF";
+        nuclearGenDaily.Properties.VariableNames(end) = erase(string(unitNames(n))," ")+"Gen";
     end
     
-    nuclearTable.TimeStamp.Format = "MM/dd/yyyy";
+    nuclearGenDaily.TimeStamp.Format = "MM/dd/yyyy";
     
     %% Save the data
-    writetable(nuclearTable,outfilename);
-    fprintf("Finished writing nuclear generation data in %s!\n",outfilename);
+    writetable(nuclearGenDaily,outfilename);
+    save(matfilename,'nuclearGenDaily');
+    fprintf("Finished writing nuclear generation data in %s and %s!\n",outfilename,matfilename);
     
 else
     
-    fprintf("Nuclear generation data already exists in %s!\n",outfilename);
+    fprintf("Nuclear generation data already exists in %s and %s!\n",outfilename,matfilename);
     
 end
 

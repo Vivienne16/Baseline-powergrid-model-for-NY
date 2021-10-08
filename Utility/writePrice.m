@@ -1,23 +1,24 @@
-function writePrice(year)
+function writePrice(testyear)
 %WRITEFUELMIX write NYISO hourly real-time zonal price data
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on September 13, 2021
 
 %% Input handling
-if isempty(year)
-    year = 2019; % Default data in year 2019
+if isempty(testyear)
+    testyear = 2019; % Default data in year 2019
 end
 
-outfilename = fullfile('Data','priceHourly_'+string(year)+'.csv');
+outfilename = fullfile('Data','priceHourly_'+string(testyear)+'.csv');
+matfilename = fullfile('Data','priceHourly_'+string(testyear)+'.mat');
 
-if ~isfile(outfilename) % File doesn't exist
+if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     %% Down load price data
-    downloadData(year,'rtprice');
+    downloadData(testyear,'rtprice');
     
     %% Read price data
-    priceFileDir = fullfile('Prep',string(year),'rtprice');
-    priceFileName = string(year)+"*";
+    priceFileDir = fullfile('Prep',string(testyear),'rtprice');
+    priceFileName = string(testyear)+"*";
     priceDataStore = fileDatastore(fullfile(priceFileDir,priceFileName),...
         "ReadFcn",@importPrice,"UniformRead",true,"FileExtensions",'.csv');
     priceAll = readall(priceDataStore);
@@ -42,11 +43,12 @@ if ~isfile(outfilename) % File doesn't exist
     
     %% Write hourly price data
     writetable(priceHourly,outfilename);
-    fprintf("Finished writing price data in %s!\n",outfilename);
+    save(matfilename,'priceHourly');
+    fprintf("Finished writing price data in %s and %s!\n",outfilename,matfilename);
     
 else
     
-    fprintf("Price data already exists in %s!\n",outfilename); 
+    fprintf("Price data already exists in %s and %s!\n",outfilename,matfilename); 
         
 end
 

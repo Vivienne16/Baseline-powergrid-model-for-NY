@@ -1,4 +1,4 @@
-function writeFuelPrice(yr)
+function writeFuelPrice(testyear)
 %WRITEFUELPRICE Download and process fuel price data
 
 %   Created by Bo Yuan, Cornell University
@@ -6,15 +6,16 @@ function writeFuelPrice(yr)
 
 %% Input handling
 
-if isempty(yr)
-    yr = 2019; % Default data in year 2019
+if isempty(testyear)
+    testyear = 2019; % Default data in year 2019
 end
 
-outfilename = fullfile('Data','fuelPriceWeekly_'+string(yr)+'.csv');
+outfilename = fullfile('Data','fuelPriceWeekly_'+string(testyear)+'.csv');
+matfilename = fullfile('Data','fuelPriceWeekly_'+string(testyear)+'.mat');
 
-if ~isfile(outfilename) % File doesn't exist    
+if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist    
     %% Download fuel price table form NYISO's CARIS report
-    fuelpriceDir = fullfile('Prep',string(yr),'fuelprice');
+    fuelpriceDir = fullfile('Prep',string(testyear),'fuelprice');
     createDir(fuelpriceDir);
     url = "https://www.nyiso.com/documents/20142/1399076/17CARIS1_Base_Fuel_Price_Final.xls";
     filename = "17CARIS1_Base_Fuel_Price_Final.xls";
@@ -37,28 +38,29 @@ if ~isfile(outfilename) % File doesn't exist
     clear opts;
     
     %% Get fuel price for a specific year
-    fuelPrice = fuelPrice(year(fuelPrice.Date) == yr,:);
+    fuelPrice = fuelPrice(year(fuelPrice.Date) == testyear,:);
     
     %% Write a fuel price table
-    fuelPriceTable = fuelPrice(fuelPrice.FuelName == "NG_A-E", :);
-    fuelPriceTable = removevars(fuelPriceTable, "FuelName");
-    fuelPriceTable.Properties.VariableNames = ["TimeStamp","NG_A2E"];
-    fuelPriceTable.NG_F2I = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "NG_F-I", :);
-    fuelPriceTable.NG_J = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "NG_ZONEJ", :);
-    fuelPriceTable.NG_K = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "NG_ZONEK", :);
-    fuelPriceTable.FO2_UPNY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "DFO_UPNY", :);
-    fuelPriceTable.FO2_DSNY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "DFO_DSNY", :);
-    fuelPriceTable.FO6_UPNY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "RFO_UPNY", :);
-    fuelPriceTable.FO6_DSNY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "RFO_DSNY", :);
-    fuelPriceTable.coal_NY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "BIT_NY", :)*ones(height(fuelPriceTable),1);
+    fuelPriceWeekly = fuelPrice(fuelPrice.FuelName == "NG_A-E", :);
+    fuelPriceWeekly = removevars(fuelPriceWeekly, "FuelName");
+    fuelPriceWeekly.Properties.VariableNames = ["TimeStamp","NG_A2E"];
+    fuelPriceWeekly.NG_F2I = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "NG_F-I", :);
+    fuelPriceWeekly.NG_J = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "NG_ZONEJ", :);
+    fuelPriceWeekly.NG_K = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "NG_ZONEK", :);
+    fuelPriceWeekly.FO2_UPNY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "DFO_UPNY", :);
+    fuelPriceWeekly.FO2_DSNY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "DFO_DSNY", :);
+    fuelPriceWeekly.FO6_UPNY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "RFO_UPNY", :);
+    fuelPriceWeekly.FO6_DSNY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "RFO_DSNY", :);
+    fuelPriceWeekly.coal_NY = fuelPrice.FuelPricemmBTU(fuelPrice.FuelName == "BIT_NY", :)*ones(height(fuelPriceWeekly),1);
     
     %% Save the data
-    writetable(fuelPriceTable,outfilename);
-    fprintf("Finished writing fuel price data in %s\n",outfilename);
+    writetable(fuelPriceWeekly,outfilename);
+    save(matfilename,'fuelPriceWeekly');
+    fprintf("Finished writing fuel price data in %s and %s!\n",outfilename,matfilename);
     
 else
     
-    fprintf("Fuel price data already exists in %s!\n",outfilename);
+    fprintf("Fuel price data already exists in %s and %s!\n",outfilename,matfilename);
     
 end
 

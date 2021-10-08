@@ -9,11 +9,12 @@ clear;
 clc;
 close all;
 
-savefig = true; % Save figure or not
+savefig = false; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
 runloop = false; % Loop through the whole year or not
 addrenew = false; % Add additional renewable or not
+usemat = true; % Read mat files
 
 %% Data preparation
 
@@ -35,6 +36,7 @@ writeNuclearGen(testyear);
 writePrice(testyear);
 writeInterflow(testyear);
 writeFuelPrice(testyear);
+writeGenParam(testyear);
 
 %% Modify MPC
 
@@ -51,13 +53,13 @@ mpc = modifyMPC();
 % marginal price (LMP).
 
 testyear = 2019;
-testmonth = 7;
+testmonth = 1;
 testday = 1;
 testhour = 1;
 
 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
-% Operation condition update
+%% Operation condition update
 mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose);
 
 % PF test
