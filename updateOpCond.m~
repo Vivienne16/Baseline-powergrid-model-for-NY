@@ -73,10 +73,16 @@ for i = 1:height(renewableGen)
         count = count+1;
         if renewableGen.BusID(i) == 50
             % Bus 50: zone C, FitzPatrick and Nine Mile Point 1 and 2
-            renewableGen.PgNuclear(i) = nuclearCf.FitzPatrickGen...
-                +nuclearCf.NineMilePoint1Gen+nuclearCf.NineMilePoint2Gen;
+            NumNuclearOnBus = 3;
+            Pgnuclear = [nuclearCf.FitzPatrickGen,nuclearCf.NineMilePoint1Gen,nuclearCf.NineMilePoint2Gen];
+            Capnuclear = [854.5,629,1299];
+            
+%             renewableGen.PgNuclear(i) = nuclearCf.FitzPatrickGen...
+%                 +nuclearCf.NineMilePoint1Gen+nuclearCf.NineMilePoint2Gen;
         elseif renewableGen.BusID(i) == 74
             % Bus 74: zone H, Indian Point 2 and 3
+            NumNuclearOnBus = 2;
+            
             renewableGen.PgNuclear(i) = nuclearCf.IndianPoint2Gen...
                 +nuclearCf.IndianPoint3Gen;
         elseif renewableGen.BusID(i) == 53
@@ -376,7 +382,8 @@ fprintf("Finished calculating network reduction!\n");
 mpcreduced.dcline = [
 	21 80	1	flowNPX1385+flowCSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
 	124 79	1	flowNeptune     0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
-    125 81	1	flowHTP         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
+    125 81	1	flowHTP         0	0	0	1.01	1	-660	660	-100	100	-100    100	0	0;
+    124 75	1	flowVFT         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
 ];
 mpcreduced = toggle_dcline(mpcreduced, "on");
 
@@ -386,7 +393,7 @@ fprintf("Finished adding DC lines!\n");
 
 branchIdA2B = [-32; 34; 37; 47];
 branchIdB2C = [-28;-29; 33; 50];
-branchIdC2E = [-16;-20;-21; 56;-62];
+branchIdC2E = [-16;-20;-21; 56;-62;8];
 branchIdD2E = [-24;-18;-23];
 branchIdE2F = [-14;-12;-3;-6];
 branchIdE2G = 8;
