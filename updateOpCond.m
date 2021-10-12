@@ -176,8 +176,12 @@ fprintf("Finished allocating hydro and nuclear generators!\n");
 
 %% Allocate thermal generators in NY
 
-fprintf("Start allocating hydro generation ...\n");
+fprintf("Start allocating thermal generation ...\n");
+TotalGen = sum(fuelMix.GenMW);
+windGen = fuelMix.GenMW(fuelMix.FuelCategory == "Wind");
+orGen = fuelMix.GenMW(fuelMix.FuelCategory == "Other Renewables");
 
+ThermalNeed = TotalGen - sum(genHydro(:,PG))-sum(genNuclear(:,PG))-windGen-orGen;
 % Total thermal generation in NYISO fuel mix data
 thermalGen = fuelMix.GenMW(fuelMix.FuelCategory == "Dual Fuel")...
     +fuelMix.GenMW(fuelMix.FuelCategory == "Natural Gas")...
@@ -189,12 +193,12 @@ genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyH
 % Thermal generator that matched in the RGGI database?
 genThermal = zeros(height(genData),21);
 % genThermal(:,GEN_BUS) = genData.BusName;
-genThermal(:,GEN_BUS) = str2num(char(genData.BusName));
+genThermal(:,GEN_BUS) = genData.BusName;
 genThermal(:,PG) = genData.hourlyGen;
 
 % Allocate extra thermal generation in zone J and K
 thermalGenLarge = sum(genThermal(:,PG)); % Total thermal generation from RGGI
-thermalGenSmall = thermalGen-thermalGenLarge; % Mismatch between NYISO and RGGI thermal generation
+thermalGenSmall = ThermalNeed-thermalGenLarge; % Mismatch between NYISO and RGGI thermal generation
 busIdJK = busInfo.idx(busInfo.zone == "J" | busInfo.zone == "K");
 JKidx = ismember(genThermal(:,GEN_BUS),busIdJK);
 % Weight distribution of the extra thermal generation in generators with
