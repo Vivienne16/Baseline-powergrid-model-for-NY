@@ -53,7 +53,7 @@ mpc = modifyMPC();
 % marginal price (LMP).
 
 testyear = 2019;
-testmonth = 1;
+testmonth = 12;
 testday = 1;
 testhour = 1;
 
