@@ -1,4 +1,4 @@
-function mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose)
+function mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat)
 %UPDATEOPCOND Update operation condition at a speficied timestamp
 % 
 %   Inputs:
@@ -42,8 +42,8 @@ fprintf("Start updating operation condition at %s.\n",datestr(timeStamp));
 [fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);
 
 % Allocate load and generation
-loadData = allocateLoad(timeStamp);
-genData = allocateGen(timeStamp);
+loadData = allocateLoad(timeStamp,'weighted',usemat);
+genData = allocateGen(timeStamp,'lm',usemat);
 
 % Read renewable generation capacity allocation table
 renewableGen = importRenewableGen(fullfile("Data","RenewableGen.csv"));
@@ -58,7 +58,8 @@ fprintf("Finished reading operation conditions!\n");
 
 fprintf("Start allocating nuclear generation ...\n");
 
-numNuclear = nnz(renewableGen.PgNuclearCap);
+
+numNuclear = 6;
 genNuclear = zeros(numNuclear,21);
 
 % Nuclear generation in NYISO"s fuel mix data
@@ -70,36 +71,42 @@ count = 0;
 for i = 1:height(renewableGen)
     % Add nuclear generators
     if renewableGen.PgNuclearCap(i) ~= 0       
-        count = count+1;
         if renewableGen.BusID(i) == 50
             % Bus 50: zone C, FitzPatrick and Nine Mile Point 1 and 2
-            renewableGen.PgNuclear(i) = nuclearCf.FitzPatrickGen...
-                +nuclearCf.NineMilePoint1Gen+nuclearCf.NineMilePoint2Gen;
+            NumNuclearOnBus = 3;
+            Pgnuclear = [nuclearCf.FitzPatrickGen,nuclearCf.NineMilePoint1Gen,nuclearCf.NineMilePoint2Gen];
+            Capnuclear = [854.5,629,1299];
         elseif renewableGen.BusID(i) == 74
             % Bus 74: zone H, Indian Point 2 and 3
-            renewableGen.PgNuclear(i) = nuclearCf.IndianPoint2Gen...
-                +nuclearCf.IndianPoint3Gen;
+            NumNuclearOnBus = 2;
+            Pgnuclear = [nuclearCf.IndianPoint2Gen,nuclearCf.IndianPoint3Gen];
+            Capnuclear = [1025.9,1039.9];
         elseif renewableGen.BusID(i) == 53
             % Bus 53: zone B, Gina
-            renewableGen.PgNuclear(i) = nuclearCf.GinnaGen;
+            NumNuclearOnBus = 1;
+            Pgnuclear = [nuclearCf.GinnaGen];
+            Capnuclear = [581.7];
         else
             error("Error: Undefined nuclear generator!");
         end     
-        
-        % Add a new row in the mpc.gen matrix
-        newrow = zeros(1,21);
-        newrow(GEN_BUS) = renewableGen.BusID(i);
-        newrow(PG) = renewableGen.PgNuclear(i);
-        newrow(QMAX) = 9999;
-        newrow(QMIN) = -9999;
-        newrow(VG) = 1;
-        newrow(MBASE) = 100;
-        newrow(GEN_STATUS) = 1;
-        newrow(PMAX) = renewableGen.PgNuclearCap(i);
-        newrow(RAMP_AGC) = 0.01*newrow(PMAX);
-        newrow(RAMP_10) = 0.1*newrow(PMAX);
-        newrow(RAMP_30) = 0.3*newrow(PMAX);
-        genNuclear(count,:) = newrow;
+        newrow = zeros(NumNuclearOnBus,21);
+        for ncl = 1:NumNuclearOnBus
+            % Add a new row in the mpc.gen matrix
+            count = count+1;
+            newrow(ncl,GEN_BUS) = renewableGen.BusID(i);
+            newrow(ncl,PG) = Pgnuclear(ncl);
+            newrow(ncl,QMAX) = 9999;
+            newrow(ncl,QMIN) = -9999;
+            newrow(ncl,VG) = 1;
+            newrow(ncl,MBASE) = 100;
+            newrow(ncl,GEN_STATUS) = 1;
+            newrow(ncl,PMAX) = Capnuclear(ncl);
+            newrow(ncl,RAMP_AGC) = 0.01*newrow(ncl,PMAX);
+            newrow(ncl,RAMP_10) = 0.1*newrow(ncl,PMAX);
+            newrow(ncl,RAMP_30) = 0.3*newrow(ncl,PMAX);
+            genNuclear(count,:) = newrow(ncl,:);
+            
+        end
     end
 end
 
@@ -181,7 +188,8 @@ genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyH
 
 % Thermal generator that matched in the RGGI database?
 genThermal = zeros(height(genData),21);
-genThermal(:,GEN_BUS) = genData.BusName;
+% genThermal(:,GEN_BUS) = genData.BusName;
+genThermal(:,GEN_BUS) = str2num(char(genData.BusName));
 genThermal(:,PG) = genData.hourlyGen;
 
 % Allocate extra thermal generation in zone J and K

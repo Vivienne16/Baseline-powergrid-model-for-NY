@@ -14,7 +14,7 @@ savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
 runloop = false; % Loop through the whole year or not
 addrenew = false; % Add additional renewable or not
-usemat = true; % Read mat files
+usemat = false; % Read mat files
 
 %% Data preparation
 
@@ -60,7 +60,7 @@ testhour = 1;
 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
 %% Operation condition update
-mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose);
+mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat);
 
 % PF test
 resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
