@@ -85,7 +85,7 @@ for i = 1:height(renewableGen)
             % Bus 53: zone B, Gina
             NumNuclearOnBus = 1;
             Pgnuclear = [nuclearCf.GinnaGen];
-            Capnuclear = [581.7];
+            Capnuclear = 581.7;
         else
             error("Error: Undefined nuclear generator!");
         end     
@@ -188,8 +188,8 @@ genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyH
 
 % Thermal generator that matched in the RGGI database?
 genThermal = zeros(height(genData),21);
-% genThermal(:,GEN_BUS) = genData.BusName;
-genThermal(:,GEN_BUS) = str2num(char(genData.BusName));
+genThermal(:,GEN_BUS) = genData.BusName;
+% genThermal(:,GEN_BUS) = str2num(char(genData.BusName));
 genThermal(:,PG) = genData.hourlyGen;
 
 % Allocate extra thermal generation in zone J and K

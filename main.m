@@ -14,7 +14,8 @@ savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
 runloop = false; % Loop through the whole year or not
 addrenew = false; % Add additional renewable or not
-usemat = false; % Read mat files
+% usemat = false; % Read csv files
+usemat = true; % Read mat files
 
 %% Data preparation
 
@@ -53,7 +54,7 @@ mpc = modifyMPC();
 % marginal price (LMP).
 
 testyear = 2019;
-testmonth = 12;
+testmonth = 1;
 testday = 1;
 testhour = 1;
 
