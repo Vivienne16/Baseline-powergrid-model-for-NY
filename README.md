@@ -13,13 +13,6 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -50,20 +43,26 @@ The code is written with Matlab and depends on the installation of Matpower. Ple
 
 ### Main.m
 Specify a year, and download and format the data in that year. Downlaoded data are stored in the "Prep" directory. Formatted data are stored in the "Data" directory. For example, to run for Jan 1st 2019 1:00 am, modify the test year, month, day and hour.
+
       testyear = 2019;
       testmonth = 1;
       testday = 1;
       testhour = 1;
+      
 Data sources include:
-1. NYISO: (1) hourly fuel mix
-          (2) hourly interface flow
-          (3) hourly real time price
-2. RGGI: (1) hourly generation for thermal generators larger than 25 MW
-3. NRC: (1) Daily nuclear capacity factor
-4. EIA: (1) Monthly hydro generation data for Niagara and St. Lawrence
+1. NYISO: 
+   - hourly fuel mix
+   - hourly interface flow
+   - hourly real time price
+2. RGGI: 
+   - hourly generation for thermal generators larger than 25 MW
+3. NRC: 
+   - Daily nuclear capacity factor
+4. EIA: 
+   - Monthly hydro generation data for Niagara and St. Lawrence
         
-The main function first update the operation condition for load and generators from the histroical data and store the modified mpc struct in "mpcreduced"
-Then it automatically calls the Optimal Power Flow and Power Flow test and store the result in resultOPF and resultPF, respectively. 
+The main function first update the operation condition for load and generators from the histroical data and store the modified mpc struct in `mpcreduced`
+Then it automatically calls the Optimal Power Flow and Power Flow test and store the result in `resultOPF` and `resultPF`, respectively. 
         
         
 
