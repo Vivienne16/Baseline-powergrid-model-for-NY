@@ -480,6 +480,7 @@ for i = 1:height(renewableGen)
         count = count +1;
         % Randomly assign cost for $0-10/MWh
         gencostHydro(count,COST) = 10*rand(1);
+        
     end
 end
 
