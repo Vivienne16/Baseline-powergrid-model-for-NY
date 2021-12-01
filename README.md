@@ -28,7 +28,7 @@
 As the urgency to address climate change intensifies, the integration of distributed and intermittent renewable resources in power grids will continue to accelerate. To ensure the reliability and efficacy of the transformed system, researchers and other stakeholders require a validated representation of the essential characteristics of the power grid that is accurate for a specific region under study. For example, the Climate Leadership and Community Protection Act (CLCPA) in New York sets ambitious targets for transformation of the energy system, opening many interesting research and analysis questions. To provide a platform for these analyses, this paper presents an overview of the current NYS power grid and develops an open-source1 baseline model using only publicly available data. The proposed model is validated with real data for power flow and Locational Marginal Prices (LMPs) to demonstrate the feasibility, functionality and consistency of the model with hourly data of 2019 as an example. The model is easily adjustable and customizable for various analyses of future configurations and scenarios that require spatial-temporal information of the NYS power grid with data access to all the available historical data, and serves as a practical system for general methods and algorithms testing.
 
 ### Built With
-The code is written with Matlab and depends on the installation of Matpower. Please go to the following websties and follow the structions to install Matlab and Matpower.
+The code is written with Matlab and depends on the installation of Matpower. Please go to the following websties and follow the instructions to install Matlab and Matpower.
 * [Matlab](https://www.mathworks.com/products/matlab.html)
 * [MATPOWER](https://matpower.org/)
 
@@ -61,7 +61,7 @@ Data sources include:
 4. EIA: 
    - Monthly hydro generation data for Niagara and St. Lawrence
         
-The main function first update the operation condition for load and generators from the histroical data and store the modified mpc struct in `mpcreduced`
+The main function first update the operation condition for load and generators from the historical data and store the modified mpc struct in `mpcreduced`
 Then it automatically calls the Optimal Power Flow and Power Flow test and store the result in `resultOPF` and `resultPF`, respectively. 
         
         
