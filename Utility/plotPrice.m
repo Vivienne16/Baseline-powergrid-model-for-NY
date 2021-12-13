@@ -17,6 +17,25 @@ ylabel("LMP ($/MW)","FontSize", fontsize);
 title(type+": Real and simulated price "+datestr(timeStamp,"yyyy-mm-dd hh:00"),"FontSize",fontsize);
 set(gca,"FontSize",fontsize);
 set(f1,"position",[100,100,800,600]);
+% x0=10;
+% y0=10;
+% width=550;
+% height=400;
+% set(gca,'FontSize',18)
+% set(gcf,'position',[x0,y0,width,height])
+% plot(priceReal,'LineWidth',3)
+% hold on
+% plot(priceSim,'LineWidth',3)
+% h = legend('Historical LMP','Simulated LMP','FontSize', 18);
+% set(h,'Location','best')
+% ax = gca;
+% ax.FontSize = 16; 
+% xticks([1:15])
+% xticklabels({'West','Genese','Central','North','MHK VL','Capital','HUD VL','MILLWD','DUNWOD','NYC','Long IL','PJM','NE','Ontario','HQ'})
+% xtickangle(45)
+% ylim([110 170])
+% xlabel('Zone','FontSize', 18)
+% ylabel('LMP ($/MW)','FontSize', 18)
 if savefig
     figName = fullfile(figDir,type+"_LMP_Com_"+timeStampStr+".png");
     saveas(f1,figName);

@@ -60,7 +60,7 @@ end
 
 %% Run OPF
 
-mpopt = mpoption( 'opf.dc.solver','GUROBI','opf.flow_lim','P');
+mpopt = mpoption('opf.flow_lim','P');
 mpcreduced = toggle_iflims(mpcreduced, 'on');
 resultOPF = rundcopf(mpcreduced,mpopt);
 

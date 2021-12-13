@@ -14,7 +14,6 @@ savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
 runloop = false; % Loop through the whole year or not
 addrenew = false; % Add additional renewable or not
-% usemat = false; % Read csv files
 usemat = true; % Read mat files
 
 %% Data preparation
