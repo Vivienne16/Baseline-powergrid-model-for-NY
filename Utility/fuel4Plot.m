@@ -17,8 +17,8 @@ thermalGen = fuelMix.GenMW(fuelMix.FuelCategory == "Dual Fuel")...
 nuclearGen = fuelMix.GenMW(fuelMix.FuelCategory == "Nuclear");
 hydroGen = fuelMix.GenMW(fuelMix.FuelCategory == "Hydro");
 importGen = sum(interFlow.FlowMWH(contains(string(interFlow.InterfaceName),"SCH")));
-% HQGen = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - HQ_IMPORT_EXPORT");
-% importGen = importGen - HQGen;
+HQGen = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - HQ_IMPORT_EXPORT");
+importGen = importGen - HQGen;
 
 fuelReal = [
     thermalGen;

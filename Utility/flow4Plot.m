@@ -8,8 +8,7 @@ resultBranch = result.branch;
 % Simulated interface flow data
 A2BResult = -resultBranch(32,PF)+resultBranch(34,PF)+resultBranch(37,PF)+resultBranch(47,PF);
 B2CResult = -resultBranch(28,PF)-resultBranch(29,PF)+resultBranch(33,PF)+resultBranch(50,PF);
-C2EResult = -resultBranch(16,PF)-resultBranch(20,PF)-resultBranch(21,PF)...
-    +resultBranch(56,PF)-resultBranch(62,PF)+resultBranch(8,PF);
+C2EResult = -resultBranch(14,PF)-resultBranch(12,PF)-resultBranch(3,PF)-resultBranch(6,PF)+resultBranch(8,PF);
 D2EResult = -resultBranch(24,PF)-resultBranch(18,PF)-resultBranch(23,PF);
 E2FResult = -resultBranch(14,PF)-resultBranch(12,PF)-resultBranch(3,PF)-resultBranch(6,PF);
 % E2GResult = resultBranch(8,PF);

@@ -84,8 +84,8 @@ cost_2 = zeros(numGen, 1);
 cost_1 = zeros(numGen, 1);
 cost_0 = zeros(numGen, 1);
 for i=1:numGen
-    fuelfactor = 5.5;
-    gasfactor = 5.5;
+    fuelfactor = 1;
+    gasfactor = 1;
     zone = genParam(i, :).Zone;
     fuel = genParam(i, :).FuelType;
    

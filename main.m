@@ -53,9 +53,9 @@ mpc = modifyMPC();
 % marginal price (LMP).
 
 testyear = 2019;
-testmonth = 8;
-testday = 3;
-testhour = 18;
+testmonth = 1;
+testday = 1;
+testhour = 1;
 
 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 

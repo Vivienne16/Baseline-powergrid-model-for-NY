@@ -68,7 +68,7 @@ mpc.branch((mpc.branch(:,F_BUS) == 54)&(mpc.branch(:,T_BUS)==103),RATE_A:RATE_C)
 
 % Add branch
 % Add E-G 
-newlineEG = [38 77 0.02 0.02 0 0 0 0 0 0 1 -360 360];
+newlineEG = [38 77 0.02 0.015 0 0 0 0 0 0 1 -360 360];
 mpc.branch = [mpc.branch;newlineEG];
 
 %% Save updated MATPOWER case
