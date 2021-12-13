@@ -6,7 +6,6 @@ define_constants;
 busIdNE = [21;29;35];
 busIdIESO = [100;102;103];
 busIdPJM = [124;125;132;134;138];
-busIdHQ = 48;
 
 resultGen = result.gen;
 
@@ -37,7 +36,7 @@ isThermal = ismember(result.gentype,thermalType);
 isNuclear = (result.gentype == "Nuclear");
 isHydro = (result.gentype == "Hydro");
 isImport = (result.gentype == "Import");
-isExtBus = ismember(result.bus(:,BUS_I),[busIdNE;busIdIESO;busIdPJM;busIdHQ]);
+isExtBus = ismember(result.bus(:,BUS_I),[busIdNE;busIdIESO;busIdPJM]);
 demandExt = sum(result.bus(isExtBus,PD));
 
 fuelSim = [
