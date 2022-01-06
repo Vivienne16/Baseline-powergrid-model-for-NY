@@ -16,6 +16,12 @@ runloop = false; % Loop through the whole year or not
 addrenew = false; % Add additional renewable or not
 usemat = true; % Read mat files
 
+% Add project to MATLAB path
+addpath(genpath("."))
+
+% Create results directory
+createDir("./Result")
+
 %% Data preparation
 
 % Specify a year, and download and format the data in that year. Downlaoded
@@ -53,9 +59,9 @@ mpc = modifyMPC();
 % marginal price (LMP).
 
 testyear = 2019;
-testmonth = 3;
-testday = 10;
-testhour = 2;
+testmonth = 1;
+testday = 1;
+testhour = 1;
 
 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
 
