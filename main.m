@@ -64,8 +64,6 @@ testday = 1;
 testhour = 1;
 
 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
-
-%% Operation condition update
 fprintf("Start running %s ...\n",datestr(timeStamp));
 
 if timeStamp == datetime(2019,3,10,2,0,0)
@@ -104,7 +102,7 @@ if runloop
                 end
                 
                 % Operation condition update
-                mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose);
+                mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose, usemat);
                 
                 % PF test
                 resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
