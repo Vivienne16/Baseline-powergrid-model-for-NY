@@ -98,6 +98,12 @@ opts = setvaropts(opts, ["TimeZone", "ZoneName"], "EmptyFieldRule", "auto");
 opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
 
 % Import the data
-loadData = readtable(filename, opts);
+try
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
+    loadData = readtable(filename, opts);
+catch
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
+    loadData = readtable(filename, opts);
+end
 
 end

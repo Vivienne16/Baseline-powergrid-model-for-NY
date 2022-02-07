@@ -13,7 +13,7 @@ tic;
 savefig = true; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
-runloop = false; % Loop through the whole year or not
+runloop = true; % Loop through the whole year or not
 addrenew = false; % Add additional renewable or not
 usemat = true; % Read mat files
 
@@ -32,18 +32,22 @@ createDir("./Result")
 %   1. NYISO: (1) hourly fuel mix
 %             (2) hourly interface flow
 %             (3) hourly real time price
+%             (4) hourly real time load
+%             (5) fuel price (from CARIS report)
 %   2. RGGI: (1) hourly generation for thermal generators larger than 25 MW
 %   3. NRC: (1) Daily nuclear capacity factor
 %   4. EIA: (1) Monthly hydro generation data for Niagara and St. Lawrence
 
-testyear = 2016;
+testyear = 2017;
 writeFuelmix(testyear);
+writeInterflow(testyear);
+writePrice(testyear);
+writeLoad(testyear);
+writeFuelPrice(testyear);
+writeThermalGen(testyear);
+writeGenParam(testyear);
 writeHydroGen(testyear);
 writeNuclearGen(testyear);
-writePrice(testyear);
-writeInterflow(testyear);
-writeFuelPrice(testyear);
-writeGenParam(testyear);
 
 %% Modify MPC
 
@@ -61,7 +65,7 @@ mpc = modifyMPC();
 
 if runloop == false
 
-    testyear = 2019;
+    testyear = 2016;
     testmonth = 1;
     testday = 1;
     testhour = 1;
@@ -92,7 +96,7 @@ end
 % run PF and OPF.
 
 if runloop == true
-    testyear = 2019;
+    testyear = 2016;
     for testmonth = 1
         for testday = 1
             parfor testhour = 0:23

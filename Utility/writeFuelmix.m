@@ -14,21 +14,7 @@ matfilename = fullfile('Data','fuelmixHourly_'+string(testyear)+'.mat');
 
 if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     %% Download fuel mix data
-    downloadData(testyear,'fuelmix');
-    
-    %% Testing
-    filename = "D:\EERL\NY-Simple-Net\Baseline-powergrid-model-for-NY\Prep\2016\fuelmix\20161106rtfuelmix.csv";
-    fuelMix = importFuelmix(filename);
-    fuelMix.DT(fuelMix.TimeZone == "EST") = hours(5);
-    fuelMix.DT(fuelMix.TimeZone == "EDT") = hours(4);
-    fuelMix.TConv = fuelMix.TimeStamp + fuelMix.DT;
-    
-    t = fuelMix.TimeStamp;
-    t.TimeZone = 'America/New_York';
-    t_utc = t;
-    t_utc.TimeZone = 'Z';
-    fuelMix.UTC = t_utc;
-    
+    downloadData(testyear,'fuelmix');    
 
     %% Read fuel mix data
     fuelmixFileDir = fullfile('Prep',string(testyear),'fuelmix');
@@ -45,22 +31,22 @@ if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
 
     for n=1:numFuel
         T = fuelmixAll(fuelmixAll.FuelCategory == fuelCats(n), :);
-        T = table2timetable(T(:,["TimeStampUTC","GenMW"]));
+        T = table2timetable(T(:,["TimeStamp","GenMW"]));
         T = retime(T,"hourly","mean");
         T = timetable2table(T);
         T.FuelCategory = repelem(fuelCats(n),height(T))';
-        T = movevars(T,"FuelCategory","After","TimeStampUTC");
+        T = movevars(T,"FuelCategory","After","TimeStamp");
         fuelmixHourly = [fuelmixHourly; T];
     end
     
     % Convert timestamp UTC back to local time in New York
-    fuelmixHourly = sortrows(fuelmixHourly,"TimeStampUTC","ascend");
-    fuelmixHourly.TimeStampUTC.TimeZone = 'Z';
-    fuelmixHourly.TimeStamp = fuelmixHourly.TimeStampUTC;
-    fuelmixHourly.TimeStamp.TimeZone = 'America/New_York';
-    fuelmixHourly.TimeZone(isdst(fuelmixHourly.TimeStamp)) = "EDT";
-    fuelmixHourly.TimeZone(~isdst(fuelmixHourly.TimeStamp)) = "EST";
-    fuelmixHourly.TimeZone = categorical(fuelmixHourly.TimeZone);
+    fuelmixHourly = sortrows(fuelmixHourly,"TimeStamp","ascend");
+%     fuelmixHourly.TimeStampUTC.TimeZone = 'Z';
+%     fuelmixHourly.TimeStamp = fuelmixHourly.TimeStampUTC;
+%     fuelmixHourly.TimeStamp.TimeZone = 'America/New_York';
+%     fuelmixHourly.TimeZone(isdst(fuelmixHourly.TimeStamp)) = "EDT";
+%     fuelmixHourly.TimeZone(~isdst(fuelmixHourly.TimeStamp)) = "EST";
+%     fuelmixHourly.TimeZone = categorical(fuelmixHourly.TimeZone);
 
     %% Write hourly fuel mix data
     writetable(fuelmixHourly,outfilename);    
@@ -115,8 +101,8 @@ catch
 end
 
 % Add UTC time
-fuelMix.DT(fuelMix.TimeZone == "EST") = hours(5);
-fuelMix.DT(fuelMix.TimeZone == "EDT") = hours(4);
-fuelMix.TimeStampUTC = fuelMix.TimeStamp + fuelMix.DT;
+% fuelMix.DT(fuelMix.TimeZone == "EST") = hours(5);
+% fuelMix.DT(fuelMix.TimeZone == "EDT") = hours(4);
+% fuelMix.TimeStampUTC = fuelMix.TimeStamp + fuelMix.DT;
 
 end

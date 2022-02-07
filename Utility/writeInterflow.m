@@ -1,8 +1,8 @@
 function writeInterflow(testyear)
-%WRITEINTERFLOW write NYISO hourly interface flow data in 2019
+%WRITEINTERFLOW write NYISO hourly interface flow data in the testyear
 
 %   Created by Bo Yuan, Cornell University
-%   Last modified on Septemper 9, 2021
+%   Last modified on Feb 7, 2022
 
 %% Input handling
 if isempty(testyear)

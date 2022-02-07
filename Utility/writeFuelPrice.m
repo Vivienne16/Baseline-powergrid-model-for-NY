@@ -1,5 +1,6 @@
 function writeFuelPrice(testyear)
 %WRITEFUELPRICE Download and process fuel price data
+% Only supports year 2017 and later for now.
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on Sept. 27, 2021
