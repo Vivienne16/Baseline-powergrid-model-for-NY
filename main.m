@@ -13,7 +13,7 @@ tic;
 savefig = true; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
-runloop = true; % Loop through the whole year or not
+runloop = false; % Loop through the whole year or not
 addrenew = false; % Add additional renewable or not
 usemat = true; % Read mat files
 
@@ -36,7 +36,7 @@ createDir("./Result")
 %   3. NRC: (1) Daily nuclear capacity factor
 %   4. EIA: (1) Monthly hydro generation data for Niagara and St. Lawrence
 
-testyear = 2019;
+testyear = 2016;
 writeFuelmix(testyear);
 writeHydroGen(testyear);
 writeNuclearGen(testyear);

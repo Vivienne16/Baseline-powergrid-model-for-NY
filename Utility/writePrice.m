@@ -39,7 +39,14 @@ if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
         priceHourly = [priceHourly; T];
     end
     
+    % Convert timestamp UTC back to local time in New York
     priceHourly = sortrows(priceHourly,"TimeStamp","ascend");
+%     priceHourly.TimeStampUTC.TimeZone = 'Z';
+%     priceHourly.TimeStamp = priceHourly.TimeStampUTC;
+%     priceHourly.TimeStamp.TimeZone = 'America/New_York';
+%     priceHourly.TimeZone(isdst(priceHourly.TimeStamp)) = "EDT";
+%     priceHourly.TimeZone(~isdst(priceHourly.TimeStamp)) = "EST";
+%     priceHourly.TimeZone = categorical(priceHourly.TimeZone);
     
     %% Write hourly price data
     writetable(priceHourly,outfilename);
@@ -84,6 +91,12 @@ opts = setvaropts(opts, ["ZoneName", "PTID"], "EmptyFieldRule", "auto");
 opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
 
 % Import the data
-priceData = readtable(filename, opts);
+try
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
+    priceData = readtable(filename, opts);
+catch
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
+    priceData = readtable(filename, opts);
+end
 
 end

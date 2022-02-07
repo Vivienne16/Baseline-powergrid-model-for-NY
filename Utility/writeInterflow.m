@@ -84,6 +84,12 @@ opts = setvaropts(opts, ["InterfaceName", "PointID"], "EmptyFieldRule", "auto");
 opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
 
 % Import the data
-interfaceFlow = readtable(filename, opts);
+try
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
+    interfaceFlow = readtable(filename, opts);
+catch
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
+    interfaceFlow = readtable(filename, opts);
+end
 
 end
