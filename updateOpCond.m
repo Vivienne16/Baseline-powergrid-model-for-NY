@@ -483,7 +483,7 @@ for i = 1:height(renewableGen)
 end
 
 % Cost curve for external generators
-gencostExt = zeros(size(genExt,1),6);
+gencostExt = zeros(numExt,6);
 gencostExt(:,MODEL) = 2;
 gencostExt(:,NCOST) = 2;
 
@@ -503,7 +503,7 @@ gentypeThermal = string(genData.UnitType);
 gentypeNuclear = repelem("Nuclear",numNuclear)';
 gentypeHydro = repelem("Hydro",numHydro)';
 gentypeExt = repelem("Import",numExt)';
-mpcreduced.gentype = [gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt];
+mpcreduced.genfuel = [gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt];
 
 %% Save updated operation condtion
 if savedata

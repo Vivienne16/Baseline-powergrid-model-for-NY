@@ -14,14 +14,11 @@ savefig = true; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
 runloop = true; % Loop through the whole year or not
-addrenew = false; % Add additional renewable or not
+addrenew = true; % Add additional renewable or not
 usemat = true; % Read mat files
 
 % Add project to MATLAB path
 addpath(genpath("."))
-
-% Create results directory
-createDir("./Result")
 
 %% Data preparation
 
@@ -38,7 +35,7 @@ createDir("./Result")
 %   3. NRC: (1) Daily nuclear capacity factor
 %   4. EIA: (1) Monthly hydro generation data for Niagara and St. Lawrence
 
-testyear = 2017;
+testyear = 2016;
 writeFuelmix(testyear);
 writeInterflow(testyear);
 writePrice(testyear);
@@ -66,9 +63,9 @@ mpc = modifyMPC();
 if runloop == false
 
     testyear = 2016;
-    testmonth = 1;
-    testday = 1;
-    testhour = 1;
+    testmonth = 8;
+    testday = 6;
+    testhour = 12;
     
     timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
     fprintf("Start running %s ...\n",datestr(timeStamp));
@@ -97,8 +94,8 @@ end
 
 if runloop == true
     testyear = 2016;
-    for testmonth = 1
-        for testday = 1
+    for testmonth = 8
+        for testday = 6:15
             parfor testhour = 0:23
                 
                 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");

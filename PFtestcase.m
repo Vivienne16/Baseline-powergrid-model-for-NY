@@ -11,7 +11,7 @@ function resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew)
 %       resultPF - struct, power flow results
 
 %   Created by Vivienne Liu, Cornell University
-%   Last modified on Sept. 24, 2021
+%   Last modified on Feb. 7, 2022
 
 %% Input parameters
 
@@ -37,12 +37,6 @@ if isempty(addrenew)
     addrenew = false;
 end
 
-% Create directory for store OPF results and plots
-resultDir = fullfile('Result',string(year(timeStamp)),'PF');
-createDir(resultDir);
-figDir = fullfile('Result',string(year(timeStamp)),'Figure','PF');
-createDir(figDir);
-
 %% Read operation condition for NYS
 
 [fuelMix,interFlow,flowLimit,~,~,~] = readOpCond(timeStamp);
@@ -52,9 +46,21 @@ define_constants;
 %% Add additional renewables
 
 if addrenew
+    % Create directory for store PF results and plots
+    resultDir = fullfile('Result_Renewable',string(year(timeStamp)),'PF');
+    createDir(resultDir);
+    figDir = fullfile('Result_Renewable',string(year(timeStamp)),'Figure','PF');
+    createDir(figDir);
+    
     fprintf("Start allocating additional renewables ...\n");  
-    mpcreduced.bus = addRenewable(mpcreduced.bus,timeStamp);    
+    mpcreduced = addRenewable(mpcreduced,timeStamp);    
     fprintf("Finished allocating additional renewables in NY!\n");
+else
+    % Create directory for store PF results and plots
+    resultDir = fullfile('Result',string(year(timeStamp)),'PF');
+    createDir(resultDir);
+    figDir = fullfile('Result',string(year(timeStamp)),'Figure','PF');
+    createDir(figDir);
 end
 
 %% Run reduced MATPOWER case
@@ -78,7 +84,6 @@ type = "PF";
 plotFlow(timeStamp,resultPF,interFlow,flowLimit,type,savefig,figDir);
 
 % Plot fuel mix and error
-plotFuel(timeStamp,resultPF,fuelMix,interFlow,type,savefig,figDir);
-
+plotFuel(timeStamp,resultPF,fuelMix,interFlow,type,savefig,figDir,addrenew);
 
 end
