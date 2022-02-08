@@ -2,7 +2,7 @@ function writeInterflow(testyear)
 %WRITEINTERFLOW write NYISO hourly interface flow data in the testyear
 
 %   Created by Bo Yuan, Cornell University
-%   Last modified on Feb 7, 2022
+%   Last modified on Feb 8, 2022
 
 %% Input handling
 if isempty(testyear)
@@ -14,7 +14,7 @@ matfilename = fullfile('Data','interflowHourly_'+string(testyear)+'.mat');
 
 if ~isfile(outfilename) || ~isfile(matfilename)% File doesn't exist
     %% Download interface flow data
-    downloadData(testyear,'interflow');
+    downloadData(testyear,'interflow');    
     
     %% Read interface flow data
     interflowFileDir = fullfile('Prep',string(testyear),'interflow');
@@ -32,7 +32,11 @@ if ~isfile(outfilename) || ~isfile(matfilename)% File doesn't exist
     for n=1:numInter
         T = interflowAll(interflowAll.InterfaceName == interCats(n), :);
         T = table2timetable(T(:,["TimeStamp","FlowMWH","PositiveLimitMWH","NegativeLimitMWH"]));
+        % Downsample to hourly
         T = retime(T,"hourly","mean");
+        % Fill missing data with linear interpolation
+        T = fillmissing(T,'linear','DataVariables',@isnumeric);
+        % Format the table
         T = timetable2table(T);
         T.InterfaceName = repelem(interCats(n),height(T))';
         T = movevars(T,"InterfaceName","After","TimeStamp");
@@ -64,6 +68,9 @@ if nargin < 2
     dataLines = [2, Inf];
 end
 
+% Turn datetime reading warning to an error and use try-catch below
+warning('error', 'MATLAB:readtable:AllNaTVariable');
+
 %% Setup the Import Options and import the data
 opts = delimitedTextImportOptions("NumVariables", 6);
 
@@ -81,7 +88,6 @@ opts.EmptyLineRule = "read";
 
 % Specify variable properties
 opts = setvaropts(opts, ["InterfaceName", "PointID"], "EmptyFieldRule", "auto");
-opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
 
 % Import the data
 try

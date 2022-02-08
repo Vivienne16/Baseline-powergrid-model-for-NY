@@ -13,7 +13,7 @@ tic;
 savefig = true; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
-runloop = true; % Loop through the whole year or not
+runloop = false; % Loop through the whole year or not
 addrenew = true; % Add additional renewable or not
 usemat = true; % Read mat files
 
@@ -35,7 +35,7 @@ addpath(genpath("."))
 %   3. NRC: (1) Daily nuclear capacity factor
 %   4. EIA: (1) Monthly hydro generation data for Niagara and St. Lawrence
 
-testyear = 2016;
+testyear = 2019;
 writeFuelmix(testyear);
 writeInterflow(testyear);
 writePrice(testyear);
@@ -64,8 +64,8 @@ if runloop == false
 
     testyear = 2016;
     testmonth = 8;
-    testday = 6;
-    testhour = 12;
+    testday = 9;
+    testhour = 3;
     
     timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
     fprintf("Start running %s ...\n",datestr(timeStamp));
@@ -95,7 +95,7 @@ end
 if runloop == true
     testyear = 2016;
     for testmonth = 8
-        for testday = 6:15
+        for testday = 9
             parfor testhour = 0:23
                 
                 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");

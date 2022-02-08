@@ -32,21 +32,18 @@ if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     for n=1:numFuel
         T = fuelmixAll(fuelmixAll.FuelCategory == fuelCats(n), :);
         T = table2timetable(T(:,["TimeStamp","GenMW"]));
+        % Downsample to hourly
         T = retime(T,"hourly","mean");
+        % Fill missing data with linear interpolation
+        T = fillmissing(T,'linear','DataVariables',@isnumeric);
+        % Format the table
         T = timetable2table(T);
         T.FuelCategory = repelem(fuelCats(n),height(T))';
         T = movevars(T,"FuelCategory","After","TimeStamp");
         fuelmixHourly = [fuelmixHourly; T];
     end
     
-    % Convert timestamp UTC back to local time in New York
     fuelmixHourly = sortrows(fuelmixHourly,"TimeStamp","ascend");
-%     fuelmixHourly.TimeStampUTC.TimeZone = 'Z';
-%     fuelmixHourly.TimeStamp = fuelmixHourly.TimeStampUTC;
-%     fuelmixHourly.TimeStamp.TimeZone = 'America/New_York';
-%     fuelmixHourly.TimeZone(isdst(fuelmixHourly.TimeStamp)) = "EDT";
-%     fuelmixHourly.TimeZone(~isdst(fuelmixHourly.TimeStamp)) = "EST";
-%     fuelmixHourly.TimeZone = categorical(fuelmixHourly.TimeZone);
 
     %% Write hourly fuel mix data
     writetable(fuelmixHourly,outfilename);    
@@ -99,10 +96,5 @@ catch
     opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
     fuelMix = readtable(filename, opts);
 end
-
-% Add UTC time
-% fuelMix.DT(fuelMix.TimeZone == "EST") = hours(5);
-% fuelMix.DT(fuelMix.TimeZone == "EDT") = hours(4);
-% fuelMix.TimeStampUTC = fuelMix.TimeStamp + fuelMix.DT;
 
 end
