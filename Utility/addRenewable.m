@@ -8,6 +8,8 @@ define_constants;
 
 %% Add solar generation
 
+fprintf("Start allocating additional renewables ...\n");
+
 % Read solar generation data
 filename = fullfile("Testing","solar_20160805_20160816.csv");
 % A matrix of two columns: (1) busID, (2) generation
@@ -69,6 +71,8 @@ gencostWind(:, MODEL) = 2;
 gencostWind(:, NCOST) = 2;
 
 mpc = addgen2mpc(mpc, genWind, gencostWind, 'Wind');
+
+fprintf("Finished allocating additional renewables in NYS!\n"); 
 
 end
 

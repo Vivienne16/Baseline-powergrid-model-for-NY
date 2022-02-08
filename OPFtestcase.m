@@ -44,25 +44,18 @@ busInfo = importBusInfo(fullfile("Data","npcc.csv"));
 
 define_constants;
 
-%% Add additional renewables
+%% Create directory for store OPF results and plots
 
 if addrenew
-    % Create directory for store OPF results and plots
     resultDir = fullfile('Result_Renewable',string(year(timeStamp)),'OPF');
-    createDir(resultDir);
     figDir = fullfile('Result_Renewable',string(year(timeStamp)),'Figure','OPF');
-    createDir(figDir);
-    
-    fprintf("Start allocating additional renewables ...\n");
-    mpcreduced = addRenewable(mpcreduced,timeStamp);
-    fprintf("Finished allocating additional renewables in NY!\n"); 
 else
-    % Create directory for store OPF results and plots
     resultDir = fullfile('Result',string(year(timeStamp)),'OPF');
-    createDir(resultDir);
     figDir = fullfile('Result',string(year(timeStamp)),'Figure','OPF');
-    createDir(figDir);
 end
+
+createDir(resultDir);
+createDir(figDir);
 
 %% Run OPF
 

@@ -1,7 +1,9 @@
 %% Main file
-% Description of the main file
+% Baseline power grid model for NYS
 %
-%
+
+%   Created by Vivienne Liu
+%   Last modified on Feb. 8, 2022
 
 %% Parameter settings
 
@@ -13,8 +15,8 @@ tic;
 savefig = true; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
-runloop = true; % Loop through the whole year or not
-addrenew = false; % Add additional renewable or not
+runloop = false; % Loop through the whole year or not
+addrenew = true; % Add additional renewable or not
 usemat = true; % Read mat files
 
 % Add project to MATLAB path
@@ -35,7 +37,7 @@ addpath(genpath("."))
 %   3. NRC: (1) Daily nuclear capacity factor
 %   4. EIA: (1) Monthly hydro generation data for Niagara and St. Lawrence
 
-testyear = 2019;
+testyear = 2016;
 writeFuelmix(testyear);
 writeInterflow(testyear);
 writePrice(testyear);
@@ -62,9 +64,9 @@ mpc = modifyMPC();
 
 if runloop == false
 
-    testyear = 2019;
-    testmonth = 12;
-    testday = 12;
+    testyear = 2016;
+    testmonth = 8;
+    testday = 10;
     testhour = 12;
     
     timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
@@ -72,6 +74,11 @@ if runloop == false
  
     % Update operation conditions
     mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat);
+    
+    % Add additional renewables if provided
+    if addrenew == true
+       mpcreduced = addRenewable(mpcreduced,timeStamp); 
+    end
     
     % Run power flow
     resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
