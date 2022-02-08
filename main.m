@@ -13,8 +13,8 @@ tic;
 savefig = true; % Save figure or not
 savedata = true; % Save PF and OPF results
 verbose = false; % Verbose printing or not
-runloop = false; % Loop through the whole year or not
-addrenew = true; % Add additional renewable or not
+runloop = true; % Loop through the whole year or not
+addrenew = false; % Add additional renewable or not
 usemat = true; % Read mat files
 
 % Add project to MATLAB path
@@ -62,28 +62,22 @@ mpc = modifyMPC();
 
 if runloop == false
 
-    testyear = 2016;
-    testmonth = 8;
-    testday = 9;
-    testhour = 3;
+    testyear = 2019;
+    testmonth = 12;
+    testday = 12;
+    testhour = 12;
     
     timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
     fprintf("Start running %s ...\n",datestr(timeStamp));
+ 
+    % Update operation conditions
+    mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat);
     
-    if timeStamp == datetime(2019,3,10,2,0,0)
-        fprintf("Skip the timestep due to daylight saving time!\n");
-    elseif timeStamp == datetime(2019,12,12,12,0,0)
-        fprintf("Skip the timestep due to data unavailability!");
-    else
-        % Operation condition update
-        mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat);
+    % Run power flow
+    resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
     
-        % PF test
-        resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
-    
-        % OPF test
-        resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
-    end
+    % Run optimal power flow
+    resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
 end
 
 %% Loop through the whole year 2019
@@ -93,31 +87,21 @@ end
 % run PF and OPF.
 
 if runloop == true
-    testyear = 2016;
-    for testmonth = 8
-        for testday = 9
-            parfor testhour = 0:23
+    testyear = 2019;
+    for testmonth = 3
+        for testday = 10
+            parfor testhour = 1:3
                 
                 timeStamp = datetime(testyear,testmonth,testday,testhour,0,0,"Format","MM/dd/uuuu HH:mm:ss");
                 fprintf("Start running %s ...\n",datestr(timeStamp));
                 
-                if timeStamp == datetime(2019,3,10,2,0,0)
-                    fprintf("Skip the timestep due to daylight saving time!");
-                    continue;
-                end
-
-                if timeStamp == datetime(2019,12,12,12,0,0)
-                    fprintf("Skip the timestep due to data unavailability!");
-                    continue;
-                end
-                
-                % Operation condition update
+                % Update operation conditions
                 mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat);
                 
-                % PF test
+                % Run power flow
                 resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
                 
-                % OPF test
+                % Run optimal power flow
                 resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
                 
                 fprintf("Success!\n");
