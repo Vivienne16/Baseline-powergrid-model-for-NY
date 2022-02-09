@@ -1,5 +1,10 @@
 function mpc = addRenewable(mpc,timeStamp)
 %ADDRENEWABLE Add additional renewable generators to the network
+%   Inputs:
+%       mpc - MATPOWER case struct.
+%       timeStamp - datetime.
+%   Outputs:
+%       mpc - updated MATPOWER case.
 
 %   Created by Bo Yuan, Cornell University
 %   Last modified on Sept. 28, 2021

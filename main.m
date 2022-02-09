@@ -15,8 +15,8 @@ tic;
 
 testyear = 2016;
 testmonth = 8;
-testday = 10;
-testhour = 11:12;
+testday = 9:15;
+testhour = 0:23;
 
 %% Runtime options
 
@@ -83,6 +83,10 @@ for y = testyear
                 fprintf("Start running %s ...\n",datestr(timeStamp));
                 % Update operation conditions
                 mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat);
+                % Add additional renewables if provided
+                if addrenew == true
+                    mpcreduced = addRenewable(mpcreduced, timeStamp);
+                end
                 % Run power flow
                 resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
                 % Run optimal power flow

@@ -67,7 +67,7 @@ fprintf("Finished solving optimal power flow!\n");
 
 if savedata
     timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
-    outfilename = fullfile(resultDir,"resultPF_"+timeStampStr+".mat");
+    outfilename = fullfile(resultDir,"resultOPF_"+timeStampStr+".mat");
     save(outfilename,"resultOPF");
     fprintf("Saved optimal power flow results!\n");
 end
