@@ -15,7 +15,7 @@ tic;
 
 testyear = 2016;
 testmonth = 8;
-testday = 9:15;
+testday = 5:15;
 testhour = 0:23;
 
 %% Runtime options
@@ -27,7 +27,7 @@ savedata = true;
 % Verbose printing or not
 verbose = false; 
 % Add additional renewable or not
-addrenew = true; 
+addrenew = false; 
 % Read mat files, otherwise read csv files
 usemat = true;
 % Add project to MATLAB path
