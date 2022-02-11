@@ -1,4 +1,4 @@
-function mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose)
+function mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat)
 %UPDATEOPCOND Update operation condition at a speficied timestamp
 % 
 %   Inputs:
@@ -42,8 +42,8 @@ fprintf("Start updating operation condition at %s.\n",datestr(timeStamp));
 [fuelMix,interFlow,flowLimit,nuclearCf,hydroCf,zonalPrice] = readOpCond(timeStamp);
 
 % Allocate load and generation
-loadData = allocateLoad(timeStamp);
-genData = allocateGen(timeStamp);
+loadData = allocateLoad(timeStamp,'weighted',usemat);
+genData = allocateGen(timeStamp,'lm',usemat);
 
 % Read renewable generation capacity allocation table
 renewableGen = importRenewableGen(fullfile("Data","RenewableGen.csv"));
@@ -58,7 +58,8 @@ fprintf("Finished reading operation conditions!\n");
 
 fprintf("Start allocating nuclear generation ...\n");
 
-numNuclear = nnz(renewableGen.PgNuclearCap);
+
+numNuclear = 6;
 genNuclear = zeros(numNuclear,21);
 
 % Nuclear generation in NYISO"s fuel mix data
@@ -70,42 +71,42 @@ count = 0;
 for i = 1:height(renewableGen)
     % Add nuclear generators
     if renewableGen.PgNuclearCap(i) ~= 0       
-        count = count+1;
         if renewableGen.BusID(i) == 50
             % Bus 50: zone C, FitzPatrick and Nine Mile Point 1 and 2
             NumNuclearOnBus = 3;
             Pgnuclear = [nuclearCf.FitzPatrickGen,nuclearCf.NineMilePoint1Gen,nuclearCf.NineMilePoint2Gen];
             Capnuclear = [854.5,629,1299];
-            
-%             renewableGen.PgNuclear(i) = nuclearCf.FitzPatrickGen...
-%                 +nuclearCf.NineMilePoint1Gen+nuclearCf.NineMilePoint2Gen;
         elseif renewableGen.BusID(i) == 74
             % Bus 74: zone H, Indian Point 2 and 3
             NumNuclearOnBus = 2;
-            
-            renewableGen.PgNuclear(i) = nuclearCf.IndianPoint2Gen...
-                +nuclearCf.IndianPoint3Gen;
+            Pgnuclear = [nuclearCf.IndianPoint2Gen,nuclearCf.IndianPoint3Gen];
+            Capnuclear = [1025.9,1039.9];
         elseif renewableGen.BusID(i) == 53
             % Bus 53: zone B, Gina
-            renewableGen.PgNuclear(i) = nuclearCf.GinnaGen;
+            NumNuclearOnBus = 1;
+            Pgnuclear = [nuclearCf.GinnaGen];
+            Capnuclear = [581.7];
         else
             error("Error: Undefined nuclear generator!");
         end     
-        
-        % Add a new row in the mpc.gen matrix
-        newrow = zeros(1,21);
-        newrow(GEN_BUS) = renewableGen.BusID(i);
-        newrow(PG) = renewableGen.PgNuclear(i);
-        newrow(QMAX) = 9999;
-        newrow(QMIN) = -9999;
-        newrow(VG) = 1;
-        newrow(MBASE) = 100;
-        newrow(GEN_STATUS) = 1;
-        newrow(PMAX) = renewableGen.PgNuclearCap(i);
-        newrow(RAMP_AGC) = 0.01*newrow(PMAX);
-        newrow(RAMP_10) = 0.1*newrow(PMAX);
-        newrow(RAMP_30) = 0.3*newrow(PMAX);
-        genNuclear(count,:) = newrow;
+        newrow = zeros(NumNuclearOnBus,21);
+        for ncl = 1:NumNuclearOnBus
+            % Add a new row in the mpc.gen matrix
+            count = count+1;
+            newrow(ncl,GEN_BUS) = renewableGen.BusID(i);
+            newrow(ncl,PG) = Pgnuclear(ncl);
+            newrow(ncl,QMAX) = 9999;
+            newrow(ncl,QMIN) = -9999;
+            newrow(ncl,VG) = 1;
+            newrow(ncl,MBASE) = 100;
+            newrow(ncl,GEN_STATUS) = 1;
+            newrow(ncl,PMAX) = Capnuclear(ncl);
+            newrow(ncl,RAMP_AGC) = 0.01*newrow(ncl,PMAX);
+            newrow(ncl,RAMP_10) = 0.1*newrow(ncl,PMAX);
+            newrow(ncl,RAMP_30) = 0.3*newrow(ncl,PMAX);
+            genNuclear(count,:) = newrow(ncl,:);
+            
+        end
     end
 end
 
@@ -175,8 +176,12 @@ fprintf("Finished allocating hydro and nuclear generators!\n");
 
 %% Allocate thermal generators in NY
 
-fprintf("Start allocating hydro generation ...\n");
+fprintf("Start allocating thermal generation ...\n");
+TotalGen = sum(fuelMix.GenMW);
+windGen = fuelMix.GenMW(fuelMix.FuelCategory == "Wind");
+orGen = fuelMix.GenMW(fuelMix.FuelCategory == "Other Renewables");
 
+ThermalNeed = TotalGen - sum(genHydro(:,PG))-sum(genNuclear(:,PG))-windGen-orGen;
 % Total thermal generation in NYISO fuel mix data
 thermalGen = fuelMix.GenMW(fuelMix.FuelCategory == "Dual Fuel")...
     +fuelMix.GenMW(fuelMix.FuelCategory == "Natural Gas")...
@@ -187,12 +192,13 @@ genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyH
 
 % Thermal generator that matched in the RGGI database?
 genThermal = zeros(height(genData),21);
+% genThermal(:,GEN_BUS) = genData.BusName;
 genThermal(:,GEN_BUS) = genData.BusName;
 genThermal(:,PG) = genData.hourlyGen;
 
 % Allocate extra thermal generation in zone J and K
 thermalGenLarge = sum(genThermal(:,PG)); % Total thermal generation from RGGI
-thermalGenSmall = thermalGen-thermalGenLarge; % Mismatch between NYISO and RGGI thermal generation
+thermalGenSmall = ThermalNeed-thermalGenLarge; % Mismatch between NYISO and RGGI thermal generation
 busIdJK = busInfo.idx(busInfo.zone == "J" | busInfo.zone == "K");
 JKidx = ismember(genThermal(:,GEN_BUS),busIdJK);
 % Weight distribution of the extra thermal generation in generators with
@@ -345,11 +351,8 @@ genHQ(VG) = 1;
 genHQ(MBASE) = 100;
 genHQ(GEN_STATUS) = 1;
 % Positive and negative interface flow limit from HQ to NY
-genHQ(PMAX) = flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
-    flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
-genHQ(PMIN) = flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
-    flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
-
+genHQ(PMAX) = 1500;
+genHQ(PMIN) = -1100;
 genExt = [genExt;genHQ];
 numExt = size(genExt,1);
 
@@ -377,14 +380,15 @@ pf_flag = 1; % Solve dc power flow
 
 fprintf("Finished calculating network reduction!\n");
 
-%% Add HVDC lines 
+%% Add HVDC lines/Replace AC to DC lines
 %	fbus	tbus	status	Pf	Pt	Qf	Qt	Vf	Vt	Pmin	Pmax	QminF	QmaxF	QminT	QmaxT	loss0	loss1
 mpcreduced.dcline = [
 	21 80	1	flowNPX1385+flowCSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
 	124 79	1	flowNeptune     0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
     125 81	1	flowHTP         0	0	0	1.01	1	-660	660	-100	100	-100    100	0	0;
-    124 75	1	flowVFT         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
+    125 81	1	flowVFT         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
 ];
+mpcreduced.branch(75,:) = [];
 mpcreduced = toggle_dcline(mpcreduced, "on");
 
 fprintf("Finished adding DC lines!\n");
@@ -474,6 +478,7 @@ for i = 1:height(renewableGen)
         count = count +1;
         % Randomly assign cost for $0-10/MWh
         gencostHydro(count,COST) = 10*rand(1);
+        
     end
 end
 

@@ -32,7 +32,11 @@ if ~isfile(outfilename) || ~isfile(matfilename)% File doesn't exist
     for n=1:numZone
         T = loadAll(loadAll.ZoneName == zoneCats(n), :);
         T = table2timetable(T(:,["TimeStamp","Load"]));
+        % Downsample to hourly
         T = retime(T,"hourly","mean");
+        % Fill missing data with linear interpolation
+        T = fillmissing(T,'linear','DataVariables',@isnumeric);
+        % Format the table
         T = timetable2table(T);
         T.ZoneName = repelem(zoneCats(n),height(T))';
         T = movevars(T,"ZoneName","After","TimeStamp");
@@ -95,9 +99,14 @@ opts.EmptyLineRule = "read";
 
 % Specify variable properties
 opts = setvaropts(opts, ["TimeZone", "ZoneName"], "EmptyFieldRule", "auto");
-opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
 
 % Import the data
-loadData = readtable(filename, opts);
+try
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
+    loadData = readtable(filename, opts);
+catch
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
+    loadData = readtable(filename, opts);
+end
 
 end

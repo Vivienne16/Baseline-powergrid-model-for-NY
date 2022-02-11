@@ -32,7 +32,11 @@ if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     for n=1:numZone
         T = priceAll(priceAll.ZoneName == zoneCats(n), :);
         T = table2timetable(T(:,["TimeStamp","LBMP","MarginalCostLosses","MarginalCostCongestion"]));
+        % Downsample to hourly
         T = retime(T,"hourly","mean");
+        % Fill missing data with linear interpolation
+        T = fillmissing(T,'linear','DataVariables',@isnumeric);
+        % Format the table
         T = timetable2table(T);
         T.ZoneName = repelem(zoneCats(n),height(T))';
         T = movevars(T,"ZoneName","After","TimeStamp");
@@ -64,6 +68,9 @@ if nargin < 2
     dataLines = [2, Inf];
 end
 
+% Turn datetime reading warning to an error and use try-catch below
+warning('error', 'MATLAB:readtable:AllNaTVariable');
+
 %% Set up the Import Options and import the data
 opts = delimitedTextImportOptions("NumVariables", 6);
 
@@ -81,9 +88,14 @@ opts.EmptyLineRule = "read";
 
 % Specify variable properties
 opts = setvaropts(opts, ["ZoneName", "PTID"], "EmptyFieldRule", "auto");
-opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
 
 % Import the data
-priceData = readtable(filename, opts);
+try
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
+    priceData = readtable(filename, opts);
+catch
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
+    priceData = readtable(filename, opts);
+end
 
 end

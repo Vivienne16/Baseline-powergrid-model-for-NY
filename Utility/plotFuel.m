@@ -1,7 +1,7 @@
-function plotFuel(timeStamp,result,fuelMix,interFlow,type,savefig,figDir)
+function plotFuel(timeStamp,result,fuelMix,interFlow,type,savefig,figDir,addrenew)
 
 [fuelSim,fuelReal,fuelError,fuelName] = ...
-    fuel4Plot(result,fuelMix,interFlow);
+    fuel4Plot(result,fuelMix,interFlow,addrenew);
 
 timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
 

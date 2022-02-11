@@ -11,7 +11,7 @@ function resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew)
 %       resultOPF - struct, optimal power flow results
 
 %   Created by Vivienne Liu, Cornell University
-%   Last modified on Sept. 24, 2021
+%   Last modified on Feb. 7, 2022
 
 %% Input parameters
 
@@ -37,12 +37,6 @@ if isempty(addrenew)
     addrenew = false;
 end
 
-% Create directory for store OPF results and plots
-resultDir = fullfile('Result',string(year(timeStamp)),'OPF');
-createDir(resultDir);
-figDir = fullfile('Result',string(year(timeStamp)),'Figure','OPF');
-createDir(figDir);
-
 %% Read operation condition for NYS
 
 [fuelMix,interFlow,flowLimit,~,~,zonalPrice] = readOpCond(timeStamp);
@@ -50,17 +44,22 @@ busInfo = importBusInfo(fullfile("Data","npcc.csv"));
 
 define_constants;
 
-%% Add additional renewables
+%% Create directory for store OPF results and plots
 
 if addrenew
-    fprintf("Start allocating additional renewables ...\n");
-    mpcreduced.bus = addRenewable(mpcreduced.bus,timeStamp);
-    fprintf("Finished allocating additional renewables in NY!\n");
+    resultDir = fullfile('Result_Renewable',string(year(timeStamp)),'OPF');
+    figDir = fullfile('Result_Renewable',string(year(timeStamp)),'Figure','OPF');
+else
+    resultDir = fullfile('Result',string(year(timeStamp)),'OPF');
+    figDir = fullfile('Result',string(year(timeStamp)),'Figure','OPF');
 end
+
+createDir(resultDir);
+createDir(figDir);
 
 %% Run OPF
 
-mpopt = mpoption( 'opf.dc.solver','GUROBI','opf.flow_lim','P');
+mpopt = mpoption('opf.flow_lim','P');
 mpcreduced = toggle_iflims(mpcreduced, 'on');
 resultOPF = rundcopf(mpcreduced,mpopt);
 
@@ -68,7 +67,7 @@ fprintf("Finished solving optimal power flow!\n");
 
 if savedata
     timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
-    outfilename = fullfile(resultDir,"resultPF_"+timeStampStr+".mat");
+    outfilename = fullfile(resultDir,"resultOPF_"+timeStampStr+".mat");
     save(outfilename,"resultOPF");
     fprintf("Saved optimal power flow results!\n");
 end
@@ -81,7 +80,7 @@ type = "OPF";
 plotFlow(timeStamp,resultOPF,interFlow,flowLimit,type,savefig,figDir);
 
 % Plot fuel mix data and error
-plotFuel(timeStamp,resultOPF,fuelMix,interFlow,type,savefig,figDir);
+plotFuel(timeStamp,resultOPF,fuelMix,interFlow,type,savefig,figDir,addrenew);
 
 % Plot price data and error
 plotPrice(timeStamp,resultOPF,zonalPrice,busInfo,type,savefig,figDir)

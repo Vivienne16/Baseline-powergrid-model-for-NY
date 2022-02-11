@@ -1,4 +1,4 @@
-function [fuelSim,fuelReal,fuelError,fuelName] = fuel4Plot(result,fuelMix,interFlow)
+function [fuelSim,fuelReal,fuelError,fuelName] = fuel4Plot(result,fuelMix,interFlow,addrenew)
 %FUEL4PLOT Construct matrices for plotting fuel mix
 
 define_constants;
@@ -6,7 +6,6 @@ define_constants;
 busIdNE = [21;29;35];
 busIdIESO = [100;102;103];
 busIdPJM = [124;125;132;134;138];
-busIdHQ = 48;
 
 resultGen = result.gen;
 
@@ -17,8 +16,8 @@ thermalGen = fuelMix.GenMW(fuelMix.FuelCategory == "Dual Fuel")...
 nuclearGen = fuelMix.GenMW(fuelMix.FuelCategory == "Nuclear");
 hydroGen = fuelMix.GenMW(fuelMix.FuelCategory == "Hydro");
 importGen = sum(interFlow.FlowMWH(contains(string(interFlow.InterfaceName),"SCH")));
-% HQGen = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - HQ_IMPORT_EXPORT");
-% importGen = importGen - HQGen;
+HQGen = interFlow.FlowMWH(interFlow.InterfaceName == "SCH - HQ_IMPORT_EXPORT");
+importGen = importGen - HQGen;
 
 fuelReal = [
     thermalGen;
@@ -33,23 +32,35 @@ thermalType = [
     "Internal Combustion";
     "Jet Engine";
     "Steam Turbine"];
-isThermal = ismember(result.gentype,thermalType);
-isNuclear = (result.gentype == "Nuclear");
-isHydro = (result.gentype == "Hydro");
-isImport = (result.gentype == "Import");
-isExtBus = ismember(result.bus(:,BUS_I),[busIdNE;busIdIESO;busIdPJM;busIdHQ]);
+isThermal = ismember(result.genfuel,thermalType);
+isNuclear = (result.genfuel == "Nuclear");
+isHydro = (result.genfuel == "Hydro");
+isImport = (result.genfuel == "Import");
+isExtBus = ismember(result.bus(:,BUS_I),[busIdNE;busIdIESO;busIdPJM]);
 demandExt = sum(result.bus(isExtBus,PD));
+
 
 fuelSim = [
     sum(resultGen(isThermal,PG));
     sum(resultGen(isNuclear,PG));
     sum(resultGen(isHydro,PG));
-    sum(resultGen(isImport,PG))-demandExt];
-
-% Fuel mix error
-fuelError = (fuelSim-fuelReal)./fuelReal;
+    sum(resultGen(isImport,PG))-demandExt
+    ];
 
 % Fuel type name
 fuelName = ["Thermal";"Nuclear";"Hydro";"Import"];
+
+if addrenew
+    isSolar = (result.genfuel == "Solar");
+    isWind = (result.genfuel == "Wind"); 
+    fuelReal = [fuelReal; 0; 0];
+    fuelSim = [fuelSim;
+        sum(resultGen(isSolar,PG));
+        sum(resultGen(isWind,PG))];
+    fuelName = [fuelName; "Solar"; "Wind"];
+end
+
+% Fuel mix error
+fuelError = (fuelSim-fuelReal)./fuelReal;
 
 end

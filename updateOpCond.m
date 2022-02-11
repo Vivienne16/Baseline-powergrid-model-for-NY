@@ -85,7 +85,7 @@ for i = 1:height(renewableGen)
             % Bus 53: zone B, Gina
             NumNuclearOnBus = 1;
             Pgnuclear = [nuclearCf.GinnaGen];
-            Capnuclear = [581.7];
+            Capnuclear = 581.7;
         else
             error("Error: Undefined nuclear generator!");
         end     
@@ -192,8 +192,8 @@ genData = fillmissing(genData,"constant",0,"DataVariables",["hourlyGen","hourlyH
 
 % Thermal generator that matched in the RGGI database?
 genThermal = zeros(height(genData),21);
-% genThermal(:,GEN_BUS) = genData.BusName;
 genThermal(:,GEN_BUS) = genData.BusName;
+% genThermal(:,GEN_BUS) = str2num(char(genData.BusName));
 genThermal(:,PG) = genData.hourlyGen;
 
 % Allocate extra thermal generation in zone J and K
@@ -351,11 +351,8 @@ genHQ(VG) = 1;
 genHQ(MBASE) = 100;
 genHQ(GEN_STATUS) = 1;
 % Positive and negative interface flow limit from HQ to NY
-genHQ(PMAX) = flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
-    flowLimit.PositiveLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
-genHQ(PMIN) = flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ - NY")+...
-    flowLimit.NegativeLimitMWH(flowLimit.InterfaceName == "SCH - HQ_CEDARS");
-
+genHQ(PMAX) = 1500;
+genHQ(PMIN) = -1100;
 genExt = [genExt;genHQ];
 numExt = size(genExt,1);
 
@@ -383,14 +380,15 @@ pf_flag = 1; % Solve dc power flow
 
 fprintf("Finished calculating network reduction!\n");
 
-%% Add HVDC lines 
+%% Add HVDC lines/Replace AC to DC lines
 %	fbus	tbus	status	Pf	Pt	Qf	Qt	Vf	Vt	Pmin	Pmax	QminF	QmaxF	QminT	QmaxT	loss0	loss1
 mpcreduced.dcline = [
 	21 80	1	flowNPX1385+flowCSC	0	0	0	1.01	1	-530	530	-100    100	-100	100	0	0;
 	124 79	1	flowNeptune     0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
     125 81	1	flowHTP         0	0	0	1.01	1	-660	660	-100	100	-100    100	0	0;
-    124 75	1	flowVFT         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
+    125 81	1	flowVFT         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
 ];
+mpcreduced.branch(75,:) = [];
 mpcreduced = toggle_dcline(mpcreduced, "on");
 
 fprintf("Finished adding DC lines!\n");
@@ -480,11 +478,12 @@ for i = 1:height(renewableGen)
         count = count +1;
         % Randomly assign cost for $0-10/MWh
         gencostHydro(count,COST) = 10*rand(1);
+        
     end
 end
 
 % Cost curve for external generators
-gencostExt = zeros(size(genExt,1),6);
+gencostExt = zeros(numExt,6);
 gencostExt(:,MODEL) = 2;
 gencostExt(:,NCOST) = 2;
 
@@ -504,7 +503,7 @@ gentypeThermal = string(genData.UnitType);
 gentypeNuclear = repelem("Nuclear",numNuclear)';
 gentypeHydro = repelem("Hydro",numHydro)';
 gentypeExt = repelem("Import",numExt)';
-mpcreduced.gentype = [gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt];
+mpcreduced.genfuel = [gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt];
 
 %% Save updated operation condtion
 if savedata

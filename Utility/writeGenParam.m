@@ -85,11 +85,11 @@ hourlyGenLarge.Properties.VariableNames(end-1:end) = ["hourlyGen","hourlyHeatInp
 hourlyGenLarge = removevars(hourlyGenLarge,"GroupCount");
 
 % Save hourly generation data
-outfilename2 = fullfile('Data','thermalGenHourly_'+string(testyear)+'.csv');
-matfilename2 = fullfile('Data','thermalGenHourly_'+string(testyear)+'.mat');
-writetable(hourlyGenLarge,outfilename2);
-save(matfilename2,'hourlyGenLarge');
-fprintf("Finished writing thermal generation data in %s and %s\n",outfilename2,matfilename2);
+% outfilename2 = fullfile('Data','thermalGenHourly_'+string(testyear)+'.csv');
+% matfilename2 = fullfile('Data','thermalGenHourly_'+string(testyear)+'.mat');
+% writetable(hourlyGenLarge,outfilename2);
+% save(matfilename2,'hourlyGenLarge');
+% fprintf("Finished writing thermal generation data in %s and %s\n",outfilename2,matfilename2);
 
 %% Generator parameter calculation
 

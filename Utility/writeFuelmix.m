@@ -14,7 +14,7 @@ matfilename = fullfile('Data','fuelmixHourly_'+string(testyear)+'.mat');
 
 if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     %% Download fuel mix data
-    downloadData(testyear,'fuelmix');
+    downloadData(testyear,'fuelmix');    
 
     %% Read fuel mix data
     fuelmixFileDir = fullfile('Prep',string(testyear),'fuelmix');
@@ -22,7 +22,7 @@ if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     fuelmixDataStore = fileDatastore(fullfile(fuelmixFileDir,fuelmixFileName),...
         "ReadFcn",@importFuelmix,"UniformRead",true,"FileExtensions",'.csv');
     fuelmixAll = readall(fuelmixDataStore);
-    clear fuelMixDataStore;
+    clear fuelMixDataStore; 
 
     %% Format fuel mix data
     fuelCats = unique(fuelmixAll.FuelCategory);
@@ -32,12 +32,17 @@ if ~isfile(outfilename) || ~isfile(matfilename) % File doesn't exist
     for n=1:numFuel
         T = fuelmixAll(fuelmixAll.FuelCategory == fuelCats(n), :);
         T = table2timetable(T(:,["TimeStamp","GenMW"]));
+        % Downsample to hourly
         T = retime(T,"hourly","mean");
+        % Fill missing data with linear interpolation
+        T = fillmissing(T,'linear','DataVariables',@isnumeric);
+        % Format the table
         T = timetable2table(T);
         T.FuelCategory = repelem(fuelCats(n),height(T))';
         T = movevars(T,"FuelCategory","After","TimeStamp");
         fuelmixHourly = [fuelmixHourly; T];
     end
+    
     fuelmixHourly = sortrows(fuelmixHourly,"TimeStamp","ascend");
 
     %% Write hourly fuel mix data
@@ -62,7 +67,10 @@ if nargin < 2
     dataLines = [2, Inf];
 end
 
-%% Setup the Import Options and import the data
+% Turn datetime reading warning to an error and use try-catch below
+warning('error', 'MATLAB:readtable:AllNaTVariable');
+
+%% Set up the Import Options and import the data
 opts = delimitedTextImportOptions("NumVariables", 4);
 
 % Specify range and delimiter
@@ -70,20 +78,23 @@ opts.DataLines = dataLines;
 opts.Delimiter = ",";
 
 % Specify column names and types
-opts.VariableNames = ["TimeStamp", "Var2", "FuelCategory", "GenMW"];
-opts.SelectedVariableNames = ["TimeStamp", "FuelCategory", "GenMW"];
-opts.VariableTypes = ["datetime", "string", "categorical", "double"];
+opts.VariableNames = ["TimeStamp", "TimeZone", "FuelCategory", "GenMW"];
+opts.VariableTypes = ["datetime", "categorical", "categorical", "double"];
 
 % Specify file level properties
 opts.ExtraColumnsRule = "ignore";
 opts.EmptyLineRule = "read";
 
 % Specify variable properties
-opts = setvaropts(opts, "Var2", "WhitespaceRule", "preserve");
-opts = setvaropts(opts, ["Var2", "FuelCategory"], "EmptyFieldRule", "auto");
-opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
+opts = setvaropts(opts, ["TimeZone", "FuelCategory"], "EmptyFieldRule", "auto");
 
 % Import the data
-fuelMix = readtable(filename, opts);
+try
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm:ss");
+    fuelMix = readtable(filename, opts);
+catch
+    opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
+    fuelMix = readtable(filename, opts);
+end
 
 end
