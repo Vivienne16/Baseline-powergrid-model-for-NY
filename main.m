@@ -13,10 +13,10 @@ tic;
 % Simulation timestep(s) for the model. 
 % Set it as an array if you want to run multiple timesteps in a loop.
 
-testyear = 2016;
-testmonth = 8;
-testday = 5:15;
-testhour = 0:23;
+testyear = 2019;
+testmonth = 1:12;
+testday = 1;
+testhour = 0;
 
 %% Runtime options
 

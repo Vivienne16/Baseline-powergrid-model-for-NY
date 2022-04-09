@@ -11,15 +11,15 @@ function resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew)
 %       resultOPF - struct, optimal power flow results
 
 %   Created by Vivienne Liu, Cornell University
-%   Last modified on Feb. 7, 2022
+%   Last modified on April 9, 2022
 
 %% Input parameters
 
 % Read reduced MATPOWER case
 if isempty(mpcreduced)
-    mpcfilename = fullfile('Result',string(year(timeStamp)),'mpcreduced',...
+    mpcfilename = fullfile('Result',num2str(year(timeStamp)),'mpcreduced',...
         "mpcreduced_"+datestr(timeStamp,"yyyymmdd_hh")+".mat");
-    load(mpcfilename,"mpcreduced");
+    mpcreduced = loadcase(mpcfilename);
 end
 
 % Save figure or not (default to save)
@@ -47,11 +47,11 @@ define_constants;
 %% Create directory for store OPF results and plots
 
 if addrenew
-    resultDir = fullfile('Result_Renewable',string(year(timeStamp)),'OPF');
-    figDir = fullfile('Result_Renewable',string(year(timeStamp)),'Figure','OPF');
+    resultDir = fullfile('Result_Renewable',num2str(year(timeStamp)),'OPF');
+    figDir = fullfile('Result_Renewable',num2str(year(timeStamp)),'Figure','OPF');
 else
-    resultDir = fullfile('Result',string(year(timeStamp)),'OPF');
-    figDir = fullfile('Result',string(year(timeStamp)),'Figure','OPF');
+    resultDir = fullfile('Result',num2str(year(timeStamp)),'OPF');
+    figDir = fullfile('Result',num2str(year(timeStamp)),'Figure','OPF');
 end
 
 createDir(resultDir);

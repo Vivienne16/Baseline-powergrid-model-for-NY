@@ -10,7 +10,7 @@ function mpcreduced = updateOpCond(mpc,timeStamp,savedata,verbose,usemat)
 %       mpcreduced - reduced MATPOWER case file.
 
 %   Created by Vivienne Liu, Cornell University
-%   Last modified on Sept. 24, 2021
+%   Last modified on April 9, 2022
 
 %% Input parameters
 
@@ -31,7 +31,7 @@ if isempty(verbose)
 end
 
 % Create directory for store OPF results and plots
-resultDir = fullfile('Result',string(year(timeStamp)),'mpcreduced');
+resultDir = fullfile('Result',num2str(year(timeStamp)),'mpcreduced');
 createDir(resultDir);
 
 %% Read operation condition
@@ -57,7 +57,6 @@ fprintf("Finished reading operation conditions!\n");
 %% Allocate nuclear generators in NY
 
 fprintf("Start allocating nuclear generation ...\n");
-
 
 numNuclear = 6;
 genNuclear = zeros(numNuclear,21);
@@ -328,7 +327,7 @@ IESOGenOld = sum(genExt(isIESOGen,PG));
 % Scale up IESO load with the same ratio in NY
 IESOLoadRatio = NYLoadRatio;
 mpc.bus(busIdIESO,PD) = mpc.bus(busIdIESO,PD)*IESOLoadRatio;
-% Scale up IESO generator with scaled laod and interface flow data
+% Scale up IESO generator with scaled load and interface flow data
 IESOGenRatio = (IESOLoadOld*IESOLoadRatio+flowIESO2NY)/IESOGenOld;
 genExt(isIESOGen,PG) = genExt(isIESOGen,PG)*IESOGenRatio;
 
@@ -508,8 +507,9 @@ mpcreduced.genfuel = [gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt];
 %% Save updated operation condtion
 if savedata
     timeStampStr = datestr(timeStamp,"yyyymmdd_hh");
-    outfilename = fullfile(resultDir,"mpcreduced_"+timeStampStr+".mat");
-    save(outfilename,"mpcreduced");
+    outfilename = fullfile(resultDir,sprintf('mpcreduced_%s.mat', timeStampStr));
+    disp(outfilename);
+    savecase(outfilename, mpcreduced);
     fprintf("Saved reduced MATPOWER case %s!\n",outfilename);    
 end
 
