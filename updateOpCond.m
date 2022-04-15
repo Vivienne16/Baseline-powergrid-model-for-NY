@@ -34,6 +34,9 @@ end
 resultDir = fullfile('Result',num2str(year(timeStamp)),'mpcreduced');
 createDir(resultDir);
 
+% Set random seed
+rng("default");
+
 %% Read operation condition
 
 fprintf("Start updating operation condition at %s.\n",datestr(timeStamp));
