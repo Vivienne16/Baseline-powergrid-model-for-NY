@@ -14,7 +14,7 @@ tic;
 % Set it as an array if you want to run multiple timesteps in a loop.
 
 testyear = 2019;
-testmonth = 1:12;
+testmonth = 1;
 testday = 1;
 testhour = 0;
 

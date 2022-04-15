@@ -458,28 +458,13 @@ gencostThermal(:,COST+1) = genData.cost_0;
 gencostNuclear = zeros(numNuclear,6);
 gencostNuclear(:,MODEL) = 2;
 gencostNuclear(:,NCOST) = 2;
-count = 0;
-for i = 1:height(renewableGen)
-    if renewableGen.PgNuclearCap(i) ~= 0
-        count = count+1;
-        % Randomly assign cost for $1-3/MWh
-        gencostNuclear(count,COST) = 1+2*rand(1);
-    end
-end
+gencostNuclear(:,COST) = 1+2*rand(numNuclear, 1);
 
 % Cost curve for hydro generators in NY
 gencostHydro = zeros(numHydro,6);
 gencostHydro(:,MODEL) = 2;
 gencostHydro(:,NCOST) = 2;
-count = 0;
-for i = 1:height(renewableGen)
-    if renewableGen.PgHydroCap(i) ~= 0
-        count = count +1;
-        % Randomly assign cost for $0-10/MWh
-        gencostHydro(count,COST) = 10*rand(1);
-        
-    end
-end
+gencostHydro(:,COST) = 10*rand(numHydro, 1);
 
 % Cost curve for external generators
 gencostExt = zeros(numExt,6);
@@ -502,7 +487,7 @@ gentypeThermal = string(genData.UnitType);
 gentypeNuclear = repelem("Nuclear",numNuclear)';
 gentypeHydro = repelem("Hydro",numHydro)';
 gentypeExt = repelem("Import",numExt)';
-mpcreduced.genfuel = [gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt];
+mpcreduced.genfuel = cellstr([gentypeThermal;gentypeNuclear;gentypeHydro;gentypeExt]);
 
 %% Save updated operation condtion
 if savedata
