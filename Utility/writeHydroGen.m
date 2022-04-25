@@ -52,7 +52,7 @@ function gen_data = downloadGenEia(series_id, capacity)
 %from EIA, e.g., Niagara and St. Lawrence hydropower
 
 % Set api root and key for EIA data downloading
-api_root = "http://api.eia.gov/series/?api_key=%s&series_id=%s";
+api_root = "https://api.eia.gov/series/?api_key=%s&series_id=%s";
 api_key = "d354782d2f6b4294936898ba3e6d00d9";
 
 % Download the data
