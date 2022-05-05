@@ -26,7 +26,7 @@ end
 %% Read NYS bus table
 
 % NYSBus = readtable("Data/bus_ny_type_zone_new.csv");
-busInfo = importBusInfo(fullfile("Data","npcc.csv"));
+busInfo = importBusInfo(fullfile("Data","npcc_new.csv"));
 NYSBus = busInfo(busInfo.zone ~= 'NA', :);
 % Subset bus with load connected, could be all types of bus
 NYSBusWLoad = NYSBus(NYSBus.sumLoadP0 > 0, :);

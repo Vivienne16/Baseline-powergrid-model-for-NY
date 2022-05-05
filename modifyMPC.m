@@ -66,10 +66,14 @@ mpc.branch((mpc.branch(:,F_BUS) == 48)&(mpc.branch(:,T_BUS)==100),RATE_A:RATE_C)
 mpc.branch((mpc.branch(:,F_BUS) == 54)&(mpc.branch(:,T_BUS)==102),RATE_A:RATE_C) = 650;
 mpc.branch((mpc.branch(:,F_BUS) == 54)&(mpc.branch(:,T_BUS)==103),RATE_A:RATE_C) = 650;
 
+%add bus
+ 
 % Add branch
 % Add E-G 
-newlineEG = [38 77 0.02 0.015 0 0 0 0 0 0 1 -360 360];
-mpc.branch = [mpc.branch;newlineEG];
+newlineEG = [38 77 0.02 0.0147 0 0 0 0 0 0 1 -360 360];
+newlineEG2 = [43 38 0.02 0.0427 0 0 0 0 0 0 1 -360 360];
+% newline765 = [47 43 0.004 0.0085 0 0 0 0 0 0 1 -360 360];
+mpc.branch = [mpc.branch;newlineEG;newlineEG2];
 
 %% Save updated MATPOWER case
 

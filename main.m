@@ -13,7 +13,7 @@ tic;
 % Simulation timestep(s) for the model. 
 % Set it as an array if you want to run multiple timesteps in a loop.
 
-testyear = 2021;
+testyear = 2019;
 testmonth = 1;
 testday = 1;
 testhour = 0;
@@ -78,7 +78,7 @@ mpc = modifyMPC();
 for y = testyear
     for m = testmonth
         for d = testday
-            parfor h = testhour
+            for h = testhour
                 timeStamp = datetime(y,m,d,h,0,0,"Format","MM/dd/uuuu HH:mm:ss");
                 fprintf("Start running %s ...\n",datestr(timeStamp));
                 % Update operation conditions
@@ -88,9 +88,9 @@ for y = testyear
                     mpcreduced = addRenewable(mpcreduced, timeStamp);
                 end
                 % Run power flow
-                resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
+%                 resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
                 % Run optimal power flow
-                resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
+%                 resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
                 fprintf("Success!\n");
             end
         end
