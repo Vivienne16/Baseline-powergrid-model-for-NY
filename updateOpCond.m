@@ -271,6 +271,9 @@ busIdNY = busInfo.idx(busInfo.zone ~= "NA");
 mpc.bus(busIdNY,PD) = loadData.PD;
 mpc.bus(busIdNY,QD) = loadData.QD; 
 
+NYLoadTot = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
+% NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
+NYLoadRatio = NYLoadTot/NYloadOld;
 if verbose
     fprintf("Total load: %.2f MW.\n",sum(mpc.bus(:,PD)));
 end
@@ -297,9 +300,9 @@ for i = 1:height(renewableGen)
             - otherCfTot*renewableGen.PgOtherCap(i);
     end
 end
-NYLoadTot = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
-% NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
-NYLoadRatio = NYLoadTot/NYloadOld;
+% NYLoadTot = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
+% % NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
+% NYLoadRatio = NYLoadTot/NYloadOld;
 
 if verbose
     fprintf("Wind: capacity: %.2f MW; generation: %.2f MW.\n",windCapTot,windGen);
@@ -414,17 +417,17 @@ fprintf("Finished adding DC lines!\n");
 
 %% Add interface flow limit
 
-branchIdA2B = [-32; 34; 37; 47];
-branchIdB2C = [-28;-29; 33; 50];
-branchIdC2E = [-16;-20;-21; 56;-62;8];
-branchIdD2E = [-24;-18;-23];
+branchIdA2B = [-33; 35; 38; 48];
+branchIdB2C = [-29;-30; 34; 51];
+branchIdC2E = [-14;-12;-3; -6;8];
+branchIdD2E = [-25;-19;-24];
 branchIdE2F = [-14;-12;-3;-6];
 branchIdE2G = 8;
 branchIdF2G = 4;
-branchIdG2H = [65;-66];
-branchIdH2I = 67;
-branchIdI2J = [73;74];
-branchIdI2K = [71;72];
+branchIdG2H = [66;-67];
+branchIdH2I = 68;
+branchIdI2J = [74;75];
+branchIdI2K = [72;73];
 mpcreduced.if.map = [
     ones(size(branchIdA2B)) branchIdA2B;
     2*ones(size(branchIdB2C)) branchIdB2C;

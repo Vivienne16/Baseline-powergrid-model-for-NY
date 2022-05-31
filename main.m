@@ -88,9 +88,9 @@ for y = testyear
                     mpcreduced = addRenewable(mpcreduced, timeStamp);
                 end
                 % Run power flow
-%                 resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
+                resultPF = PFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
                 % Run optimal power flow
-%                 resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
+                resultOPF = OPFtestcase(mpcreduced,timeStamp,savefig,savedata,addrenew);
                 fprintf("Success!\n");
             end
         end
