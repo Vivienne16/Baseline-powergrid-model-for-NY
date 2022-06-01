@@ -1,5 +1,10 @@
 function mpc = addRenewable(mpc,timeStamp)
 %ADDRENEWABLE Add additional renewable generators to the network
+%   Examples of renewable generation profiles are provides in
+%   wind_example.csv and solar_example.csv for 8/5/2016. The user need to
+%   organize the data into a table of renewable generation timeseries at
+%   each bus.
+%
 %   Inputs:
 %       mpc - MATPOWER case struct.
 %       timeStamp - datetime.
@@ -7,7 +12,7 @@ function mpc = addRenewable(mpc,timeStamp)
 %       mpc - updated MATPOWER case.
 
 %   Created by Bo Yuan, Cornell University
-%   Last modified on Sept. 28, 2021
+%   Last modified on May 31, 2022
 
 define_constants;
 
@@ -16,7 +21,7 @@ define_constants;
 fprintf("Start allocating additional renewables ...\n");
 
 % Read solar generation data
-filename = fullfile("Testing","solar_20160805_20160816.csv");
+filename = fullfile("Data","solar_example.csv");
 % A matrix of two columns: (1) busID, (2) generation
 solarGen = readSolarGen(filename, timeStamp);
 numSolar = size(solarGen, 1);
@@ -48,7 +53,7 @@ mpc = addgen2mpc(mpc, genSolar, gencostSolar, 'Solar');
 %% Add wind
 
 % Read wind generation data
-filename = fullfile("Testing","wind_20160805_20160816.csv");
+filename = fullfile("Data","wind_example.csv");
 % A matrix of two columns: (1) busID, (2) generation
 windGen = readWindGen(filename, timeStamp);
 numWind = size(windGen, 1);
@@ -138,7 +143,7 @@ opts.ExtraColumnsRule = "ignore";
 opts.EmptyLineRule = "read";
 
 % Specify variable properties
-opts = setvaropts(opts, "TimeStamp", "InputFormat", "yyyy-MM-dd HH:mm:ss");
+opts = setvaropts(opts, "TimeStamp", "InputFormat", "MM/dd/yyyy HH:mm");
 
 % Import the data
 windDataAll = readtable(filename, opts);
