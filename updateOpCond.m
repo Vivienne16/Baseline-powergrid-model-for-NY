@@ -201,12 +201,29 @@ genThermal(:,PG) = genData.hourlyGen;
 % Allocate extra thermal generation in zone J and K
 thermalGenLarge = sum(genThermal(:,PG)); % Total thermal generation from RGGI
 thermalGenSmall = ThermalNeed-thermalGenLarge; % Mismatch between NYISO and RGGI thermal generation
-busIdJK = busInfo.idx(busInfo.zone == "J" | busInfo.zone == "K");
-JKidx = ismember(genThermal(:,GEN_BUS),busIdJK);
+busIdJ = busInfo.idx(busInfo.zone == "J");
+%|busInfo.zone == "K"
+Jidx = ismember(genThermal(:,GEN_BUS),busIdJ);
 % Weight distribution of the extra thermal generation in generators with
 % non-zero generation in zone J and K
-genThermal(JKidx,PG) = genThermal(JKidx,PG)+...
-    (genThermal(JKidx,PG)~=0).*thermalGenSmall.*(genThermal(JKidx,PG)./sum(genThermal(JKidx,PG)));
+genThermal(Jidx,PG) = genThermal(Jidx,PG)+...
+    (genThermal(Jidx,PG)~=0).*1*thermalGenSmall.*(genThermal(Jidx,PG)./sum(genThermal(Jidx,PG)));
+
+busIdK = busInfo.idx(busInfo.zone == "K");
+%|busInfo.zone == "K"
+Kidx = ismember(genThermal(:,GEN_BUS),busIdK);
+% Weight distribution of the extra thermal generation in generators with
+% non-zero generation in zone J and K
+genThermal(Kidx,PG) = genThermal(Kidx,PG)+...
+    (genThermal(Kidx,PG)~=0).*0.0.*thermalGenSmall.*(genThermal(Kidx,PG)./sum(genThermal(Kidx,PG)));
+
+busIdA = busInfo.idx(busInfo.zone == "A");
+%|busInfo.zone == "K"
+Aidx = ismember(genThermal(:,GEN_BUS),busIdA);
+% Weight distribution of the extra thermal generation in generators with
+% non-zero generation in zone J and K
+genThermal(Aidx,PG) = genThermal(Aidx,PG)+...
+    (genThermal(Aidx,PG)~=0).*0.0*thermalGenSmall.*(genThermal(Aidx,PG)./sum(genThermal(Kidx,PG)));
 
 genThermal(:,QMAX) = 9999;
 genThermal(:,QMIN) = -9999;
@@ -249,14 +266,14 @@ fprintf("Finished calculating interface flow!\n");
 
 fprintf("Start updating load in NY ...\n");
 
-NYloadOld = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
-NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
-NYLoadRatio = NYLoadTot/NYloadOld;
-
+NYloadOld = sum(mpc.bus(37:82,PD));
 busIdNY = busInfo.idx(busInfo.zone ~= "NA");
 mpc.bus(busIdNY,PD) = loadData.PD;
 mpc.bus(busIdNY,QD) = loadData.QD; 
 
+NYLoadTot = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
+% NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
+NYLoadRatio = NYLoadTot/NYloadOld;
 if verbose
     fprintf("Total load: %.2f MW.\n",sum(mpc.bus(:,PD)));
 end
@@ -283,6 +300,9 @@ for i = 1:height(renewableGen)
             - otherCfTot*renewableGen.PgOtherCap(i);
     end
 end
+% NYLoadTot = sum(mpc.bus(37:82,PD)); % Total load in old NPCC-140 case in NY
+% % NYLoadTot = sum(loadData.PD); % Total hourly load in NYISO
+% NYLoadRatio = NYLoadTot/NYloadOld;
 
 if verbose
     fprintf("Wind: capacity: %.2f MW; generation: %.2f MW.\n",windCapTot,windGen);
@@ -390,24 +410,24 @@ mpcreduced.dcline = [
     125 81	1	flowHTP         0	0	0	1.01	1	-660	660	-100	100	-100    100	0	0;
     125 81	1	flowVFT         0	0	0	1.01	1	-660	660	-100	100	-100	100	0	0;
 ];
-mpcreduced.branch(75,:) = [];
+mpcreduced.branch(76,:) = [];
 mpcreduced = toggle_dcline(mpcreduced, "on");
 
 fprintf("Finished adding DC lines!\n");
 
 %% Add interface flow limit
 
-branchIdA2B = [-32; 34; 37; 47];
-branchIdB2C = [-28;-29; 33; 50];
-branchIdC2E = [-16;-20;-21; 56;-62;8];
-branchIdD2E = [-24;-18;-23];
+branchIdA2B = [-33; 35; 38; 48];
+branchIdB2C = [-29;-30; 34; 51];
+branchIdC2E = [-14;-12;-3; -6;8];
+branchIdD2E = [-25;-19;-24];
 branchIdE2F = [-14;-12;-3;-6];
 branchIdE2G = 8;
 branchIdF2G = 4;
-branchIdG2H = [65;-66];
-branchIdH2I = 67;
-branchIdI2J = [73;74];
-branchIdI2K = [71;72];
+branchIdG2H = [66;-67];
+branchIdH2I = 68;
+branchIdI2J = [74;75];
+branchIdI2K = [72;73];
 mpcreduced.if.map = [
     ones(size(branchIdA2B)) branchIdA2B;
     2*ones(size(branchIdB2C)) branchIdB2C;

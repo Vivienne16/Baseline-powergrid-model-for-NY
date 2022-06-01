@@ -40,7 +40,7 @@ end
 %% Read operation condition for NYS
 
 [fuelMix,interFlow,flowLimit,~,~,zonalPrice] = readOpCond(timeStamp);
-busInfo = importBusInfo(fullfile("Data","npcc.csv"));
+busInfo = importBusInfo(fullfile("Data","npcc_new.csv"));
 
 define_constants;
 

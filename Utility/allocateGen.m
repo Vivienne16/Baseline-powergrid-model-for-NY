@@ -33,13 +33,13 @@ genAllocation = importNearestBus(fullfile("Data","gen_bus_assignment.csv"));
 
 % Read generator parameter table
 if usemat
-    load(fullfile("Data","genParamAll.mat"),'genParamAll');
+    load(fullfile("Data","genParamAll_newramp.mat"),'genParamAll_newramp');
 else
-    genParamAll = importGenParam(fullfile("Data","genParamAll.csv"));
+    genParamAll_newramp = importGenParam(fullfile("Data","genParamAll_newramp.csv"));
 end
 
 % Allocate generator to the nearest PV bus
-genParamWBus = innerjoin(genParamAll,genAllocation,"Keys",["NYISOName","PTID"], ...
+genParamWBus = innerjoin(genParamAll_newramp,genAllocation,"Keys",["NYISOName","PTID"], ...
     "RightVariables","BusName");
 
 %% Sample hour generation
@@ -68,7 +68,7 @@ sampleFuelPrice = fuelPriceTable(fuelPriceTable.TimeStamp <= timeStamp, :);
 sampleFuelPrice = sampleFuelPrice(end, :);
 
 % Calculate generation cost curve using heat rate curve and fuel price
-sampleCostCurve = createGenCost(genParamAll,sampleFuelPrice,costtype);
+sampleCostCurve = createGenCost(genParamAll_newramp,sampleFuelPrice,costtype);
 
 % combine the results with generation parameters table
 sampleHourGen = outerjoin(sampleHourlyGenLarge,sampleCostCurve,"Keys",["NYISOName","PTID"],"MergeKeys",true);

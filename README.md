@@ -39,6 +39,7 @@ The code is written with Matlab and depends on the installation of Matpower. Ple
 1. git clone https://github.com/AndersonEnergyLab-Cornell/NYgrid
 2. Add the full folder and the subfolders to your Matlab Path
 3. Modify the main.m file to run a specific case
+4. The data format of the grid model is consistent with MATPOWER. For details, please refer to Appendix B of the [MATPOWER manual](https://matpower.org/docs/MATPOWER-manual.pdf). 
 
 
 ### Main.m
@@ -63,7 +64,6 @@ Data sources include:
         
 The main function first update the operation condition for load and generators from the historical data and store the modified mpc struct in `mpcreduced`
 Then it automatically calls the Optimal Power Flow and Power Flow test and store the result in `resultOPF` and `resultPF`, respectively. 
-        
         
 
 
